@@ -24,7 +24,26 @@ button:disabled{opacity:.35}
 .stats{display:flex;gap:6px;flex-wrap:wrap}
 .stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
 .log{height:calc(100vh - 150px);overflow:auto;background:#0d0d0d;border-radius:7px;padding:10px;font-size:13px}
+.latest-event{
+  background:#181818;
+  border:2px solid #666;
+  border-left:5px solid #fff;
+  border-radius:8px;
+  padding:12px 14px;
+  margin:10px 0 12px;
+  font-size:16px;
+  font-weight:bold;
+  line-height:1.4;
+  min-height:48px;
+}
 
+.latest-event.good{
+  border-left-color:#8fd18f;
+}
+
+.latest-event.bad{
+  border-left-color:#ee7777;
+}
 #logButton{
   position:fixed;
   right:16px;
@@ -110,6 +129,11 @@ button:disabled{opacity:.35}
 
 <div class="panel wide">
 <div id="turnTitle"></div>
+
+<div id="latestEvent" class="latest-event">
+Waiting for the night to begin...
+</div>
+
 <div id="actions"></div>
 </div>
 
@@ -244,10 +268,48 @@ let combat=null;
 
 const d6=()=>1+Math.floor(Math.random()*6);
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function specialChargeRate(rarity){
+  const rates={
+    "Common":20,
+    "Uncommon":25,
+    "Rare":34,
+    "Epic":50,
+    "Legendary":100,
+    "G.O.A.T":50
+  };
 
+  return rates[rarity]||20;
+}
+
+function chargeSpecial(p){
+  if(p.specialCharge>=100)return;
+
+  let amount=specialChargeRate(p.rarity);
+
+  p.specialCharge=Math.min(100,p.specialCharge+amount);
+
+  log(`🔥 ${p.name}'s Special Meter increased to ${p.specialCharge}%.`,
+      p.specialCharge>=100?"good":"");
+
+  if(p.specialCharge>=100){
+    log(`⚡ ${p.name}'s SPECIAL ABILITY IS READY!`,"good");
+  }
+}
 function log(t,c=""){
-G.log.unshift(`<div class="${c}">${t}</div>`);
-renderLog();
+  G.log.unshift(`<div class="${c}">${t}</div>`);
+
+  const latest=document.getElementById("latestEvent");
+
+  if(latest){
+    latest.className="latest-event";
+
+    if(c==="good") latest.classList.add("good");
+    if(c==="bad") latest.classList.add("bad");
+
+    latest.innerHTML=t;
+  }
+
+  renderLog();
 }
 
 function startGame(n){
@@ -264,6 +326,9 @@ weapon:s.weapon,
 weaponDamage:s.damage,
 weaponAbility:s.weaponAbility,
 ability:s.ability,
+specialCharge:s.rarity==="G.O.A.T"?100:0,
+specialUses:0,
+enemyStunned:false,
 fear:0,
 loc:"motel",
 actions:3,
@@ -474,12 +539,10 @@ if(!combat)return;
 
 let p=G.ps[G.active];
 
-let w=p.items.find(i=>i.type==="weapon");
-
-if(!w){
-log("You need a weapon to attack.","bad");
-return;
-}
+let w={
+  name:p.weapon,
+  val:p.weaponDamage
+};
 
 useAction(1,()=>{
 
@@ -497,7 +560,7 @@ let dmg=w.val+(r===6?3:0);
 combat.hp-=dmg;
 
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
-
+chargeSpecial(p);
 if(combat.hp<=0){
 
 log(`${combat.name} is defeated!`,"good");
@@ -815,7 +878,13 @@ ${sp.weaponAbility}
 
 <b>✨ CHARACTER ABILITY</b><br>
 ${sp.ability}
+<br><br>
 
+<b>⚡ SPECIAL ABILITY</b><br>
+<div class="special-bar">
+ <div class="special-fill" style="width:${sp.specialCharge}%"></div>
+</div>
+<span class="muted">${sp.specialCharge}% Charged</span>
 </div>
 
 </div>
@@ -896,7 +965,7 @@ document.getElementById("actions").innerHTML=
 <br><br>
 
 <button onclick="attack()">Attack</button>
-
+<button onclick="useSpecial()">⚡ USE SPECIAL</button>
 <button onclick="flee()">Flee</button>`;
 
 }
@@ -909,7 +978,39 @@ document.getElementById("actions").innerHTML=
 
 renderLog();
 }
+function useSpecial(){
 
+  if(!combat)return;
+
+  let p=G.ps[G.active];
+
+  if(p.specialCharge<100){
+    log(`⚡ ${p.name}'s Special Ability is only ${p.specialCharge}% charged.`,"bad");
+    return;
+  }
+
+  let dmg=Math.ceil(p.weaponDamage*1.5);
+
+  if(p.rarity==="G.O.A.T" && p.specialUses===0){
+    dmg=Math.ceil(dmg*1.25);
+    log(`🐐 G.O.A.T BONUS! ${p.name}'s first Special deals 25% extra damage!`,"good");
+  }
+
+  combat.hp-=dmg;
+
+  log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
+
+  p.specialCharge=0;
+  p.specialUses++;
+
+  if(combat.hp<=0){
+    log(`${combat.name} is destroyed by the Special Ability!`,"good");
+    G.creatures=G.creatures.filter(c=>c!==combat);
+    combat=null;
+  }
+
+  render();
+}
 function renderLog(){
 
 if(!G)return;
