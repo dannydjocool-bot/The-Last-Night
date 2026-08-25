@@ -20,6 +20,7 @@ button:disabled{opacity:.35}
 .loc.current{outline:2px solid white}
 .loc.locked{opacity:.4}
 .card{background:#171717;border:1px solid #444;border-radius:8px;padding:9px;margin:6px 0}
+  .survivor-img{width:100%;max-width:320px;display:block;margin:0 auto 10px;border-radius:10px;border:1px solid #555}
 .stats{display:flex;gap:6px;flex-wrap:wrap}
 .stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
 .log{height:220px;overflow:auto;background:#0d0d0d;border-radius:7px;padding:8px;font-size:12px}
@@ -629,8 +630,18 @@ ${discovered&&connected?
 
 }).join("");
 
+let survivorImages={
+"The Doctor":"doctor.png",
+"The Hunter":"hunter.png",
+"The Journalist":"journalist.png",
+"The Mechanic":"mechanic.png",
+"The Stranger":"stranger.png"
+};
+
 document.getElementById("player").innerHTML=
 `<div class="card">
+
+<img class="survivor-img" src="${survivorImages[p.name]}" alt="${p.name}">
 
 <b>${p.name}</b>
 
@@ -647,7 +658,6 @@ document.getElementById("player").innerHTML=
 </div>
 
 </div>`;
-
 document.getElementById("inventory").innerHTML=
 
 p.items.map((i,idx)=>
