@@ -105,12 +105,47 @@ const L=[
 const LM=Object.fromEntries(L.map(x=>[x[0],x]));
 
 const S=[
-["The Doctor",8,7],
-["The Hunter",10,5],
-["The Journalist",7,8],
-["The Mechanic",9,6],
-["The Stranger",8,8]
+{name:"The Doctor",hp:8,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
+{name:"The Hunter",hp:10,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
+{name:"The Runaway",hp:6,san:7,rarity:"Common",weight:20,image:"runaway.png",weapon:"Switchblade",damage:3,weaponAbility:"Quick Strike — First attack each combat costs 0 Actions.",ability:"Adrenaline Rush — Below 4 HP, gain +1 Action."},
+
+{name:"The Journalist",hp:7,san:8,rarity:"Uncommon",weight:12,image:"journalist.png",weapon:"Heavy Camera",damage:2,weaponAbility:"Flashbang — Once per combat, prevent the enemy's next attack.",ability:"Expose — Better rewards from investigations."},
+{name:"The Priest",hp:7,san:9,rarity:"Uncommon",weight:12,image:"priest.png",weapon:"Blessed Crucifix",damage:4,weaponAbility:"Exorcism — Bonus damage against supernatural creatures.",ability:"Faith — Remove 1 Fear from all Survivors once per game."},
+
+{name:"The Mechanic",hp:9,san:6,rarity:"Rare",weight:6,image:"mechanic.png",weapon:"Modified Nail Gun",damage:5,weaponAbility:"Overcharge — Spend +1 Action to deal +4 damage.",ability:"Engineering — Improved repair and item effects."},
+{name:"The Ex-Cop",hp:10,san:7,rarity:"Rare",weight:6,image:"excop.png",weapon:"Service Revolver",damage:6,weaponAbility:"Double Tap — Successful attacks may fire again.",ability:"Tactical Training — Gain +1 Action when combat begins."},
+
+{name:"The Occultist",hp:7,san:10,rarity:"Epic",weight:2,image:"occultist.png",weapon:"Ritual Dagger",damage:5,weaponAbility:"Blood Magic — Sacrifice 2 HP to deal +5 damage.",ability:"Dark Knowledge — See enemy weaknesses."},
+
+{name:"The Stranger",hp:8,san:8,rarity:"Legendary",weight:1,image:"stranger.png",weapon:"Blackwood Blade",damage:7,weaponAbility:"Unknown Power — Critical hits restore 2 HP and 2 Sanity.",ability:"Beyond Understanding — Resistant to negative events."},
+
+{name:"The Chosen",hp:12,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
+{name:"The Reaper",hp:11,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."}
 ];
+
+function drawSurvivors(amount){
+let pool=[...S];
+let chosen=[];
+
+while(chosen.length<amount && pool.length){
+let total=pool.reduce((sum,s)=>sum+s.weight,0);
+let roll=Math.random()*total;
+let pick=0;
+
+for(let i=0;i<pool.length;i++){
+roll-=pool[i].weight;
+if(roll<=0){
+pick=i;
+break;
+}
+}
+
+chosen.push(pool[pick]);
+pool.splice(pick,1);
+}
+
+return chosen;
+}
 
 const ITEMS=[
 ["Flashlight","tool",0],
@@ -154,11 +189,18 @@ renderLog();
 
 function startGame(n){
 
-let ps=S.slice(0,n).map(s=>({
-name:s[0],
-maxHp:s[1],
-hp:s[1],
-san:s[2],
+let ps=drawSurvivors(n).map(s=>({
+name:s.name,
+maxHp:s.hp,
+hp:s.hp,
+san:s.san,
+maxSan:s.san,
+rarity:s.rarity,
+image:s.image,
+weapon:s.weapon,
+weaponDamage:s.damage,
+weaponAbility:s.weaponAbility,
+ability:s.ability,
 fear:0,
 loc:"motel",
 actions:3,
@@ -630,30 +672,54 @@ ${discovered&&connected?
 
 }).join("");
 
-let survivorImages={
-"The Doctor":"doctor.png",
-"The Hunter":"hunter.png",
-"The Journalist":"journalist.png",
-"The Mechanic":"mechanic.png",
-"The Stranger":"stranger.png"
+const rarityStyles={
+Common:{color:"#a8a8a8",label:"COMMON"},
+Uncommon:{color:"#4caf50",label:"UNCOMMON"},
+Rare:{color:"#2196f3",label:"RARE"},
+Epic:{color:"#9c27b0",label:"EPIC"},
+Legendary:{color:"#ffc107",label:"LEGENDARY"},
+"G.O.A.T":{color:"#ffffff",label:"🐐 G.O.A.T"}
 };
 
 document.getElementById("player").innerHTML=
-G.ps.map((sp,index)=>`
+G.ps.map((sp,index)=>{
+
+let rarity=rarityStyles[sp.rarity]||rarityStyles.Common;
+
+let goatGlow=sp.rarity==="G.O.A.T"
+?`box-shadow:0 0 18px #fff,0 0 32px #7c4dff,0 0 44px #00e5ff;`
+:"";
+
+return`
 
 <div class="card" style="
+border:2px solid ${rarity.color};
+${goatGlow}
 ${index===G.active
-?'border:2px solid white;box-shadow:0 0 12px rgba(255,255,255,.35);'
+?'transform:scale(1.01);'
 :'opacity:.72;'}
 ">
 
 <img class="survivor-img"
-src="${survivorImages[sp.name]}"
+src="${sp.image}"
 alt="${sp.name}">
 
-<b>
+<div style="
+font-weight:bold;
+font-size:18px;
+margin-bottom:4px;
+">
 ${index===G.active?'▶️ ':''}${sp.name}
-</b>
+</div>
+
+<div style="
+color:${rarity.color};
+font-weight:bold;
+letter-spacing:1px;
+margin-bottom:6px;
+">
+${rarity.label}
+</div>
 
 ${index===G.active
 ?'<div class="good">CURRENT TURN</div>'
@@ -663,7 +729,7 @@ ${index===G.active
 
 <span class="stat">❤️ ${sp.hp}/${sp.maxHp}</span>
 
-<span class="stat">🧠 ${sp.san}</span>
+<span class="stat">🧠 ${sp.san}/${sp.maxSan}</span>
 
 <span class="stat">😨 ${sp.fear}/5</span>
 
@@ -671,9 +737,29 @@ ${index===G.active
 
 </div>
 
+<div class="card" style="margin-top:10px;border-color:${rarity.color};">
+
+<b>⚔️ SIGNATURE WEAPON</b><br>
+${sp.weapon}<br>
+<span class="muted">Damage: ${sp.weaponDamage}</span>
+
+<br><br>
+
+<b>🔥 WEAPON ABILITY</b><br>
+${sp.weaponAbility}
+
+<br><br>
+
+<b>✨ CHARACTER ABILITY</b><br>
+${sp.ability}
+
 </div>
 
-`).join("");
+</div>
+
+`;
+
+}).join("");
 document.getElementById("inventory").innerHTML=
 
 p.items.map((i,idx)=>
