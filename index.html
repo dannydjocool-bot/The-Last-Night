@@ -23,9 +23,66 @@ button:disabled{opacity:.35}
   .survivor-img{width:100%;max-width:320px;display:block;margin:0 auto 10px;border-radius:10px;border:1px solid #555}
 .stats{display:flex;gap:6px;flex-wrap:wrap}
 .stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
-.log{height:220px;overflow:auto;background:#0d0d0d;border-radius:7px;padding:8px;font-size:12px}
+.log{height:calc(100vh - 150px);overflow:auto;background:#0d0d0d;border-radius:7px;padding:10px;font-size:13px}
+
+#logButton{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:9999;
+  padding:12px 16px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+#logPanel{
+  position:fixed;
+  right:16px;
+  bottom:70px;
+  width:min(420px,calc(100vw - 32px));
+  max-height:70vh;
+  z-index:9998;
+  display:none;
+  overflow:hidden;
+  box-shadow:0 0 25px rgba(0,0,0,.8);
+}
+
+#logPanel.log-open{
+  display:block;
+}
+
+#logPanel .log{
+  height:50vh;
+  max-height:450px;
+  overflow-y:auto;
+}
+
+#logClose{
+  float:right;
+  display:inline-block;
+  cursor:pointer;
+}
+
+@media(max-width:600px){
+  #logButton{
+    right:12px;
+    bottom:12px;
+  }
+
+  #logPanel{
+    left:10px;
+    right:10px;
+    bottom:65px;
+    width:auto;
+    max-height:70vh;
+  }
+
+  #logPanel .log{
+    height:55vh;
+  }
+}
 .muted{color:#aaa}.good{color:#8fd18f}.bad{color:#ee7777}
-@media(max-width:850px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.map{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -75,10 +132,16 @@ button:disabled{opacity:.35}
 <div id="creatures"></div>
 </div>
 
-<div class="panel wide">
-<h3>GAME LOG</h3>
-<div id="log" class="log"></div>
+<!-- GAME LOG -->
+<div id="logPanel" class="panel wide">
+  <h3>
+    GAME LOG
+    <button id="logClose" onclick="toggleLog()">✕</button>
+  </h3>
+  <div id="log" class="log"></div>
 </div>
+
+<button id="logButton" onclick="toggleLog()">📜 GAME LOG</button>
 
 </div>
 </div>
@@ -853,7 +916,9 @@ if(!G)return;
 
 document.getElementById("log").innerHTML=G.log.join("");
 }
-
+function toggleLog(){
+  document.getElementById("logPanel").classList.toggle("log-open");
+}
 </script>
 
 </body>
