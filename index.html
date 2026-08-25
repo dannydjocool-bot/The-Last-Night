@@ -248,11 +248,57 @@ const ITEMS=[
 ];
 
 const CRE=[
-["The Stalker",12,3],
-["The Mimic",9,4],
-["The Crawling Man",15,5],
-["The Whisperer",7,2],
-["The Hollow",20,6]
+
+{
+name:"The Whisperer",
+hp:7,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"whisperer.png",
+ability:"Whispers of Fear — Counter-attacks can drain Sanity."
+},
+
+{
+name:"The Mimic",
+hp:9,
+atk:4,
+rarity:"Uncommon",
+weight:12,
+image:"mimic.png",
+ability:"Perfect Imitation — Can copy the last attack used against it."
+},
+
+{
+name:"The Stalker",
+hp:12,
+atk:3,
+rarity:"Rare",
+weight:6,
+image:"stalker.png",
+ability:"Relentless Pursuit — Becomes stronger after being provoked."
+},
+
+{
+name:"The Crawling Man",
+hp:15,
+atk:5,
+rarity:"Epic",
+weight:2,
+image:"crawlingman.png",
+ability:"Unnatural Reach — Its attacks can bypass some protection."
+},
+
+{
+name:"The Hollow",
+hp:20,
+atk:6,
+rarity:"Legendary",
+weight:1,
+image:"hollow.png",
+ability:"Void Consumption — Can drain Actions from its victim."
+}
+
 ];
 
 const EVENTS=[
@@ -507,20 +553,37 @@ check(p);
 
 function spawn(loc){
 
-let b=rnd(CRE);
+let total=CRE.reduce((sum,c)=>sum+c.weight,0);
+let roll=Math.random()*total;
+let b=CRE[0];
+
+for(let i=0;i<CRE.length;i++){
+  roll-=CRE[i].weight;
+
+  if(roll<=0){
+    b=CRE[i];
+    break;
+  }
+}
 
 let c={
-id:Date.now()+Math.random(),
-name:b[0],
-hp:b[1],
-maxHp:b[1],
-atk:b[2],
-loc
+  id:Date.now()+Math.random(),
+  name:b.name,
+  hp:b.hp,
+  maxHp:b.hp,
+  atk:b.atk,
+  rarity:b.rarity,
+  image:b.image,
+  ability:b.ability,
+  loc
 };
 
 G.creatures.push(c);
 
-log(`A <b>${c.name}</b> appears!`,"bad");
+log(
+  `👹 A <b>${c.rarity} ${c.name}</b> appears!`,
+  "bad"
+);
 }
 
 function startCombat(id){
@@ -928,11 +991,36 @@ document.getElementById("creatures").innerHTML=
 
 here.map(c=>
 
-`<div class="card">
+`<div class="card" style="
+border:2px solid ${
+c.rarity==="Common"?"#a8a8a8":
+c.rarity==="Uncommon"?"#4caf50":
+c.rarity==="Rare"?"#2196f3":
+c.rarity==="Epic"?"#9c27b0":
+c.rarity==="Legendary"?"#ffc107":
+"#777"
+};
+">
 
-<b>${c.name}</b>
+<img class="survivor-img"
+src="${c.image}"
+alt="${c.name}">
 
-<br>
+<div style="
+font-size:18px;
+font-weight:bold;
+margin-bottom:4px;
+">
+👹 ${c.name}
+</div>
+
+<div style="
+font-weight:bold;
+letter-spacing:1px;
+margin-bottom:8px;
+">
+${c.rarity.toUpperCase()}
+</div>
 
 ❤️ ${c.hp}/${c.maxHp}
 
@@ -940,7 +1028,12 @@ here.map(c=>
 
 ⚔️ Damage ${c.atk}
 
-<br>
+<br><br>
+
+<b>🔥 CREATURE ABILITY</b><br>
+<span class="muted">${c.ability}</span>
+
+<br><br>
 
 <button onclick="startCombat('${c.id}')">
 Fight
