@@ -639,25 +639,41 @@ let survivorImages={
 };
 
 document.getElementById("player").innerHTML=
-`<div class="card">
+G.ps.map((sp,index)=>`
 
-<img class="survivor-img" src="${survivorImages[p.name]}" alt="${p.name}">
+<div class="card" style="
+${index===G.active
+?'border:2px solid white;box-shadow:0 0 12px rgba(255,255,255,.35);'
+:'opacity:.72;'}
+">
 
-<b>${p.name}</b>
+<img class="survivor-img"
+src="${survivorImages[sp.name]}"
+alt="${sp.name}">
+
+<b>
+${index===G.active?'▶️ ':''}${sp.name}
+</b>
+
+${index===G.active
+?'<div class="good">CURRENT TURN</div>'
+:'<div class="muted">Waiting</div>'}
 
 <div class="stats">
 
-<span class="stat">❤️ ${p.hp}/${p.maxHp}</span>
+<span class="stat">❤️ ${sp.hp}/${sp.maxHp}</span>
 
-<span class="stat">🧠 ${p.san}</span>
+<span class="stat">🧠 ${sp.san}</span>
 
-<span class="stat">😨 ${p.fear}/5</span>
+<span class="stat">😨 ${sp.fear}/5</span>
 
-<span class="stat">⚡ ${p.actions}</span>
+<span class="stat">⚡ ${sp.actions}</span>
 
 </div>
 
-</div>`;
+</div>
+
+`).join("");
 document.getElementById("inventory").innerHTML=
 
 p.items.map((i,idx)=>
