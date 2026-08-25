@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Last Night</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#eee;font-family:Arial,sans-serif}
+header{padding:16px 20px;background:#111;border-bottom:1px solid #333;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:24px;letter-spacing:2px}
+button{background:#252525;color:#fff;border:1px solid #555;border-radius:8px;padding:10px 12px;margin:4px;cursor:pointer}
+button:disabled{opacity:.35}
+.wrap{max-width:1100px;margin:auto;padding:14px}
+.grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}
+.panel{background:#121212;border:1px solid #303030;border-radius:10px;padding:12px}
+.wide{grid-column:1/-1}
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.loc{min-height:72px;background:#181818;border:1px solid #444;border-radius:7px;padding:7px;font-size:12px}
+.loc.current{outline:2px solid white}
+.loc.locked{opacity:.4}
+.card{background:#171717;border:1px solid #444;border-radius:8px;padding:9px;margin:6px 0}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
+.log{height:220px;overflow:auto;background:#0d0d0d;border-radius:7px;padding:8px;font-size:12px}
+.muted{color:#aaa}.good{color:#8fd18f}.bad{color:#ee7777}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.map{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>THE LAST NIGHT</h1>
+<div class="muted">Horror Card Game</div>
+</header>
+
+<div class="wrap">
+
+<div id="setup" class="panel">
+<h2>Start Game</h2>
+<p>You wake up in Blackwood. Something is hunting you.</p>
+<p>Choose the number of Survivors:</p>
+
+<button onclick="startGame(1)">1 Survivor</button>
+<button onclick="startGame(2)">2 Survivors</button>
+<button onclick="startGame(3)">3 Survivors</button>
+<button onclick="startGame(4)">4 Survivors</button>
+<button onclick="startGame(5)">5 Survivors</button>
+</div>
+
+<div id="game" class="grid" style="display:none">
+
+<div class="panel wide">
+<div id="turnTitle"></div>
+<div id="actions"></div>
+</div>
+
+<div class="panel">
+<h3>MAP</h3>
+<div id="map" class="map"></div>
+</div>
+
+<div class="panel">
+<h3>SURVIVOR</h3>
+<div id="player"></div>
+<h3>INVENTORY</h3>
+<div id="inventory"></div>
+</div>
+
+<div class="panel">
+<h3>LOCATION</h3>
+<div id="location"></div>
+<h3>CREATURES</h3>
+<div id="creatures"></div>
+</div>
+
+<div class="panel wide">
+<h3>GAME LOG</h3>
+<div id="log" class="log"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const L=[
+["motel","Riverside Motel",["gas","forest","station"]],
+["gas","Abandoned Gas Station",["motel","forest"]],
+["forest","Blackwood Forest",["motel","gas","cemetery","chapel"]],
+["cemetery","Old Cemetery",["forest","chapel"]],
+["chapel","The Chapel",["forest","cemetery","hospital"]],
+["station","Police Station",["motel","hospital","library"]],
+["hospital","Abandoned Hospital",["station","chapel","school","tunnel"]],
+["library","Town Library",["station","school"]],
+["school","Blackwood School",["library","hospital","tunnel"]],
+["tunnel","Underground Tunnel",["hospital","school","house"]],
+["house","The Old House",["tunnel","basement"]],
+["basement","The Basement",["house","ritual"]],
+["ritual","The Ritual Chamber",["basement","hollow"]],
+["hollow","The Hollow",["ritual","gate"]],
+["gate","The Escape Gate",["hollow"]]
+];
+
+const LM=Object.fromEntries(L.map(x=>[x[0],x]));
+
+const S=[
+["The Doctor",8,7],
+["The Hunter",10,5],
+["The Journalist",7,8],
+["The Mechanic",9,6],
+["The Stranger",8,8]
+];
+
+const ITEMS=[
+["Flashlight","tool",0],
+["First Aid Kit","heal",4],
+["Old Revolver","weapon",5],
+["Rusty Key","key",0],
+["Camera","tool",0],
+["Hunting Knife","weapon",2],
+["Shotgun","weapon",8],
+["Fire Axe","weapon",6],
+["Calmative","san",3],
+["Emergency Rations","fear",2]
+];
+
+const CRE=[
+["The Stalker",12,3],
+["The Mimic",9,4],
+["The Crawling Man",15,5],
+["The Whisperer",7,2],
+["The Hollow",20,6]
+];
+
+const EVENTS=[
+["Lights Out","Your flashlight flickers."],
+["Something Moved","Lose 1 Sanity."],
+["Footsteps","A creature appears nearby."],
+["Don't Look Behind You","Gain 1 Fear."],
+["The Door Opens","A creature appears immediately."]
+];
+
+let G=null;
+let combat=null;
+
+const d6=()=>1+Math.floor(Math.random()*6);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+function log(t,c=""){
+G.log.unshift(`<div class="${c}">${t}</div>`);
+renderLog();
+}
+
+function startGame(n){
+
+let ps=S.slice(0,n).map(s=>({
+name:s[0],
+maxHp:s[1],
+hp:s[1],
+san:s[2],
+fear:0,
+loc:"motel",
+actions:3,
+items:[
+{name:"Flashlight",type:"tool",val:0},
+objItem(rnd(ITEMS.slice(1)))
+]
+}));
+
+G={
+ps,
+active:0,
+night:1,
+clues:0,
+discovered:new Set(["motel","gas","forest","station"]),
+creatures:[],
+log:[]
+};
+
+document.getElementById("setup").style.display="none";
+document.getElementById("game").style.display="grid";
+
+log("The survivors wake at the Riverside Motel.","good");
+log("Find 3 clues and reach the Escape Gate before Night 10.");
+
+startTurn();
+}
+
+function objItem(x){
+return{name:x[0],type:x[1],val:x[2]};
+}
+
+function startTurn(){
+
+let p=G.ps[G.active];
+p.actions=3;
+
+let e=rnd(EVENTS);
+
+log(`<b>EVENT:</b> ${e[0]} — ${e[1]}`);
+
+if(e[0]==="Something Moved")
+p.san=Math.max(0,p.san-1);
+
+if(e[0]==="Footsteps"||e[0]==="The Door Opens")
+spawn(p.loc);
+
+if(e[0]==="Don't Look Behind You")
+p.fear++;
+
+check(p);
+render();
+}
+
+function useAction(cost,fn){
+
+let p=G.ps[G.active];
+
+if(p.actions<cost){
+log("You don't have enough actions.","bad");
+return;
+}
+
+p.actions-=cost;
+fn();
+render();
+}
+
+function move(id){
+
+let p=G.ps[G.active];
+
+if(!LM[p.loc][2].includes(id)){
+log("That location isn't connected.");
+return;
+}
+
+if(id==="gate"&&G.clues<3){
+log("The Escape Gate is sealed. Find 3 clues.","bad");
+return;
+}
+
+p.loc=id;
+G.discovered.add(id);
+
+LM[id][2].forEach(x=>G.discovered.add(x));
+
+log(`${p.name} moves to ${LM[id][1]}.`);
+
+if(
+["forest","hospital","school","tunnel","house","basement","ritual","hollow"].includes(id)
+&&Math.random()<.35
+) encounter();
+}
+
+function search(){
+
+let p=G.ps[G.active];
+let r=d6();
+
+log(`${p.name} searches and rolls ${r}.`);
+
+if(r===1){
+encounter();
+}
+else if(r<=3){
+log("Nothing useful.");
+}
+else if(r===4){
+gainItem();
+}
+else if(r===5){
+gainClue();
+}
+else{
+gainItem();
+gainClue();
+}
+}
+
+function gainItem(){
+
+let p=G.ps[G.active];
+
+if(p.items.length>=4){
+log("Inventory is full.");
+return;
+}
+
+let i=objItem(rnd(ITEMS));
+
+p.items.push(i);
+
+log(`Found <b>${i.name}</b>.`,"good");
+}
+
+function gainClue(){
+
+if(G.clues>=3){
+log("You already have enough clues.");
+return;
+}
+
+G.clues++;
+
+log(`Found a clue. ${G.clues}/3 clues collected.`,"good");
+
+if(G.clues===3){
+G.discovered.add("house");
+log("The clues point toward the Old House...","good");
+}
+}
+
+function encounter(){
+
+let p=G.ps[G.active];
+let r=d6();
+
+if(r<=2){
+p.san=Math.max(0,p.san-1);
+log("A whisper crawls through the darkness. Lose 1 Sanity.","bad");
+}
+else if(r<=4){
+p.fear++;
+log("Something watches you. Gain 1 Fear.","bad");
+}
+else if(r===5){
+gainItem();
+}
+else{
+spawn(p.loc);
+}
+
+check(p);
+}
+
+function spawn(loc){
+
+let b=rnd(CRE);
+
+let c={
+id:Date.now()+Math.random(),
+name:b[0],
+hp:b[1],
+maxHp:b[1],
+atk:b[2],
+loc
+};
+
+G.creatures.push(c);
+
+log(`A <b>${c.name}</b> appears!`,"bad");
+}
+
+function startCombat(id){
+
+combat=G.creatures.find(c=>String(c.id)===String(id));
+
+if(combat)
+log(`Combat begins against ${combat.name}.`,"bad");
+
+render();
+}
+
+function attack(){
+
+if(!combat)return;
+
+let p=G.ps[G.active];
+
+let w=p.items.find(i=>i.type==="weapon");
+
+if(!w){
+log("You need a weapon to attack.","bad");
+return;
+}
+
+useAction(1,()=>{
+
+let r=d6();
+
+log(`Attack roll: ${r}`);
+
+if(r<=3){
+log("Your attack misses.","bad");
+}
+else{
+
+let dmg=w.val+(r===6?3:0);
+
+combat.hp-=dmg;
+
+log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
+
+if(combat.hp<=0){
+
+log(`${combat.name} is defeated!`,"good");
+
+G.creatures=G.creatures.filter(c=>c!==combat);
+
+combat=null;
+return;
+}
+}
+
+if(combat)
+creatureAttack(combat);
+
+});
+}
+
+function flee(){
+
+if(!combat)return;
+
+useAction(1,()=>{
+
+let p=G.ps[G.active];
+let r=d6();
+
+if(r<=2){
+
+p.fear++;
+
+log("You fail to escape. Gain 1 Fear.","bad");
+
+creatureAttack(combat);
+
+}
+else{
+
+let exits=LM[p.loc][2];
+
+p.loc=rnd(exits);
+
+G.discovered.add(p.loc);
+
+log(`You escape to ${LM[p.loc][1]}.`,"good");
+
+combat=null;
+}
+
+});
+}
+
+function creatureAttack(c){
+
+let p=G.ps[G.active];
+
+let damage=c.atk;
+
+if(p.fear>=4)
+damage++;
+
+p.hp-=damage;
+
+log(`${c.name} attacks for ${damage} damage.`,"bad");
+
+check(p);
+}
+
+function useItem(i){
+
+let p=G.ps[G.active];
+let it=p.items[i];
+
+if(!it)return;
+
+if(it.type==="heal"){
+
+p.hp=Math.min(p.maxHp,p.hp+it.val);
+
+log(`${p.name} uses ${it.name} and restores ${it.val} Health.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="san"){
+
+p.san=Math.min(10,p.san+it.val);
+
+log(`${p.name} regains ${it.val} Sanity.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="fear"){
+
+p.fear=Math.max(0,p.fear-it.val);
+
+log(`${p.name} reduces Fear.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="key"){
+
+let locked=L.find(x=>!G.discovered.has(x[0]));
+
+if(locked){
+
+G.discovered.add(locked[0]);
+
+log(`The Rusty Key reveals ${locked[1]}.`,"good");
+
+}
+
+p.items.splice(i,1);
+
+}
+else{
+
+log(`${it.name} has no active effect right now.`);
+}
+
+render();
+}
+
+function recover(){
+
+let p=G.ps[G.active];
+
+p.san=Math.min(10,p.san+2);
+p.fear=Math.max(0,p.fear-1);
+
+log(`${p.name} takes a moment to recover.`,"good");
+}
+
+function check(p){
+
+if(p.hp<=0){
+
+p.hp=0;
+
+alert(`${p.name} has been killed.\n\nTHE LAST NIGHT CLAIMS YOU.`);
+
+location.reload();
+
+return;
+}
+
+if(p.san<=0){
+
+p.san=1;
+p.fear=Math.min(5,p.fear+2);
+
+log(`${p.name} BREAKS. Gain 2 Fear.`,"bad");
+}
+}
+
+function endTurn(){
+
+if(combat){
+log("You must defeat the creature or flee first.","bad");
+return;
+}
+
+let p=G.ps[G.active];
+
+if(p.loc==="gate"&&G.clues>=3){
+
+alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
+
+location.reload();
+
+return;
+}
+
+G.active++;
+
+if(G.active>=G.ps.length){
+
+G.active=0;
+G.night++;
+
+log(`<b>NIGHT ${G.night} BEGINS.</b>`);
+
+if(G.night>=10){
+
+if(G.clues>=3){
+
+G.discovered.add("gate");
+
+log("THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.","bad");
+
+}
+else{
+
+alert("Night 10 arrives before you uncover the truth.\n\nTHE DARKNESS CONSUMES BLACKWOOD.");
+
+location.reload();
+
+return;
+}
+}
+}
+
+startTurn();
+}
+
+function render(){
+
+let p=G.ps[G.active];
+
+document.getElementById("turnTitle").innerHTML=
+`<h2>Night ${G.night}/10 — ${p.name}</h2>
+<div class="muted">
+Clues: ${G.clues}/3 • Actions Remaining: ${p.actions}
+</div>`;
+
+document.getElementById("map").innerHTML=L.map(x=>{
+
+let discovered=G.discovered.has(x[0]);
+let connected=LM[p.loc][2].includes(x[0]);
+
+return`
+<div class="loc
+${p.loc===x[0]?"current":""}
+${discovered?"":"locked"}">
+
+<b>${discovered?x[1]:"UNKNOWN"}</b>
+
+${p.loc===x[0]?"<div>📍 YOU ARE HERE</div>":""}
+
+${discovered&&connected?
+`<button onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
+
+</div>`;
+
+}).join("");
+
+document.getElementById("player").innerHTML=
+`<div class="card">
+
+<b>${p.name}</b>
+
+<div class="stats">
+
+<span class="stat">❤️ ${p.hp}/${p.maxHp}</span>
+
+<span class="stat">🧠 ${p.san}</span>
+
+<span class="stat">😨 ${p.fear}/5</span>
+
+<span class="stat">⚡ ${p.actions}</span>
+
+</div>
+
+</div>`;
+
+document.getElementById("inventory").innerHTML=
+
+p.items.map((i,idx)=>
+
+`<div class="card">
+<b>${i.name}</b><br>
+<span class="muted">${i.type}</span><br>
+<button onclick="useItem(${idx})">Use</button>
+</div>`
+
+).join("");
+
+document.getElementById("location").innerHTML=
+
+`<b>${LM[p.loc][1]}</b>
+
+<br><br>
+
+<button onclick="useAction(1,search)">
+Search (1 Action)
+</button>
+
+<button onclick="useAction(2,gainClue)">
+Investigate (2 Actions)
+</button>
+
+<button onclick="useAction(2,recover)">
+Recover (2 Actions)
+</button>`;
+
+let here=G.creatures.filter(c=>c.loc===p.loc);
+
+document.getElementById("creatures").innerHTML=
+
+here.map(c=>
+
+`<div class="card">
+
+<b>${c.name}</b>
+
+<br>
+
+❤️ ${c.hp}/${c.maxHp}
+
+<br>
+
+⚔️ Damage ${c.atk}
+
+<br>
+
+<button onclick="startCombat('${c.id}')">
+Fight
+</button>
+
+</div>`
+
+).join("")
+
+||"<span class='muted'>Nothing is here... yet.</span>";
+
+if(combat){
+
+document.getElementById("actions").innerHTML=
+
+`<b>⚠️ COMBAT: ${combat.name}</b>
+
+<br>
+
+❤️ ${combat.hp}/${combat.maxHp}
+
+<br><br>
+
+<button onclick="attack()">Attack</button>
+
+<button onclick="flee()">Flee</button>`;
+
+}
+else{
+
+document.getElementById("actions").innerHTML=
+
+`<button onclick="endTurn()">END TURN</button>`;
+}
+
+renderLog();
+}
+
+function renderLog(){
+
+if(!G)return;
+
+document.getElementById("log").innerHTML=G.log.join("");
+}
+
+</script>
+
+</body>
+</html>
