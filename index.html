@@ -1201,8 +1201,6 @@ else{
 
   log(`${it.name} has no active effect right now.`);
 }
-}
-
 
 render();
 }
@@ -2019,10 +2017,10 @@ if(canEndNight()){
         return;
       }
     }
-  }
 
   startTurn();
 }
+  
 function useSpecial(){
 
   if(!combat)return;
@@ -2105,31 +2103,32 @@ combat=null;
 
   render();
 }
-// Return equipped loot weapon to Extra Pockets first
-if(p.equippedLootWeapon){
+function switchToSignatureWeapon(index){
 
-  if(G.extraPockets.length>=G.extraPocketMax){
-    log(
-      `🎒 Extra Pockets are full! Cannot switch to Signature Weapon.`,
-      "bad"
-    );
-    return;
-  }
-
-  G.extraPockets.push(p.equippedLootWeapon);
-
-  log(
-    `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
-    "good"
-  );
-
-  p.equippedLootWeapon=null;
-}
   let p=G.ps[index];
 
   if(!p)return;
 
-  p.equippedLootWeapon=null;
+  // Return equipped loot weapon to Extra Pockets first
+  if(p.equippedLootWeapon){
+
+    if(G.extraPockets.length>=G.extraPocketMax){
+      log(
+        `🎒 Extra Pockets are full! Cannot switch to Signature Weapon.`,
+        "bad"
+      );
+      return;
+    }
+
+    G.extraPockets.push(p.equippedLootWeapon);
+
+    log(
+      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      "good"
+    );
+
+    p.equippedLootWeapon=null;
+  }
 
   log(
     `⚔️ ${p.name} switches back to ${p.weapon}.`,
@@ -2151,18 +2150,42 @@ function equipExtraPocketWeapon(index){
     log(`❌ ${weapon.name} is not a weapon.`,"bad");
     return;
   }
-function useExtraPocketItem(index){
 
-  let p=G.ps[G.active];
-  let item=G.extraPockets[index];
-
-  if(!p || !item)return;
-
-  // Weapons must use EQUIP instead
-  if(item.type==="weapon"){
-    log(`❌ Use the EQUIP button for ${item.name}.`,"bad");
+  // Don't equip a broken weapon
+  if(
+    weapon.maxDurability!==undefined &&
+    weapon.durability<=0
+  ){
+    log(
+      `🔧 ${weapon.name} is BROKEN! Repair it before equipping.`,
+      "bad"
+    );
     return;
   }
+
+  // Save the selected weapon
+  let selectedWeapon=weapon;
+
+  // Remove selected weapon from Extra Pockets first
+  G.extraPockets.splice(index,1);
+
+  // Return currently equipped loot weapon to Extra Pockets
+  if(p.equippedLootWeapon){
+
+    G.extraPockets.push(p.equippedLootWeapon);
+
+    log(
+      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      "good"
+    );
+  }
+
+  // Equip the selected weapon
+  p.equippedLootWeapon=selectedWeapon;
+
+  render();
+}
+
 
 function useExtraPocketItem(index){
 
@@ -2305,42 +2328,8 @@ function useExtraPocketItem(index){
 
   render();
 }
-  // Don't equip a broken weapon
-  if(
-    weapon.maxDurability!==undefined &&
-    weapon.durability<=0
-  ){
-    log(
-      `🔧 ${weapon.name} is BROKEN! Repair it before equipping.`,
-      "bad"
-    );
-    return;
-  }
-// Save the selected weapon
-let selectedWeapon=weapon;
-
-// Remove selected weapon from Extra Pockets first
-G.extraPockets.splice(index,1);
-
-// Return currently equipped loot weapon to Extra Pockets
-if(p.equippedLootWeapon){
-
-  G.extraPockets.push(p.equippedLootWeapon);
-
-  log(
-    `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
-    "good"
-  );
-}
-
-// Equip the selected weapon
-p.equippedLootWeapon=selectedWeapon;
-
-  render();
-}
-function restoreLives(targetIndex){
-
-    let healer=G.ps[G.active];
+    function restoreLives(targetIndex){
+  let healer=G.ps[G.active];
     let target=G.ps[targetIndex];
 
     if(!healer || !target)return;
