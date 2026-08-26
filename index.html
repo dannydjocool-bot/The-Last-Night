@@ -1104,9 +1104,7 @@ sp.lifeRestoreReady &&
       return "";
     }
 
-    return '<button onclick="restoreLives(' + targetIndex + ')">' +
-           'Restore ' + target.name + ' (+2 Lives)' +
-           '</button>';
+    return "<button onclick='restoreLives(" + targetIndex + ")'>Restore " + target.name + " (+2 Lives)</button>";
 
   }).join("")}
 
