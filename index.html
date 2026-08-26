@@ -5,6 +5,61 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Last Night</title>
 <style>
+
+.extra-pockets-panel{
+  position:fixed;
+  left:12px;
+  top:90px;
+  width:220px;
+  max-height:calc(100vh - 110px);
+  overflow-y:auto;
+  background:#111;
+  border:1px solid #444;
+  border-radius:10px;
+  padding:10px;
+  z-index:40;
+  box-shadow:0 8px 30px rgba(0,0,0,.55);
+}
+
+#extraPocketsHandle{
+  cursor:move;
+  user-select:none;
+}
+
+
+.extra-pocket-slot{
+  background:#181818;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px;
+  margin:7px 0;
+  font-size:12px;
+}
+
+.extra-pocket-img{
+  width:100%;
+  border-radius:7px;
+  margin-bottom:6px;
+}
+
+.ammo-box{
+  background:#181818;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px;
+  line-height:1.6;
+}
+
+@media(max-width:850px){
+
+  .extra-pockets-panel{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin-bottom:12px;
+  }
+
+}
 *{box-sizing:border-box}
 body{margin:0;background:#090909;color:#eee;font-family:Arial,sans-serif}
 header{padding:16px 20px;background:#111;border-bottom:1px solid #333;position:sticky;top:0;z-index:5}
@@ -112,7 +167,24 @@ button:disabled{opacity:.35}
 </header>
 
 <div class="wrap">
+<div id="extraPocketsPanel" class="extra-pockets-panel">
+ <h3 id="extraPocketsHandle">🎒 EXTRA POCKETS</h3>
+<button id="resetExtraPocketsPosition" type="button">
+  ↩ RESET POSITION
+</button>
+  <div id="extraPocketsCount" class="muted">
+    0 / 10 Slots
+  </div>
 
+  <div id="extraPockets"></div>
+
+  <hr>
+
+  <div class="ammo-box">
+    <b>🔫 AMMO</b><br>
+    <span id="ammoDisplay"></span>
+  </div>
+</div>
 <div id="setup" class="panel">
 <h2>Start Game</h2>
 <p>You wake up in Blackwood. Something is hunting you.</p>
@@ -235,18 +307,97 @@ return chosen;
 }
 
 const ITEMS=[
-["Flashlight","tool",0],
+["Flashlight","tool",0,"tool",5],
 ["First Aid Kit","heal",4],
-["Old Revolver","weapon",5],
-["Rusty Key","key",0],
-["Camera","tool",0],
-["Hunting Knife","weapon",2],
-["Shotgun","weapon",8],
-["Fire Axe","weapon",6],
+
+["Pistol","weapon",5,"pistol",5],
+["Shotgun","weapon",8,"shotgun",5],
+["MP5","weapon",7,"smg",5],
+["AK-47","weapon",10,"rifle",5],
+
+["Pistol Ammo","ammo",12,"pistol"],
+["Shotgun Ammo","ammo",6,"shotgun"],
+["SMG Ammo","ammo",20,"smg"],
+["Rifle Ammo","ammo",12,"rifle"],
+
+["Repair Kit","repair",5],
+
+["Rusty Key","key",0], 
+["Camera","tool",0,"tool",5],
+["Hunting Knife","weapon",2,"melee",5],
+["Fire Axe","weapon",6,"melee",5],
 ["Calmative","san",3],
 ["Emergency Rations","fear",2]
 ];
 
+const ITEM_META={ 
+
+  "Pistol":{
+    rarity:"Rare",
+    image:"pistol.png"
+  },
+
+  "Shotgun":{
+    rarity:"Legendary",
+    image:"shotgun.png"
+  },
+
+  "MP5":{
+    rarity:"Epic",
+    image:"mp5.png"
+  },
+
+  "AK-47":{
+    rarity:"Epic",
+    image:"ak47.png"
+  },
+
+  "Hunting Knife":{
+    rarity:"Common",
+    image:"huntingknife.png"
+  },
+
+  "Fire Axe":{
+    rarity:"Rare",
+    image:"fireaxe.png"
+  },
+
+  "Repair Kit":{
+    rarity:"Uncommon",
+    image:"repairkit.png"
+  },
+
+  "Flashlight":{
+    rarity:"Common",
+    image:"flashlight.png"
+  },
+
+  "Camera":{
+    rarity:"Common",
+    image:"camera.png"
+  },
+
+  "First Aid Kit":{
+    rarity:"Uncommon",
+    image:"firstaid.png"
+  },
+
+  "Rusty Key":{
+    rarity:"Uncommon",
+    image:"rustykey.png"
+  },
+
+  "Calmative":{
+    rarity:"Uncommon",
+    image:"calmative.png"
+  },
+
+  "Emergency Rations":{
+    rarity:"Common",
+    image:"rations.png"
+  }
+};
+  
 const CRE=[
 
 {
@@ -357,7 +508,22 @@ function log(t,c=""){
 
   renderLog();
 }
+function maxRestsPerNight(p){
 
+  if(p.rarity==="G.O.A.T"){
+    return 5;
+  }
+
+  if(p.rarity==="Legendary"){
+    return 4;
+  }
+
+  if(p.rarity==="Epic"){
+    return 3;
+  }
+
+  return 2;
+}
 function startGame(n){
 let ps=drawSurvivors(n).map(s=>({
 name:s.name,
@@ -386,7 +552,10 @@ berserkSpecialBoostReady:false,
 enemyStunned:false,
 fear:0,
 loc:"motel",
-actions:3,
+actions:25,
+combatActions:0,
+restsThisNight:0,
+  freeInvestigateUsed:false,
 items:[
 {name:"Flashlight",type:"tool",val:0},
 objItem(rnd(ITEMS.slice(1)))
@@ -400,6 +569,14 @@ night:1,
 clues:0,
 discovered:new Set(["motel","gas","forest","station"]),
 creatures:[],
+  extraPockets:[],
+extraPocketMax:10,
+  ammo:{
+  pistol:0,
+  shotgun:0,
+  smg:0,
+  rifle:0
+},
 log:[]
 };
 
@@ -413,13 +590,38 @@ startTurn();
 }
 
 function objItem(x){
-return{name:x[0],type:x[1],val:x[2]};
+
+  let item={
+    name:x[0],
+    type:x[1],
+    val:x[2]
+  };
+
+  if(x[3]!==undefined){
+    item.ammoType=x[3];
+  }
+
+  if(x[4]!==undefined){
+    item.maxDurability=x[4];
+    item.durability=x[4];
+  }
+let meta=ITEM_META[item.name];
+
+if(meta){
+  item.rarity=meta.rarity;
+  item.image=meta.image;
+}
+else{
+  item.rarity="Common";
+  item.image=null;
+}
+  return item;
 }
 
 function startTurn(){
 
 let p=G.ps[G.active];
-p.actions=3;
+// Actions are now refreshed only when a new Night begins
 
 let e=rnd(EVENTS);
 
@@ -440,16 +642,37 @@ render();
 
 function useAction(cost,fn){
 
-let p=G.ps[G.active];
+  let p=G.ps[G.active];
 
-if(p.actions<cost){
-log("You don't have enough actions.","bad");
-return;
+  if(p.actions<cost){
+    log("You don't have enough actions.","bad");
+    return;
+  }
+
+  p.actions-=cost;
+
+  fn();
+  render();
 }
 
-p.actions-=cost;
-fn();
-render();
+function useCombatAction(cost,fn){
+
+  let p=G.ps[G.active];
+
+  if(!combat){
+    log("You are not in combat.","bad");
+    return;
+  }
+
+  if(p.combatActions<cost){
+    log("You don't have enough Combat Actions.","bad");
+    return;
+  }
+
+  p.combatActions-=cost;
+
+  fn();
+  render();
 }
 
 function move(id){
@@ -508,18 +731,94 @@ function gainItem(){
 
 let p=G.ps[G.active];
 
-if(p.items.length>=4){
-log("Inventory is full.");
-return;
-}
-
 let i=objItem(rnd(ITEMS));
 
-p.items.push(i);
+// AMMO PICKUPS
+if(i.type==="ammo"){
 
-log(`Found <b>${i.name}</b>.`,"good");
+  G.ammo[i.ammoType]+=i.val;
+
+  log(
+    `🔫 Found <b>${i.name}</b>! +${i.val} rounds.`,
+    "good"
+  );
+
+  return;
 }
 
+// PERSONAL INVENTORY HAS ROOM
+if(p.items.length<4){
+
+  p.items.push(i);
+
+  log(
+    `🎒 Found <b>${i.name}</b> and stored it in ${p.name}'s inventory.`,
+    "good"
+  );
+
+  return;
+}
+
+// PERSONAL INVENTORY FULL → EXTRA POCKETS
+if(G.extraPockets.length<G.extraPocketMax){
+
+  G.extraPockets.push(i);
+
+  log(
+    `🎒 Personal inventory full — <b>${i.name}</b> was stored in Extra Pockets (${G.extraPockets.length}/${G.extraPocketMax}).`,
+    "good"
+  );
+
+  return;
+}
+
+// BOTH INVENTORIES FULL
+log(
+  `❌ Inventory and Extra Pockets are full. ${i.name} was left behind.`,
+  "bad"
+);
+
+}
+  function investigate(){
+
+  let p=G.ps[G.active];
+
+  // First Investigate each Night is FREE
+  if(!p.freeInvestigateUsed){
+
+    p.freeInvestigateUsed=true;
+
+    log(
+      `🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,
+      "good"
+    );
+
+    gainClue();
+    render();
+    return;
+  }
+
+  // Later Investigates cost 1 Action
+  if(p.actions<1){
+
+    log(
+      `⚡ ${p.name} needs 1 Action to Investigate again.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  p.actions-=1;
+
+  log(
+    `🔎 ${p.name} Investigates for 1 Action.`,
+    "good"
+  );
+
+  gainClue();
+  render();
+}
 function gainClue(){
 
 if(G.clues>=3){
@@ -595,23 +894,27 @@ log(
   "bad"
 );
 }
-function combatActionCount(){
-  const actions={
-    1:6,
-    2:9,
-    3:12,
-    4:15,
-    5:18
+function combatActionCount(p){
+
+  const bonus={
+    "Common":0,
+    "Uncommon":1,
+    "Rare":2,
+    "Epic":3,
+    "Legendary":4,
+    "G.O.A.T":5
   };
 
-  return actions[G.ps.length] || 6;
+  return 10+(bonus[p.rarity]||0);
 }
+
+
 function startCombat(id){
 
 combat=G.creatures.find(c=>String(c.id)===String(id));
 if(combat){
   let p=G.ps[G.active];
-  p.actions=combatActionCount();
+  p.combatActions=combatActionCount(p);
 }
 if(combat)
 log(`Combat begins against ${combat.name}.`,"bad");
@@ -625,13 +928,63 @@ if(!combat)return;
 
 let p=G.ps[G.active];
 
-let w={
-  name:p.weapon,
-  val:p.weaponDamage
-};
+let usingLootWeapon=!!p.equippedLootWeapon;
 
-useAction(1,()=>{
+let w=usingLootWeapon
+? p.equippedLootWeapon
+: {
+    name:p.weapon,
+    val:p.weaponDamage,
+    ammoType:null,
+    durability:Infinity,
+    maxDurability:Infinity
+  };
+// LOOT WEAPON CHECKS
+if(usingLootWeapon){
 
+  // Stop broken weapons from being used
+  if(w.durability<=0){
+    log(`🔧 ${w.name} is BROKEN! Use a Repair Kit before attacking.`,"bad");
+    return;
+  }
+
+  // Check firearm ammo
+  if(w.ammoType && w.ammoType!=="melee"){
+
+    if((G.ammo[w.ammoType]||0)<=0){
+
+      log(
+        `🔫 ${w.name} is out of ${w.ammoType.toUpperCase()} ammo!`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+}
+useCombatAction(1,()=>{
+// USE AMMO + DURABILITY
+if(usingLootWeapon){
+
+  // Firearms consume 1 round
+  if(w.ammoType && w.ammoType!=="melee"){
+    G.ammo[w.ammoType]--;
+  }
+
+  // Every loot weapon loses 1 durability
+  w.durability--;
+
+  log(
+    `🔧 ${w.name} durability: ${w.durability}/${w.maxDurability}`
+  );
+
+  if(w.durability<=0){
+    log(
+      `💥 ${w.name} has BROKEN and needs a Repair Kit!`,
+      "bad"
+    );
+  }
+}
 let r=d6();
 
 log(`Attack roll: ${r}`);
@@ -679,6 +1032,9 @@ if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
         );
     }
 });
+  G.ps.forEach(s=>{
+  s.combatActions=0;
+});
 combat=null;
 return;
 }
@@ -693,8 +1049,7 @@ function flee(){
 
 if(!combat)return;
 
-useAction(1,()=>{
-
+useCombatAction(1,()=>{
 let p=G.ps[G.active];
 let r=d6();
 
@@ -716,7 +1071,9 @@ p.loc=rnd(exits);
 G.discovered.add(p.loc);
 
 log(`You escape to ${LM[p.loc][1]}.`,"good");
-
+G.ps.forEach(s=>{
+  s.combatActions=0;
+});
 combat=null;
 }
 
@@ -786,24 +1143,148 @@ log(`The Rusty Key reveals ${locked[1]}.`,"good");
 }
 
 p.items.splice(i,1);
+}
+else if(it.type==="weapon"){
+
+  // Equip the found weapon
+  p.equippedLootWeapon=it;
+
+  log(
+    `⚔️ ${p.name} equips ${it.name}.`,
+    "good"
+  );
+}
+else if(it.type==="repair"){
+
+  let weapon=p.equippedLootWeapon;
+
+  // No loot weapon equipped
+  if(!weapon){
+    log(
+      `🔧 ${p.name} has no loot weapon equipped to repair.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Weapon cannot be repaired
+  if(weapon.maxDurability===undefined){
+    log(
+      `🔧 ${weapon.name} cannot be repaired.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Already full durability
+  if(weapon.durability>=weapon.maxDurability){
+    log(
+      `🔧 ${weapon.name} is already at full durability.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Repair weapon
+  weapon.durability=weapon.maxDurability;
+
+  // Consume Repair Kit
+  p.items.splice(i,1);
+
+  log(
+    `🔧 ${p.name} repairs ${weapon.name} to ${weapon.durability}/${weapon.maxDurability} durability!`,
+    "good"
+  );
 
 }
 else{
 
-log(`${it.name} has no active effect right now.`);
+  log(`${it.name} has no active effect right now.`);
 }
+}
+
 
 render();
 }
+function canEndNight(){
 
+  if(!G)return false;
+
+  return G.ps
+    .filter(p=>!p.dead)
+    .every(p=>p.actions<=0);
+}
+  function endNight(){
+
+  if(!canEndNight()){
+    log(
+      `🌙 The Night cannot end until all living Survivors have 0 Action Points.`,
+      "bad"
+    );
+    render();
+    return;
+  }
+
+  G.night++;
+
+  // Reset every living Survivor for the new Night
+  G.ps.forEach(p=>{
+
+    if(p.dead)return;
+
+    p.actions=25;
+    p.restsThisNight=0;
+    p.freeInvestigateUsed=false;
+  });
+
+  log(
+    `🌙 NIGHT ${G.night} BEGINS! Action Points, Rest chances, and FREE Investigates have been refreshed.`,
+    "good"
+  );
+
+  render();
+}
 function recover(){
 
-let p=G.ps[G.active];
+  let p=G.ps[G.active];
 
-p.san=Math.min(10,p.san+2);
-p.fear=Math.max(0,p.fear-1);
+  if(combat){
+    log(
+      `⚔️ ${p.name} cannot Rest during combat.`,
+      "bad"
+    );
+    return;
+  }
 
-log(`${p.name} takes a moment to recover.`,"good");
+  let maxRests=maxRestsPerNight(p);
+
+  if(p.restsThisNight>=maxRests){
+    log(
+      `😴 ${p.name} has used all Rest chances for Night ${G.night} (${p.restsThisNight}/${maxRests}).`,
+      "bad"
+    );
+    return;
+  }
+
+  p.restsThisNight++;
+
+  let oldHp=p.hp;
+  let oldSan=p.san;
+  let oldFear=p.fear;
+
+  p.hp=Math.min(p.maxHp,p.hp+3);
+  p.san=Math.min(p.maxSan,p.san+2);
+  p.fear=Math.max(0,p.fear-1);
+
+  // Rest gives 3 Action Points
+  p.actions+=3;
+
+  log(
+    `😴 ${p.name} RESTS! ❤️ +${p.hp-oldHp} HP • 🧠 +${p.san-oldSan} Sanity • 😨 -${oldFear-p.fear} Fear • ⚡ +3 Actions • Rest ${p.restsThisNight}/${maxRests}.`,
+    "good"
+  );
+
+  render();
 }
 function activateBerserk(p){
 
@@ -910,7 +1391,7 @@ function switchCombatSurvivor(){
     if(!survivor.dead && !survivor.knockedOut && survivor.hp>0){
 
       G.active=next;
-      survivor.actions=combatActionCount();
+   survivor.combatActions=combatActionCount(survivor);
 
       log(
         `⚔️ ${survivor.name} steps forward to continue the battle!`,
@@ -962,7 +1443,8 @@ if(p.items && p.items.length>0){
     log(`🎒 ${p.name} lost ${lostItem.name} while escaping back to the motel.`, "bad");
 }
         // Reset actions
-        p.actions=3;
+        p.actions=25;
+      p.combatActions=0;
     });
 
     // Return control to first survivor
@@ -972,14 +1454,131 @@ if(p.items && p.items.length>0){
 
     render();
 }
+  // MANUALLY SELECT A SURVIVOR
+function selectSurvivor(index){
+
+  if(!G)return;
+if(combat){
+  log(
+    `⚔️ You cannot manually switch Survivors during combat.`,
+    "bad"
+  );
+  return;
+}
+  let survivor=G.ps[index];
+
+  if(!survivor || survivor.dead){
+    return;
+  }
+
+  // Selecting does NOT restore Action Points
+  G.active=index;
+
+  log(
+    `👤 ${survivor.name} is now selected.`,
+    "good"
+  );
+
+  render();
+}
 function render(){
 
 let p=G.ps[G.active];
+// EXTRA POCKETS UI
+document.getElementById("extraPocketsCount").innerHTML=
+`${G.extraPockets.length} / ${G.extraPocketMax} Slots`;
 
+document.getElementById("extraPockets").innerHTML=
+
+Array.from({length:G.extraPocketMax},(_,index)=>{
+
+  let item=G.extraPockets[index];
+
+  if(!item){
+    return `
+      <div class="extra-pocket-slot">
+        <span class="muted">Slot ${index+1}: Empty</span>
+      </div>
+    `;
+  }
+
+  let rarityColor=
+    item.rarity==="Common"?"#a8a8a8":
+    item.rarity==="Uncommon"?"#4caf50":
+    item.rarity==="Rare"?"#2196f3":
+    item.rarity==="Epic"?"#9c27b0":
+    item.rarity==="Legendary"?"#ffc107":
+    "#777";
+
+  return `
+    <div class="extra-pocket-slot"
+    style="border-color:${rarityColor};">
+
+      ${item.image
+      ? `<img class="extra-pocket-img"
+          src="${item.image}"
+          alt="${item.name}">`
+      : ""}
+
+      <b>${item.name}</b><br>
+
+      <span style="
+      color:${rarityColor};
+      font-weight:bold;">
+      ${item.rarity}
+      </span>
+
+      ${item.type==="weapon"
+      ? `
+        <br>⚔️ Damage: ${item.val}
+
+        ${item.maxDurability!==undefined
+        ? `<br>🔧 Durability:
+           ${item.durability}/${item.maxDurability}`
+        : ""}
+${item.type==="tool"
+? `
+  <br>🛠️ Uses:
+  ${item.durability}/${item.maxDurability}
+`
+: ""}
+        ${item.ammoType && item.ammoType!=="melee"
+        ? `<br>🔫 Uses:
+           ${item.ammoType.toUpperCase()} Ammo`
+        : ""}
+        <br><br>
+<button onclick="equipExtraPocketWeapon(${index})">
+  ⚔️ EQUIP
+</button>
+      `
+      : ""}
+${item.type!=="weapon"
+? `
+  <br><br>
+  <button onclick="useExtraPocketItem(${index})">
+    🎒 USE
+  </button>
+`
+: ""}
+    </div>
+  `;
+
+}).join("");
+  // SHARED AMMO DISPLAY
+document.getElementById("ammoDisplay").innerHTML=`
+  🔫 Pistol Ammo: <b>${G.ammo.pistol}</b><br>
+  💥 Shotgun Ammo: <b>${G.ammo.shotgun}</b><br>
+  ⚡ SMG Ammo: <b>${G.ammo.smg}</b><br>
+  🎯 Rifle Ammo: <b>${G.ammo.rifle}</b>
+`;
 document.getElementById("turnTitle").innerHTML=
 `<h2>Night ${G.night}/10 — ${p.name}</h2>
 <div class="muted">
-Clues: ${G.clues}/3 • Actions Remaining: ${p.actions}
+Clues: ${G.clues}/3 • ${
+  combat
+    ? `Combat AP: ${p.combatActions}`
+    : `Night AP: ${p.actions}`
+}
 </div>`;
 
 document.getElementById("map").innerHTML=L.map(x=>{
@@ -1055,7 +1654,13 @@ ${rarity.label}
 ${index===G.active
 ?'<div class="good">CURRENT TURN</div>'
 :'<div class="muted">Waiting</div>'}
-
+${!sp.dead
+? `
+<button onclick="selectSurvivor(${index})">
+  👤 SELECT
+</button>
+`
+: ""}
 <div class="stats">
 
 <span class="stat">❤️ ${sp.hp}/${sp.maxHp}</span>
@@ -1064,7 +1669,9 @@ ${index===G.active
 
 <span class="stat">😨 ${sp.fear}/5</span>
 
-<span class="stat">⚡ ${sp.actions}</span>
+<span class="stat">
+  ${combat ? `⚔️ ${sp.combatActions} Combat AP` : `🌙 ${sp.actions} Night AP`}
+</span>
 
 </div>
 
@@ -1073,7 +1680,44 @@ ${index===G.active
 <b>⚔️ SIGNATURE WEAPON</b><br>
 ${sp.weapon}<br>
 <span class="muted">Damage: ${sp.weaponDamage}</span>
+<br><br>
 
+${sp.equippedLootWeapon
+? `
+<b>🔫 EQUIPPED LOOT WEAPON</b><br>
+${sp.equippedLootWeapon.name}<br>
+
+<span class="muted">
+Damage: ${sp.equippedLootWeapon.val}
+</span>
+
+<br>
+
+<span class="muted">
+🔧 Durability:
+${sp.equippedLootWeapon.durability}/${sp.equippedLootWeapon.maxDurability}
+</span>
+
+${sp.equippedLootWeapon.ammoType &&
+sp.equippedLootWeapon.ammoType!=="melee"
+? `
+<br>
+<span class="muted">
+🔫 Ammo:
+${G.ammo[sp.equippedLootWeapon.ammoType] || 0}
+</span>
+`
+:""}
+
+<br><br>
+
+<button onclick="switchToSignatureWeapon(${index})">
+⚔️ Use Signature Weapon
+</button>
+`
+: `
+<span class="good">⚔️ Signature Weapon Equipped</span>
+`}
 <br><br>
 
 <b>🔥 WEAPON ABILITY</b><br>
@@ -1146,13 +1790,22 @@ document.getElementById("location").innerHTML=
 Search (1 Action)
 </button>
 
-<button onclick="useAction(2,gainClue)">
-Investigate (2 Actions)
+<button onclick="investigate()">
+  🔎 Investigate
 </button>
 
-<button onclick="useAction(2,recover)">
-Recover (2 Actions)
-</button>`;
+<button onclick="recover()">
+  😴 Rest
+</button>
+
+<button
+  id="endNightButton"
+  onclick="endNight()"
+  ${canEndNight() ? "" : "disabled"}
+>
+  🌙 End Night
+</button>
+`;
 
 let here=G.creatures.filter(c=>c.loc===p.loc);
 
@@ -1268,7 +1921,7 @@ if(combat){
     }
 
     // Reset combat Actions for the active survivor
-    p.actions=combatActionCount();
+  p.combatActions=combatActionCount(p);
 
     // All living, conscious allies recover +1 HP
     G.ps.forEach(ally=>{
@@ -1294,8 +1947,7 @@ if(combat){
     });
 
     log(
-        `🔄 ${p.name} begins another combat round with ${p.actions} Actions.`,
-        "good"
+    `🔄 ${p.name} begins another combat round with ${p.combatActions} Combat Actions.`,
     );
 
     render();
@@ -1311,21 +1963,45 @@ if(combat){
     return;
   }
 
-  // NORMAL TURN ADVANCE
+// NORMAL SURVIVOR ADVANCE
+let startingActive=G.active;
+
+do{
+
   G.active++;
 
   if(G.active>=G.ps.length){
-
     G.active=0;
-    G.night++;
+  }
 
-    log(`<b>NIGHT ${G.night} BEGINS.</b>`);
+  // Stop when we find a living Survivor with Actions remaining
+  if(
+    !G.ps[G.active].dead &&
+    G.ps[G.active].actions>0
+  ){
+    break;
+  }
 
-    if(G.night>=10){
+}while(G.active!==startingActive);
+// EVERYONE IS OUT OF ACTIONS
+if(canEndNight()){
 
-      if(G.clues>=3){
+  // Keep the current Survivor active so Rest/items can still be used
+  G.active=startingActive;
 
-        G.discovered.add("gate");
+  log(
+    `🌙 All living Survivors are out of Action Points. You may Rest, use healing/effect items, or End the Night.`,
+    "good"
+  );
+
+  render();
+  return;
+}
+  if(G.night>=10){
+
+    if(G.clues>=3){
+
+      G.discovered.add("gate");
 
         log(
           "THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.",
@@ -1352,11 +2028,20 @@ function useSpecial(){
   if(!combat)return;
 
   let p=G.ps[G.active];
+// Special must be fully charged first
+if(p.specialCharge<100){
+  log(`⚡ ${p.name}'s Special Ability is only ${p.specialCharge}% charged.`,"bad");
+  return;
+}
 
-  if(p.specialCharge<100){
-    log(`⚡ ${p.name}'s Special Ability is only ${p.specialCharge}% charged.`,"bad");
-    return;
-  }
+// Must have 3 Combat AP
+if(p.combatActions<3){
+  log(`⚡ ${p.name} needs 3 Combat AP to use their Special Ability.`,"bad");
+  return;
+}
+
+// Charge the 3 AP ONLY when the Special can actually be used
+p.combatActions-=3;
 
   let dmg=Math.ceil(p.weaponDamage*1.5);
 
@@ -1412,9 +2097,244 @@ combat.provoked=true;
         );
     }
 });
-
+G.ps.forEach(s=>{
+  s.combatActions=0;
+});
 combat=null;
   }
+
+  render();
+}
+// Return equipped loot weapon to Extra Pockets first
+if(p.equippedLootWeapon){
+
+  if(G.extraPockets.length>=G.extraPocketMax){
+    log(
+      `🎒 Extra Pockets are full! Cannot switch to Signature Weapon.`,
+      "bad"
+    );
+    return;
+  }
+
+  G.extraPockets.push(p.equippedLootWeapon);
+
+  log(
+    `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+    "good"
+  );
+
+  p.equippedLootWeapon=null;
+}
+  let p=G.ps[index];
+
+  if(!p)return;
+
+  p.equippedLootWeapon=null;
+
+  log(
+    `⚔️ ${p.name} switches back to ${p.weapon}.`,
+    "good"
+  );
+
+  render();
+}
+
+function equipExtraPocketWeapon(index){
+
+  let p=G.ps[G.active];
+  let weapon=G.extraPockets[index];
+
+  if(!p || !weapon)return;
+
+  // Make sure the selected item is actually a weapon
+  if(weapon.type!=="weapon"){
+    log(`❌ ${weapon.name} is not a weapon.`,"bad");
+    return;
+  }
+function useExtraPocketItem(index){
+
+  let p=G.ps[G.active];
+  let item=G.extraPockets[index];
+
+  if(!p || !item)return;
+
+  // Weapons must use EQUIP instead
+  if(item.type==="weapon"){
+    log(`❌ Use the EQUIP button for ${item.name}.`,"bad");
+    return;
+  }
+
+function useExtraPocketItem(index){
+
+  let p=G.ps[G.active];
+  let item=G.extraPockets[index];
+
+  if(!p || !item)return;
+
+  // Weapons must use EQUIP
+  if(item.type==="weapon"){
+    log(`❌ Use the EQUIP button for ${item.name}.`,"bad");
+    return;
+  }
+
+  // HEAL ITEM
+  if(item.type==="heal"){
+
+    p.hp=Math.min(p.maxHp,p.hp+item.val);
+
+    log(
+      `❤️ ${p.name} uses ${item.name} and restores ${item.val} Health.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // SANITY ITEM
+  else if(item.type==="san"){
+
+    p.san=Math.min(p.maxSan,p.san+item.val);
+
+    log(
+      `🧠 ${p.name} uses ${item.name} and restores ${item.val} Sanity.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // FEAR ITEM
+  else if(item.type==="fear"){
+
+    p.fear=Math.max(0,p.fear-item.val);
+
+    log(
+      `😨 ${p.name} uses ${item.name} and reduces Fear by ${item.val}.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // KEY ITEM
+  else if(item.type==="key"){
+
+    let locked=L.find(x=>!G.discovered.has(x[0]));
+
+    if(locked){
+
+      G.discovered.add(locked[0]);
+
+      log(
+        `🗝️ ${item.name} reveals ${locked[1]}.`,
+        "good"
+      );
+
+      G.extraPockets.splice(index,1);
+    }
+    else{
+
+      log(
+        `🗝️ There are no locked locations left to reveal.`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+
+  // REPAIR KIT
+  else if(item.type==="repair"){
+
+    let weapon=p.equippedLootWeapon;
+
+    if(!weapon){
+      log(
+        `🔧 ${p.name} has no loot weapon equipped to repair.`,
+        "bad"
+      );
+      return;
+    }
+
+    if(weapon.maxDurability===undefined){
+      log(
+        `🔧 ${weapon.name} cannot be repaired.`,
+        "bad"
+      );
+      return;
+    }
+
+    if(weapon.durability>=weapon.maxDurability){
+      log(
+        `🔧 ${weapon.name} is already at full durability.`,
+        "bad"
+      );
+      return;
+    }
+
+    weapon.durability=weapon.maxDurability;
+
+    G.extraPockets.splice(index,1);
+
+    log(
+      `🔧 ${p.name} repairs ${weapon.name} to ${weapon.durability}/${weapon.maxDurability} durability!`,
+      "good"
+    );
+  }
+
+  // TOOL — not implemented yet
+  else if(item.type==="tool"){
+
+    log(
+      `🛠️ ${item.name} does not have an active effect yet.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  else{
+
+    log(
+      `❌ ${item.name} cannot be used right now.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  render();
+}
+  // Don't equip a broken weapon
+  if(
+    weapon.maxDurability!==undefined &&
+    weapon.durability<=0
+  ){
+    log(
+      `🔧 ${weapon.name} is BROKEN! Repair it before equipping.`,
+      "bad"
+    );
+    return;
+  }
+// Save the selected weapon
+let selectedWeapon=weapon;
+
+// Remove selected weapon from Extra Pockets first
+G.extraPockets.splice(index,1);
+
+// Return currently equipped loot weapon to Extra Pockets
+if(p.equippedLootWeapon){
+
+  G.extraPockets.push(p.equippedLootWeapon);
+
+  log(
+    `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+    "good"
+  );
+}
+
+// Equip the selected weapon
+p.equippedLootWeapon=selectedWeapon;
 
   render();
 }
@@ -1472,6 +2392,102 @@ document.getElementById("log").innerHTML=G.log.join("");
 function toggleLog(){
   document.getElementById("logPanel").classList.toggle("log-open");
 }
+
+// DRAGGABLE EXTRA POCKETS
+const extraPocketsPanel=document.getElementById("extraPocketsPanel");
+const extraPocketsHandle=document.getElementById("extraPocketsHandle");
+const resetExtraPocketsPosition=
+  document.getElementById("resetExtraPocketsPosition");
+
+let draggingExtraPockets=false;
+let extraPocketOffsetX=0;
+let extraPocketOffsetY=0;
+
+const savedExtraPocketsPosition=
+  localStorage.getItem("extraPocketsPosition");
+
+if(savedExtraPocketsPosition && window.innerWidth>850){
+
+  const savedPosition=
+    JSON.parse(savedExtraPocketsPosition);
+
+  if(savedPosition.left){
+    extraPocketsPanel.style.left=savedPosition.left;
+  }
+
+  if(savedPosition.top){
+    extraPocketsPanel.style.top=savedPosition.top;
+  }
+
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+}
+  
+extraPocketsHandle.addEventListener("mousedown",function(e){
+
+  if(window.innerWidth<=850)return;
+
+  draggingExtraPockets=true;
+
+  const rect=extraPocketsPanel.getBoundingClientRect();
+
+  extraPocketOffsetX=e.clientX-rect.left;
+  extraPocketOffsetY=e.clientY-rect.top;
+
+  extraPocketsHandle.style.cursor="grabbing";
+
+  e.preventDefault();
+});
+
+document.addEventListener("mousemove",function(e){
+
+  if(!draggingExtraPockets)return;
+
+  let newLeft=e.clientX-extraPocketOffsetX;
+  let newTop=e.clientY-extraPocketOffsetY;
+
+  // Keep panel inside screen
+  newLeft=Math.max(
+    0,
+    Math.min(newLeft,window.innerWidth-extraPocketsPanel.offsetWidth)
+  );
+
+  newTop=Math.max(
+    0,
+    Math.min(newTop,window.innerHeight-extraPocketsPanel.offsetHeight)
+  );
+
+  extraPocketsPanel.style.left=newLeft+"px";
+  extraPocketsPanel.style.top=newTop+"px";
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+});
+
+document.addEventListener("mouseup",function(){
+
+  if(!draggingExtraPockets)return;
+
+  draggingExtraPockets=false;
+  extraPocketsHandle.style.cursor="move";
+  localStorage.setItem(
+  "extraPocketsPosition",
+  JSON.stringify({
+    left:extraPocketsPanel.style.left,
+    top:extraPocketsPanel.style.top
+  })
+);
+});
+  
+  resetExtraPocketsPosition.addEventListener("click",function(){
+
+  localStorage.removeItem("extraPocketsPosition");
+
+  extraPocketsPanel.style.left="12px";
+  extraPocketsPanel.style.top="90px";
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+
+});
 </script>
 
 </body>
