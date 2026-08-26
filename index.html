@@ -1086,28 +1086,34 @@ ${sp.weaponAbility}
 ${sp.ability}
 <br><br>
 ${index===G.active &&
-  !combat &&
-  sp.lifeRestoreReady &&
-  (sp.rarity==="Legendary" || sp.rarity==="G.O.A.T")
-  ? 
-    <div style="margin-top:10px;">
-      <b>💖 LIFE RESTORE READY</b><br>
-      ${G.ps.map((target,targetIndex)=>{
-        if(
-          targetIndex===index ||
-          target.dead ||
-          target.rarity==="G.O.A.T" ||
-          target.lives>=target.maxLives
-        ) return "";
+!combat &&
+sp.lifeRestoreReady &&
+(sp.rarity==="Legendary" || sp.rarity==="G.O.A.T")
+? `
+<div style="margin-top:10px;">
+  <b>💖 LIFE RESTORE READY</b><br>
 
-    return `<button onclick="restoreLives(${targetIndex})">
-  Restore ${target.name} (+2 Lives)
-</button>`;
-      }).join("")}
-    </div>
-    <br>
-  
-  : ""
+  ${G.ps.map((target,targetIndex)=>{
+
+    if(
+      targetIndex===index ||
+      target.dead ||
+      target.rarity==="G.O.A.T" ||
+      target.lives>=target.maxLives
+    ){
+      return "";
+    }
+
+    return '<button onclick="restoreLives(' + targetIndex + ')">' +
+           'Restore ' + target.name + ' (+2 Lives)' +
+           '</button>';
+
+  }).join("")}
+
+</div>
+<br>
+`
+: ""
 }
 <b>⚡ SPECIAL ABILITY</b><br>
 <div class="special-bar">
