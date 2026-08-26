@@ -75,6 +75,28 @@ button:disabled{opacity:.35}
 .loc.current{outline:2px solid white}
 .loc.locked{opacity:.4}
 .card{background:#171717;border:1px solid #444;border-radius:8px;padding:9px;margin:6px 0}
+  /* THE HOLLOW — VOID SHIELD ANIMATION */
+.void-shield-active{
+  animation:voidShieldPulse 1.2s infinite alternate;
+}
+
+@keyframes voidShieldPulse{
+  0%{
+    transform:scale(1);
+    box-shadow:
+      0 0 8px #5b00ff,
+      0 0 18px #5b00ff,
+      inset 0 0 12px #24004f;
+  }
+
+  100%{
+    transform:scale(1.02);
+    box-shadow:
+      0 0 18px #9d4dff,
+      0 0 38px #5b00ff,
+      inset 0 0 24px #4b0082;
+  }
+}
   .survivor-img{width:100%;max-width:320px;display:block;margin:0 auto 10px;border-radius:10px;border:1px solid #555}
 .stats{display:flex;gap:6px;flex-wrap:wrap}
 .stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
@@ -280,8 +302,9 @@ const L=[
 ["asylum","Blackwood Asylum",["prison","laboratory"]],
 ["laboratory","Underground Laboratory",["subway","mines","asylum","ritual"]],
 ["ritual","The Ritual Chamber",["basement","laboratory","hollow"]],
-["hollow","The Hollow",["ritual","gate"]],
-["gate","The Escape Gate",["hollow"]]
+["hollow","The Hollow",["ritual","root"]],
+["root","The Root of Blackwood",["hollow","gate"]],
+["gate","The Escape Gate",["root"]]
 ];
 const LM=Object.fromEntries(L.map(x=>[x[0],x]));
 // ===============================
@@ -440,7 +463,7 @@ return chosen;
 const ITEMS=[
 ["Flashlight","tool",0,"tool",5],
 ["First Aid Kit","heal",4],
-
+["Healing Potion","healweak",5],
 ["Pistol","weapon",5,"pistol",5],
 ["Shotgun","weapon",8,"shotgun",5],
 ["MP5","weapon",7,"smg",5],
@@ -512,7 +535,10 @@ const ITEM_META={
     rarity:"Uncommon",
     image:"firstaid.png"
   },
-
+"Healing Potion":{
+  rarity:"Rare",
+  image:"healingpotion.png"
+},
   "Rusty Key":{
     rarity:"Uncommon",
     image:"rustykey.png"
@@ -540,7 +566,35 @@ weight:20,
 image:"whisperer.png",
 ability:"Whispers of Fear — Counter-attacks can drain Sanity."
 },
+{
+name:"The Drifter",
+hp:8,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"drifter.png",
+ability:"Desperate Lunge — Occasionally deals +1 damage when counter-attacking."
+},
 
+{
+name:"The Weeper",
+hp:6,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"weeper.png",
+ability:"Disturbing Cries — Its cries can increase Fear during combat."
+},
+
+{
+name:"The Rotter",
+hp:10,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"rotter.png",
+ability:"Rotting Grip — Tougher than most Common creatures and difficult to put down."
+},
 {
 name:"The Mimic",
 hp:9,
@@ -550,7 +604,35 @@ weight:12,
 image:"mimic.png",
 ability:"Perfect Imitation — Can copy the last attack used against it."
 },
+{
+name:"The Screecher",
+hp:10,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"screecher.png",
+ability:"Piercing Scream — Its screams can damage Sanity during combat."
+},
 
+{
+name:"The Skinwalker",
+hp:11,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"skinwalker.png",
+ability:"False Face — Can confuse Survivors and increase Fear."
+},
+
+{
+name:"The Graveborn",
+hp:12,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"graveborn.png",
+ability:"Grave Resilience — Has a chance to survive a killing blow with 1 HP."
+},
 {
 name:"The Stalker",
 hp:12,
@@ -560,7 +642,25 @@ weight:6,
 image:"stalker.png",
 ability:"Relentless Pursuit — Becomes stronger after being provoked."
 },
+{
+name:"The Butcher",
+hp:16,
+atk:5,
+rarity:"Rare",
+weight:6,
+image:"butcher.png",
+ability:"Blood Frenzy — Becomes more dangerous after damaging a wounded Survivor."
+},
 
+{
+name:"The Night Hag",
+hp:14,
+atk:4,
+rarity:"Rare",
+weight:6,
+image:"nighthag.png",
+ability:"Nightmare Touch — Can drain Sanity and increase Fear during combat."
+},
 {
 name:"The Crawling Man",
 hp:15,
@@ -570,17 +670,65 @@ weight:2,
 image:"crawlingman.png",
 ability:"Unnatural Reach — Its attacks can bypass some protection."
 },
+{
+name:"The Pale Bride",
+hp:18,
+atk:6,
+rarity:"Epic",
+weight:2,
+image:"palebride.png",
+ability:"Mourning Curse — Her attacks can drain Sanity and spread Fear through the party."
+},
 
+{
+name:"The Bone Collector",
+hp:22,
+atk:5,
+rarity:"Epic",
+weight:2,
+image:"bonecollector.png",
+ability:"Harvest the Fallen — Becomes stronger when a Survivor is knocked out."
+},
+
+{
+name:"The Wendigo",
+hp:20,
+atk:7,
+rarity:"Epic",
+weight:2,
+image:"wendigo.png",
+ability:"Predator's Hunger — Becomes more aggressive as its Health gets lower."
+},
 {
 name:"The Hollow",
 hp:20,
 atk:6,
-rarity:"Legendary",
-weight:1,
+rarity:"Ancient",
+weight:0,
 image:"hollow.png",
-ability:"Void Consumption — Can drain Actions from its victim."
+ability:"Void Consumption — Can drain Actions from its victim.",
+bossZone:"hollow"
+},
+{
+name:"The Warden",
+hp:26,
+atk:7,
+rarity:"Mythic",
+weight:0,
+image:"warden.png",
+ability:"Prisoner's Judgment — The Warden punishes wounded Survivors with devastating attacks.",
+bossZone:"prison"
+},
+  {
+  name:"The Root of Blackwood",
+  hp:40,
+  atk:8,
+  rarity:"Abyssal",
+  weight:0,
+  image:"rootofblackwood.png",
+  ability:"Blackwood Awakens — The ancient source of the nightmare grows stronger as it is wounded.",
+  bossZone:"root"
 }
-
 ];
 
 const EVENTS=[
@@ -681,6 +829,8 @@ berserkUsedThisBattle:false,
 berserkSpecialBoostReady:false,
   lifeRestoreReady:false,
 enemyStunned:false,
+handcuffedTurns:0,
+weak:false,
 fear:0,
 loc:"motel",
 actions:25,
@@ -789,7 +939,29 @@ function useAction(cost,fn){
 function useCombatAction(cost,fn){
 
   let p=G.ps[G.active];
+// WARDEN HANDCUFF EFFECT
+if(p.handcuffedTurns>0){
 
+  p.handcuffedTurns--;
+
+  log(
+    `⛓️ ${p.name} is HANDCUFFED and loses this combat turn! ${p.handcuffedTurns} restrained turns remain.`,
+    "bad"
+  );
+
+  if(p.handcuffedTurns===0){
+
+    p.weak=true;
+
+    log(
+      `⚠️ ${p.name} breaks free but returns WEAK! Attack damage is reduced by 30% for the rest of this battle.`,
+      "bad"
+    );
+  }
+
+  render();
+  return;
+}
   if(!combat){
     log("You are not in combat.","bad");
     return;
@@ -853,13 +1025,17 @@ if(warningText && !confirm(warningText)){
   log(`${p.name} decides not to enter ${LM[id][1]}.`);
   return;
 }
-p.loc=id;
+// Move the entire surviving party together
+G.ps.forEach(s=>{
+  if(!s.dead){
+    s.loc=id;
+  }
+});
 G.discovered.add(id);
 
 LM[id][2].forEach(x=>G.discovered.add(x));
 
-log(`${p.name} moves to ${LM[id][1]}.`);
-
+log(`The party moves to ${LM[id][1]}.`);
 // ===============================
 // ZONE ENCOUNTER CHANCE
 // ===============================
@@ -1070,22 +1246,172 @@ spawn(p.loc);
 
 check(p);
 }
-
 function spawn(loc){
+ // ===============================
+// SPECIAL BOSS ENCOUNTER ROLLS
+// ===============================
 
-let total=CRE.reduce((sum,c)=>sum+c.weight,0);
-let roll=Math.random()*total;
-let b=CRE[0];
+// MYTHIC — THE WARDEN
+if(loc==="prison"){
 
-for(let i=0;i<CRE.length;i++){
-  roll-=CRE[i].weight;
+  // TRUE 20% chance
+  if(Math.random() < 0.20){
 
-  if(roll<=0){
-    b=CRE[i];
-    break;
+    let b=CRE.find(c=>
+      c.rarity==="Mythic" &&
+      c.bossZone==="prison"
+    );
+
+    if(b){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        handcuffActive:false,
+handcuffCooldownHp:null,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `🔥 MYTHIC ENCOUNTER! <b>${c.name}</b> has appeared!`,
+        "bad"
+      );
+
+      return;
+    }
   }
 }
 
+// ANCIENT — THE HOLLOW
+if(loc==="hollow"){
+
+  // TRUE 10% chance
+  if(Math.random() < 0.10){
+
+    let b=CRE.find(c=>
+      c.rarity==="Ancient" &&
+      c.bossZone==="hollow"
+    );
+
+    if(b){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        voidShield:0,
+voidShieldActivated:false,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `👁️ ANCIENT ENCOUNTER! <b>${c.name}</b> has appeared!`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+}
+ // ABYSSAL — THE ROOT OF BLACKWOOD
+if(loc==="root"){
+
+  let b=CRE.find(c=>
+    c.rarity==="Abyssal" &&
+    c.bossZone==="root"
+  );
+
+  if(b){
+
+    let alreadySpawned=G.creatures.some(c=>
+      c.name==="The Root of Blackwood"
+    );
+
+    if(!alreadySpawned){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `🌑 ABYSSAL ENCOUNTER! <b>${c.name}</b> has awakened!`,
+        "bad"
+      );
+    }
+
+    return;
+  }
+}
+// ===============================
+// ZONE-BASED CREATURE POOLS
+// ===============================
+
+let allowedRarities=[];
+
+if(NORMAL_ZONES.includes(loc)){
+  allowedRarities=["Common","Uncommon"];
+}
+
+else if(DANGER_ZONES.includes(loc)){
+  allowedRarities=["Common","Uncommon","Rare"];
+}
+
+else if(VERY_RISKY_ZONES.includes(loc)){
+  allowedRarities=["Uncommon","Rare","Epic"];
+}
+
+else if(VERY_DEADLY_ZONES.includes(loc)){
+  allowedRarities=["Rare","Epic"];
+}
+
+else{
+  allowedRarities=["Common","Uncommon"];
+}
+
+let regularPool=CRE.filter(c=>
+  allowedRarities.includes(c.rarity)
+);
+
+let total=regularPool.reduce((sum,c)=>sum+c.weight,0);
+let roll=Math.random()*total;
+let b=regularPool[0];
+
+for(let i=0;i<regularPool.length;i++){
+  roll-=regularPool[i].weight;
+
+  if(roll<=0){
+    b=regularPool[i];
+    break;
+  }
+}
 let c={
   id:Date.now()+Math.random(),
   name:b.name,
@@ -1207,12 +1533,101 @@ log("Your attack misses.","bad");
 else{
 
 let dmg=w.val+(r===6?3:0);
+  // WEAK STATUS — 30% less attack damage
+if(p.weak){
 
+  let originalDamage=dmg;
+
+  dmg=Math.max(1,Math.floor(dmg*0.70));
+
+  log(
+    `⚠️ WEAK! ${p.name}'s attack is reduced from ${originalDamage} to ${dmg} damage.`,
+    "bad"
+  );
+}
+// THE ROTTER — 20% chance to reduce incoming damage by 1
+if(combat.name==="The Rotter" && Math.random()<0.20){
+
+  dmg=Math.max(0,dmg-1);
+
+  log(
+    `🧟 ROTTING GRIP! The Rotter reduces the attack damage by 1.`,
+    "bad"
+  );
+}
+// THE HOLLOW — VOID SHIELD absorbs damage first
+if(
+  combat.name==="The Hollow" &&
+  combat.voidShield>0
+){
+  let absorbed=Math.min(dmg,combat.voidShield);
+
+  combat.voidShield-=absorbed;
+  dmg-=absorbed;
+
+  log(
+    `🛡️ VOID SHIELD absorbs ${absorbed} damage! ${combat.voidShield} Shield remains.`,
+    "bad"
+  );
+
+  if(combat.voidShield<=0){
+    log(
+      `💥 The Hollow's VOID SHIELD SHATTERS!`,
+      "good"
+    );
+  }
+}
+
+// Any remaining damage hits The Hollow normally
 combat.hp-=dmg;
+  // THE HOLLOW — activate Void Shield once at 50% HP
+if(
+  combat.name==="The Hollow" &&
+  combat.hp<=combat.maxHp*0.50 &&
+  !combat.voidShieldActivated
+){
+  combat.voidShieldActivated=true;
+  combat.voidShield=10;
+
+  log(
+    `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 10 damage!`,
+    "bad"
+  );
+}
 combat.provoked=true;
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
 chargeSpecial(p);
-if(combat.hp<=0){
+  // THE MIMIC — 25% chance to imitate 50% of damage received
+if(
+  combat.name==="The Mimic" &&
+  combat.hp>0 &&
+  Math.random()<0.25
+){
+  let mimicDamage=Math.max(1,Math.floor(dmg*0.50));
+
+  p.hp-=mimicDamage;
+
+  log(
+    `🎭 PERFECT IMITATION! The Mimic copies your attack and deals ${mimicDamage} damage back to ${p.name}!`,
+    "bad"
+  );
+
+  check(p,combat);
+}
+// THE GRAVEBORN — 25% chance to survive a killing blow with 1 HP
+if(
+  combat.name==="The Graveborn" &&
+  combat.hp<=0 &&
+  Math.random()<0.25
+){
+  combat.hp=1;
+
+  log(
+    `💀 GRAVE RESILIENCE! The Graveborn refuses to die and survives with 1 HP!`,
+    "bad"
+  );
+}
+  if(combat.hp<=0){
 
 log(`${combat.name} is defeated!`,"good");
 
@@ -1278,11 +1693,18 @@ else{
 
 let exits=LM[p.loc][2];
 
-p.loc=rnd(exits);
+let escapeLoc=rnd(exits);
 
-G.discovered.add(p.loc);
+// Move the entire surviving party together
+G.ps.forEach(s=>{
+  if(!s.dead){
+    s.loc=escapeLoc;
+  }
+});
 
-log(`You escape to ${LM[p.loc][1]}.`,"good");
+G.discovered.add(escapeLoc);
+
+log(`The party escapes to ${LM[escapeLoc][1]}.`,"good");
 G.ps.forEach(s=>{
   s.combatActions=0;
 });
@@ -1294,20 +1716,246 @@ combat=null;
 
 function creatureAttack(c){
 
-let p=G.ps[G.active];
+  let p=G.ps[G.active];
 
-let damage=c.atk;
+  let damage=c.atk;
 
-if(p.fear>=4)
-damage++;
+  // Fear bonus
+  if(p.fear>=4){
+    damage++;
+  }
+  // ===============================
+// MYTHIC — THE WARDEN
+// ===============================
 
-p.hp-=damage;
+// Re-enable handcuffs after The Warden loses 35% Max HP
+if(
+  c.name==="The Warden" &&
+  c.handcuffActive &&
+  c.handcuffCooldownHp!==null &&
+  c.hp<=c.handcuffCooldownHp
+){
+  c.handcuffActive=false;
 
-log(`👹 COUNTER-ATTACK! ${c.name} attacks ${p.name} for ${damage} damage!`,"bad");
-
-check(p,c);
+  log(
+    `⛓️ The Warden's restraints are ready again!`,
+    "bad"
+  );
 }
 
+// PRISONER'S RESTRAINT — handcuff wounded Survivor for 3 turns
+if(
+  c.name==="The Warden" &&
+  p.hp>0 &&
+  p.hp<p.maxHp*0.40 &&
+  p.handcuffedTurns===0 &&
+  !c.handcuffActive
+){
+  p.handcuffedTurns=3;
+
+  c.handcuffActive=true;
+  c.handcuffCooldownHp=Math.max(
+    0,
+    c.hp-(c.maxHp*0.35)
+  );
+
+  log(
+    `⛓️ PRISONER'S RESTRAINT! The Warden handcuffs ${p.name}! They will lose their next 3 turns.`,
+    "bad"
+  );
+}
+  // PRISONER'S JUDGMENT — punish wounded Survivors
+if(
+  c.name==="The Warden" &&
+  p.hp<=p.maxHp*0.50 &&
+  Math.random()<0.40
+){
+  damage+=5;
+
+  log(
+    `⚖️ PRISONER'S JUDGMENT! The Warden punishes ${p.name} for being wounded and gains +5 damage!`,
+    "bad"
+  );
+}
+  // ===============================
+// ANCIENT — THE HOLLOW
+// ===============================
+
+// VOID CONSUMPTION — 30% chance to drain 2 Combat Actions
+if(
+  c.name==="The Hollow" &&
+  Math.random()<0.30
+){
+  let drained=Math.min(2,p.combatActions);
+
+  p.combatActions=Math.max(0,p.combatActions-drained);
+
+  log(
+    `🕳️ VOID CONSUMPTION! The Hollow drains ${drained} Combat Actions from ${p.name}!`,
+    "bad"
+  );
+}
+// ===============================
+// RARE CREATURE ABILITIES
+// ===============================
+
+// THE STALKER — 30% chance for +2 damage once provoked
+if(
+  c.name==="The Stalker" &&
+  c.provoked &&
+  Math.random()<0.30
+){
+  damage+=2;
+
+  log(
+    `👁️ RELENTLESS PURSUIT! The Stalker gains +2 damage!`,
+    "bad"
+  );
+}
+  // THE BUTCHER — 30% chance for +3 damage against wounded Survivors
+if(
+  c.name==="The Butcher" &&
+  p.hp<=p.maxHp*0.50 &&
+  Math.random()<0.30
+){
+  damage+=3;
+
+  log(
+    `🔪 BLOOD FRENZY! The Butcher smells blood and gains +3 damage!`,
+    "bad"
+  );
+}
+  // ===============================
+// EPIC CREATURE ABILITIES
+// ===============================
+
+// THE CRAWLING MAN — 35% chance for +3 damage
+if(
+  c.name==="The Crawling Man" &&
+  Math.random()<0.35
+){
+  damage+=3;
+
+  log(
+    `🕷️ UNNATURAL REACH! The Crawling Man strikes from an impossible angle for +3 damage!`,
+    "bad"
+  );
+}
+  // THE WENDIGO — gets stronger as its HP gets lower
+if(c.name==="The Wendigo"){
+
+  if(c.hp<=c.maxHp*0.25){
+    damage+=4;
+
+    log(
+      `🦌 PREDATOR'S HUNGER! The Wendigo is near death and gains +4 damage!`,
+      "bad"
+    );
+  }
+
+  else if(c.hp<=c.maxHp*0.50){
+    damage+=2;
+
+    log(
+      `🦌 PREDATOR'S HUNGER! The Wendigo becomes more aggressive and gains +2 damage!`,
+      "bad"
+    );
+  }
+}
+  // ===============================
+  // COMMON CREATURE ABILITIES
+  // ===============================
+
+  // THE DRIFTER — 20% chance for +1 damage
+  if(c.name==="The Drifter" && Math.random()<0.20){
+    damage+=1;
+
+    log(
+      `🩸 DESPERATE LUNGE! The Drifter deals +1 bonus damage.`,
+      "bad"
+    );
+  }
+
+  // Deal HP damage
+  p.hp-=damage;
+
+  log(
+    `👹 COUNTER-ATTACK! ${c.name} attacks ${p.name} for ${damage} damage!`,
+    "bad"
+  );
+// THE NIGHT HAG — 30% chance to drain Sanity and increase Fear
+if(c.name==="The Night Hag" && Math.random()<0.30){
+
+  p.san=Math.max(0,p.san-1);
+  p.fear=Math.min(5,p.fear+1);
+
+  log(
+    `🌙 NIGHTMARE TOUCH! ${p.name} loses 1 Sanity and gains 1 Fear.`,
+    "bad"
+  );
+}
+  // THE PALE BRIDE — 35% chance to curse the entire party
+if(c.name==="The Pale Bride" && Math.random()<0.35){
+
+  p.san=Math.max(0,p.san-2);
+  p.fear=Math.min(5,p.fear+1);
+
+  G.ps.forEach(s=>{
+    if(!s.dead && s!==p){
+      s.fear=Math.min(5,s.fear+1);
+    }
+  });
+
+  log(
+    `👰 MOURNING CURSE! ${p.name} loses 2 Sanity and gains 1 Fear. The rest of the party gains 1 Fear.`,
+    "bad"
+  );
+}
+  // THE WHISPERER — 20% chance to drain 1 Sanity
+  if(c.name==="The Whisperer" && Math.random()<0.20){
+    p.san=Math.max(0,p.san-1);
+
+    log(
+      `👻 WHISPERS OF FEAR! ${p.name} loses 1 Sanity.`,
+      "bad"
+    );
+  }
+
+  // THE WEEPER — 20% chance to add 1 Fear
+  if(c.name==="The Weeper" && Math.random()<0.20){
+    p.fear=Math.min(5,p.fear+1);
+
+    log(
+      `😭 DISTURBING CRIES! ${p.name} gains 1 Fear.`,
+      "bad"
+    );
+  }
+// ===============================
+// UNCOMMON CREATURE ABILITIES
+// ===============================
+
+// THE SCREECHER — 25% chance to drain 1 Sanity
+if(c.name==="The Screecher" && Math.random()<0.25){
+
+  p.san=Math.max(0,p.san-1);
+
+  log(
+    `📢 PIERCING SCREAM! ${p.name} loses 1 Sanity.`,
+    "bad"
+  );
+}
+ // THE SKINWALKER — 25% chance to confuse and add 1 Fear
+if(c.name==="The Skinwalker" && Math.random()<0.25){
+
+  p.fear=Math.min(5,p.fear+1);
+
+  log(
+    `🎭 FALSE FACE! ${p.name} becomes confused and gains 1 Fear.`,
+    "bad"
+  );
+}
+  check(p,c);
+}
 function useItem(i){
 
 let p=G.ps[G.active];
@@ -1323,6 +1971,20 @@ log(`${p.name} uses ${it.name} and restores ${it.val} Health.`,"good");
 
 p.items.splice(i,1);
 
+}
+else if(it.type==="healweak"){
+
+  let oldHp=p.hp;
+
+  p.hp=Math.min(p.maxHp,p.hp+it.val);
+  p.weak=false;
+
+  log(
+    `🧪 ${p.name} uses ${it.name}, restores ${p.hp-oldHp} Health, and removes the WEAK status!`,
+    "good"
+  );
+
+  p.items.splice(i,1);
 }
 else if(it.type==="san"){
 
@@ -1549,7 +2211,16 @@ if(p.rarity==="G.O.A.T"){
   if(p.lives>0){
 
     p.knockedOut=true;
+// THE BONE COLLECTOR — gains +2 Attack when it knocks out a Survivor
+if(killer && killer.name==="The Bone Collector"){
 
+  killer.atk+=2;
+
+  log(
+    `💀 HARVEST THE FALLEN! The Bone Collector grows stronger and gains +2 Attack!`,
+    "bad"
+  );
+}
     log(
       `💀 ${p.name} has been KNOCKED OUT! ${p.lives}/${p.maxLives} Lives remain.`,
       "bad"
@@ -2035,8 +2706,7 @@ document.getElementById("creatures").innerHTML=
 
 here.map(c=>
 
-`<div class="card" style="
-border:2px solid ${
+`<div class="card ${c.name==="The Hollow" && c.voidShield>0 ? "void-shield-active" : ""}" style="border:2px solid ${
 c.rarity==="Common"?"#a8a8a8":
 c.rarity==="Uncommon"?"#4caf50":
 c.rarity==="Rare"?"#2196f3":
@@ -2177,7 +2847,7 @@ if(combat){
 }
 
   // NORMAL ESCAPE CHECK
-  if(p.loc==="gate"&&G.clues>=3){
+ if(p.loc==="gate"&&G.clues>=10){
   
     alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
 
@@ -2221,7 +2891,7 @@ if(canEndNight()){
 }
   if(G.night>=10){
 
-    if(G.clues>=3){
+if(G.clues>=10){
 
       G.discovered.add("gate");
 
