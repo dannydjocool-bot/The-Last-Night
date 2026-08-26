@@ -244,25 +244,156 @@ Waiting for the night to begin...
 
 <script>
 const L=[
-["motel","Riverside Motel",["gas","forest","station"]],
-["gas","Abandoned Gas Station",["motel","forest"]],
-["forest","Blackwood Forest",["motel","gas","cemetery","chapel"]],
-["cemetery","Old Cemetery",["forest","chapel"]],
-["chapel","The Chapel",["forest","cemetery","hospital"]],
-["station","Police Station",["motel","hospital","library"]],
-["hospital","Abandoned Hospital",["station","chapel","school","tunnel"]],
-["library","Town Library",["station","school"]],
-["school","Blackwood School",["library","hospital","tunnel"]],
-["tunnel","Underground Tunnel",["hospital","school","house"]],
-["house","The Old House",["tunnel","basement"]],
+["motel","Riverside Motel",["gas","store","station"]],
+["gas","Abandoned Gas Station",["motel","store","forest"]],
+["store","Blackwood General Store",["motel","gas","station","apartments"]],
+["station","Police Station",["motel","store","library","firestation"]],
+["library","Town Library",["station","apartments","school"]],
+["apartments","Blackwood Apartments",["store","library","firestation","hotel"]],
+["firestation","Abandoned Fire Station",["station","apartments","junkyard"]],
+["cemetery","Old Cemetery",["chapel","monastery","forest"]],
+["chapel","The Chapel",["cemetery","monastery","hospital"]],
+["monastery","Ruined Monastery",["cemetery","chapel","cabins"]],
+["cabins","Abandoned Cabins",["monastery","forest","huntercamp"]],
+
+["forest","Blackwood Forest",["gas","cemetery","cabins","huntercamp","sawmill"]],
+["huntercamp","Hunter's Camp",["cabins","forest","farm"]],
+["junkyard","Blackwood Junkyard",["firestation","factory","farm"]],
+["farm","Dead Man's Farm",["huntercamp","junkyard","sawmill"]],
+["sawmill","Old Sawmill",["forest","farm","bridge"]],
+["hospital","Abandoned Hospital",["chapel","school","sewers"]],
+["school","Blackwood School",["library","hospital","subway"]],
+["sewers","Blackwood Sewers",["hospital","tunnel","factory"]],
+["tunnel","Underground Tunnel",["sewers","subway","house"]],
+["bridge","Broken Bridge",["sawmill","hotel","mines"]],
+["subway","Collapsed Subway",["school","tunnel","laboratory"]],
+
+["house","The Old House",["tunnel","basement","hotel"]],
+["hotel","Blackwood Hotel",["apartments","bridge","house","massgrave"]],
+["factory","Abandoned Factory",["junkyard","sewers","massgrave","prison"]],
+["mines","Blackwood Mines",["bridge","massgrave","laboratory"]],
+["massgrave","Mass Grave",["hotel","factory","mines","slaughterhouse"]],
 ["basement","The Basement",["house","ritual"]],
-["ritual","The Ritual Chamber",["basement","hollow"]],
+
+["slaughterhouse","The Slaughterhouse",["massgrave","prison"]],
+["prison","Blackwood Prison",["factory","slaughterhouse","asylum"]],
+["asylum","Blackwood Asylum",["prison","laboratory"]],
+["laboratory","Underground Laboratory",["subway","mines","asylum","ritual"]],
+["ritual","The Ritual Chamber",["basement","laboratory","hollow"]],
 ["hollow","The Hollow",["ritual","gate"]],
 ["gate","The Escape Gate",["hollow"]]
 ];
-
 const LM=Object.fromEntries(L.map(x=>[x[0],x]));
+// ===============================
+// ZONE DANGER LEVELS
+// ===============================
 
+// 🟢 NORMAL — 25% encounter chance
+const NORMAL_ZONES=[
+  "motel",
+  "gas",
+  "store",
+  "station",
+  "library",
+  "apartments",
+  "firestation",
+  "cemetery",
+  "chapel",
+  "monastery",
+  "cabins"
+];
+
+// ⚠️ DANGER — 60% encounter chance
+const DANGER_ZONES=[
+  "forest",
+  "huntercamp",
+  "junkyard",
+  "farm",
+  "sawmill",
+  "hospital",
+  "school",
+  "sewers",
+  "tunnel",
+  "bridge",
+  "subway"
+];
+
+// ☠️ VERY RISKY — 90% encounter chance
+const VERY_RISKY_ZONES=[
+  "house",
+  "hotel",
+  "factory",
+  "mines",
+  "massgrave",
+  "basement"
+];
+
+// 💀 VERY DEADLY — 100% encounter chance
+const VERY_DEADLY_ZONES=[
+  "slaughterhouse",
+  "prison",
+  "asylum",
+  "laboratory",
+  "ritual",
+  "hollow"
+];
+  // ===============================
+// BLACKWOOD STORY CLUES
+// ===============================
+
+const STORY_CLUES={
+
+  station:{
+    name:"Missing Persons Report",
+    story:"Over several weeks, people began disappearing from Blackwood. Police records show every victim vanished sometime after midnight."
+  },
+
+  library:{
+    name:"The Blackwood Disappearances",
+    story:"Old newspaper records reveal the disappearances are not new. The same pattern has repeated every few decades for more than a century."
+  },
+
+  chapel:{
+    name:"Father Elias' Confession",
+    story:"A priest discovered that Blackwood was built over something ancient. His final warning reads: They aren't hunting us for food. They're keeping us here."
+  },
+
+  huntercamp:{
+    name:"The Photograph in the Woods",
+    story:"A hunter photographed a massive shadow watching Blackwood from the forest. On the back he wrote: The creatures never cross the town boundary."
+  },
+
+  hospital:{
+    name:"Patient 013's Journal",
+    story:"A survivor from an earlier cycle claimed the creatures become more aggressive every night, and that fear somehow makes them stronger."
+  },
+
+  school:{
+    name:"The Final Recording",
+    story:"Security footage from the night Blackwood fell shows people being dragged underground. A voice repeats: Ten must remember. Ten must know."
+  },
+
+  factory:{
+    name:"The Underground Map",
+    story:"Hidden tunnels connect Blackwood's oldest buildings. The map points toward a secret laboratory, a mass grave, and a ritual site beneath the town."
+  },
+
+  massgrave:{
+    name:"The First Victims",
+    story:"The bodies here are more than a century old. Symbols carved into their bones match symbols beneath the Chapel. Blackwood has repeated this nightmare for generations."
+  },
+
+  laboratory:{
+    name:"Project BLACKWOOD",
+    story:"Researchers discovered the creatures were never invading Blackwood. They were already here. Something beneath the town awakens them, and every attempt to destroy it has made the cycle worse."
+  },
+
+  ritual:{
+    name:"The Blackwood Ritual",
+    story:"The final document reveals that the creatures guard an entity known as The Hollow. The ten discoveries reveal how to break its hold over Blackwood and unseal the Escape Gate."
+  }
+
+};
 const S=[
 {name:"The Doctor",hp:8,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
 {name:"The Hunter",hp:10,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
@@ -567,6 +698,7 @@ ps,
 active:0,
 night:1,
 clues:0,
+foundClues:new Set(),
 discovered:new Set(["motel","gas","forest","station"]),
 creatures:[],
   extraPockets:[],
@@ -584,8 +716,7 @@ document.getElementById("setup").style.display="none";
 document.getElementById("game").style.display="grid";
 
 log("The survivors wake at the Riverside Motel.","good");
-log("Find 3 clues and reach the Escape Gate before Night 10.");
-
+log("Find all 10 story clues and reach the Escape Gate before Night 10.");
 startTurn();
 }
 
@@ -684,11 +815,44 @@ log("That location isn't connected.");
 return;
 }
 
-if(id==="gate"&&G.clues<3){
-log("The Escape Gate is sealed. Find 3 clues.","bad");
-return;
+if(id==="gate"&&G.clues<10){
+  log(`🔒 The Escape Gate is sealed. Find all 10 clues. (${G.clues}/10)`,"bad");
+  return;
+}
+// ===============================
+// DANGER WARNING BEFORE ENTERING
+// ===============================
+
+let warningText="";
+
+if(DANGER_ZONES.includes(id)){
+  warningText=
+    `⚠️ DANGER ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 60%\n\n` +
+    `Enter anyway?`;
 }
 
+else if(VERY_RISKY_ZONES.includes(id)){
+  warningText=
+    `☠️ VERY RISKY ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 90%\n\n` +
+    `Enter anyway?`;
+}
+
+else if(VERY_DEADLY_ZONES.includes(id)){
+  warningText=
+    `💀 VERY DEADLY ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 100%\n\n` +
+    `Enter anyway?`;
+}
+
+if(warningText && !confirm(warningText)){
+  log(`${p.name} decides not to enter ${LM[id][1]}.`);
+  return;
+}
 p.loc=id;
 G.discovered.add(id);
 
@@ -696,10 +860,29 @@ LM[id][2].forEach(x=>G.discovered.add(x));
 
 log(`${p.name} moves to ${LM[id][1]}.`);
 
-if(
-["forest","hospital","school","tunnel","house","basement","ritual","hollow"].includes(id)
-&&Math.random()<.35
-) encounter();
+// ===============================
+// ZONE ENCOUNTER CHANCE
+// ===============================
+
+let encounterChance=0;
+
+if(NORMAL_ZONES.includes(id)){
+  encounterChance=0.25;
+}
+else if(DANGER_ZONES.includes(id)){
+  encounterChance=0.60;
+}
+else if(VERY_RISKY_ZONES.includes(id)){
+  encounterChance=0.90;
+}
+else if(VERY_DEADLY_ZONES.includes(id)){
+  encounterChance=1.00;
+}
+
+if(encounterChance>0 && Math.random()<encounterChance){
+  spawn(id);
+}
+
 }
 
 function search(){
@@ -821,19 +1004,48 @@ log(
 }
 function gainClue(){
 
-if(G.clues>=3){
-log("You already have enough clues.");
-return;
-}
+  let p=G.ps[G.active];
+  let clue=STORY_CLUES[p.loc];
 
-G.clues++;
+  if(!clue){
+    log(`🔎 There is no major story clue at ${LM[p.loc][1]}.`);
+    return;
+  }
 
-log(`Found a clue. ${G.clues}/3 clues collected.`,"good");
+  if(G.foundClues.has(p.loc)){
+    log(`📖 You already discovered the clue at ${LM[p.loc][1]}.`);
+    return;
+  }
 
-if(G.clues===3){
-G.discovered.add("house");
-log("The clues point toward the Old House...","good");
-}
+  G.foundClues.add(p.loc);
+  G.clues=G.foundClues.size;
+
+  log(
+    `📖 STORY CLUE FOUND: <b>${clue.name}</b>`,
+    "good"
+  );
+
+  log(
+    `${clue.story}`,
+    "good"
+  );
+
+  alert(
+    `📖 STORY CLUE FOUND\n\n` +
+    `${clue.name}\n\n` +
+    `${clue.story}\n\n` +
+    `Clues Found: ${G.clues}/10`
+  );
+
+  if(G.clues===10){
+
+    G.discovered.add("gate");
+
+    log(
+      `🔓 ALL 10 CLUES FOUND! The truth of Blackwood has been uncovered. The Escape Gate can now be opened.`,
+      "good"
+    );
+  }
 }
 
 function encounter(){
@@ -1572,7 +1784,7 @@ document.getElementById("ammoDisplay").innerHTML=`
 document.getElementById("turnTitle").innerHTML=
 `<h2>Night ${G.night}/10 — ${p.name}</h2>
 <div class="muted">
-Clues: ${G.clues}/3 • ${
+Clues: ${G.clues}/10 • ${
   combat
     ? `Combat AP: ${p.combatActions}`
     : `Night AP: ${p.actions}`
@@ -1583,7 +1795,13 @@ document.getElementById("map").innerHTML=L.map(x=>{
 
 let discovered=G.discovered.has(x[0]);
 let connected=LM[p.loc][2].includes(x[0]);
-
+let zoneLabel=
+  NORMAL_ZONES.includes(x[0]) ? "🟢 NORMAL" :
+  DANGER_ZONES.includes(x[0]) ? "⚠️ DANGER" :
+  VERY_RISKY_ZONES.includes(x[0]) ? "☠️ VERY RISKY" :
+  VERY_DEADLY_ZONES.includes(x[0]) ? "💀 VERY DEADLY" :
+  x[0]==="gate" ? "🏁 ESCAPE" :
+  "";
 return`
 <div class="loc
 ${p.loc===x[0]?"current":""}
@@ -1591,7 +1809,13 @@ ${discovered?"":"locked"}">
 
 <b>${discovered?x[1]:"UNKNOWN"}</b>
 
+${discovered && zoneLabel
+  ? `<div style="margin-top:4px;font-weight:bold;">${zoneLabel}</div>`
+  : ""
+}
+
 ${p.loc===x[0]?"<div>📍 YOU ARE HERE</div>":""}
+
 
 ${discovered&&connected?
 `<button onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
