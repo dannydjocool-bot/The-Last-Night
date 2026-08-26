@@ -364,6 +364,8 @@ let ps=drawSurvivors(n).map(s=>({
 name:s.name,
 maxHp:s.hp,
 hp:s.hp,
+  baseMaxHp:s.hp,
+baseWeaponDamage:s.damage,
 san:s.san,
 maxSan:s.san,
 rarity:s.rarity,
@@ -374,6 +376,14 @@ weaponAbility:s.weaponAbility,
 ability:s.ability,
 specialCharge:s.rarity==="G.O.A.T"?100:0,
 specialUses:0,
+  lives:s.rarity==="G.O.A.T"?Infinity:3,
+maxLives:s.rarity==="G.O.A.T"?Infinity:3,
+knockedOut:false,
+dead:false,
+  berserk:false,
+berserkUsedThisBattle:false,
+berserkSpecialBoostReady:false,
+  lifeRestoreReady:false,
 enemyStunned:false,
 fear:0,
 loc:"motel",
@@ -575,6 +585,7 @@ let c={
   rarity:b.rarity,
   image:b.image,
   ability:b.ability,
+  provoked:false,
   loc
 };
 
@@ -585,11 +596,24 @@ log(
   "bad"
 );
 }
+function combatActionCount(){
+  const actions={
+    1:6,
+    2:9,
+    3:12,
+    4:15,
+    5:18
+  };
 
+  return actions[G.ps.length] || 6;
+}
 function startCombat(id){
 
 combat=G.creatures.find(c=>String(c.id)===String(id));
-
+if(combat){
+  let p=G.ps[G.active];
+  p.actions=combatActionCount();
+}
 if(combat)
 log(`Combat begins against ${combat.name}.`,"bad");
 
@@ -621,7 +645,7 @@ else{
 let dmg=w.val+(r===6?3:0);
 
 combat.hp-=dmg;
-
+combat.provoked=true;
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
 chargeSpecial(p);
 if(combat.hp<=0){
@@ -629,14 +653,39 @@ if(combat.hp<=0){
 log(`${combat.name} is defeated!`,"good");
 
 G.creatures=G.creatures.filter(c=>c!==combat);
+G.ps.forEach(s=>{
 
+    if(s.dead)return;
+
+    // Restore normal stats after Berserk
+    s.maxHp=s.baseMaxHp;
+    s.weaponDamage=s.baseWeaponDamage;
+  s.hp=Math.min(s.hp,s.maxHp);
+    s.berserk=false;
+    s.berserkUsedThisBattle=false;
+    s.berserkSpecialBoostReady=false;
+if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
+    s.lifeRestoreReady=true;
+}
+    // Wake up knocked-out survivors after battle
+    s.knockedOut=false;
+
+    // If below 15% HP, recover to 75%
+    if(s.hp < s.maxHp*0.15){
+        s.hp=Math.ceil(s.maxHp*0.75);
+
+        log(
+            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
+            "good"
+        );
+    }
+});
 combat=null;
 return;
 }
 }
 
-if(combat)
-creatureAttack(combat);
+
 
 });
 }
@@ -686,9 +735,9 @@ damage++;
 
 p.hp-=damage;
 
-log(`${c.name} attacks for ${damage} damage.`,"bad");
+log(`👹 COUNTER-ATTACK! ${c.name} attacks ${p.name} for ${damage} damage!`,"bad");
 
-check(p);
+check(p,c);
 }
 
 function useItem(i){
@@ -757,20 +806,91 @@ p.fear=Math.max(0,p.fear-1);
 
 log(`${p.name} takes a moment to recover.`,"good");
 }
+function activateBerserk(p){
 
-function check(p){
+  p.berserk=true;
+  p.berserkUsedThisBattle=true;
+  p.berserkSpecialBoostReady=true;
+
+  p.maxHp=p.baseMaxHp+10;
+  p.weaponDamage=p.baseWeaponDamage+8;
+
+  p.hp=p.maxHp;
+  p.knockedOut=false;
+
+  log(
+    `🔥 ${p.name} ENTERS BERSERK MODE! +10 Max HP, +8 Attack, and their next Special gains +55% damage!`,
+    "good"
+  );
+
+  render();
+}
+function check(p,killer=null){
 
 if(p.hp<=0){
 
-p.hp=0;
-
-alert(`${p.name} has been killed.\n\nTHE LAST NIGHT CLAIMS YOU.`);
-
-location.reload();
-
-return;
+  p.hp=0;
+  // LEGENDARY / G.O.A.T BERSERK
+if(
+  (p.rarity==="Legendary" || p.rarity==="G.O.A.T")
+  && !p.berserkUsedThisBattle
+){
+  activateBerserk(p);
+  return;
 }
 
+  // G.O.A.T characters can never permanently die
+if(p.rarity==="G.O.A.T"){
+
+  p.hp=0;
+  p.knockedOut=true;
+
+  log(
+    `🐐 ${p.name} cannot be killed! They are KNOCKED OUT but lose no Lives.`,
+    "good"
+  );
+
+  return;
+}
+
+  // Lose one life
+  p.lives=Math.max(0,p.lives-1);
+
+  if(p.lives>0){
+
+    p.knockedOut=true;
+
+    log(
+      `💀 ${p.name} has been KNOCKED OUT! ${p.lives}/${p.maxLives} Lives remain.`,
+      "bad"
+    );
+  switchCombatSurvivor();
+    return;
+  
+  }
+
+  // Final life lost
+  p.dead=true;
+  p.knockedOut=true;
+
+  log(
+    `☠️ ${p.name} has lost their FINAL LIFE!`,
+    "bad"
+  );
+  if(killer){
+
+    killer.maxHp+=10;
+    killer.hp=Math.min(killer.maxHp,killer.hp+10);
+    killer.atk+=5;
+
+    log(
+        `👹 ${killer.name} DEVOURS ${p.name}! +10 Max HP and +5 Attack!`,
+        "bad"
+    );
+}
+switchCombatSurvivor();
+return;
+}
 if(p.san<=0){
 
 p.san=1;
@@ -779,57 +899,80 @@ p.fear=Math.min(5,p.fear+2);
 log(`${p.name} BREAKS. Gain 2 Fear.`,"bad");
 }
 }
+function switchCombatSurvivor(){
 
-function endTurn(){
+  if(!combat)return false;
 
-if(combat){
-log("You must defeat the creature or flee first.","bad");
-return;
+  for(let step=1;step<=G.ps.length;step++){
+
+    let next=(G.active+step)%G.ps.length;
+    let survivor=G.ps[next];
+
+    if(!survivor.dead && !survivor.knockedOut && survivor.hp>0){
+
+      G.active=next;
+      survivor.actions=combatActionCount();
+
+      log(
+        `⚔️ ${survivor.name} steps forward to continue the battle!`,
+        "good"
+      );
+
+      render();
+      return true;
+    }
+  }
+
+  partyDefeated();
+return false;
 }
+function partyDefeated(){
 
-let p=G.ps[G.active];
+    log(`☠️ THE ENTIRE PARTY HAS FALLEN...`, "bad");
+    log(`🏚️ The survivors awaken back at the Riverside Motel.`, "good");
 
-if(p.loc==="gate"&&G.clues>=3){
+    // End the current combat
+    combat=null;
 
-alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
+    // Recover every survivor and return them to the motel
+    G.ps.forEach(p=>{
 
-location.reload();
+      if(p.dead)return;
+        p.knockedOut=false;
 
-return;
+        // Restore HP and sanity
+       p.hp=Math.ceil(p.maxHp*0.75);
+        p.san=Math.max(1,p.san);
+
+        // Return survivor to Riverside Motel
+        p.loc="motel";
+
+        // Reset combat states
+        p.fear=0;
+        p.enemyStunned=false;
+        p.berserk=false;
+        p.berserkUsedThisBattle=false;
+        p.berserkSpecialBoostReady=false;
+p.maxHp=p.baseMaxHp;
+p.weaponDamage=p.baseWeaponDamage;
+      // Lose one random regular item
+if(p.items && p.items.length>0){
+    let lostIndex=Math.floor(Math.random()*p.items.length);
+    let lostItem=p.items.splice(lostIndex,1)[0];
+
+    log(`🎒 ${p.name} lost ${lostItem.name} while escaping back to the motel.`, "bad");
 }
+        // Reset actions
+        p.actions=3;
+    });
 
-G.active++;
+    // Return control to first survivor
+    G.active=0;
 
-if(G.active>=G.ps.length){
+    log(`🔥 The party survived... but Blackwood has taken its toll.`, "bad");
 
-G.active=0;
-G.night++;
-
-log(`<b>NIGHT ${G.night} BEGINS.</b>`);
-
-if(G.night>=10){
-
-if(G.clues>=3){
-
-G.discovered.add("gate");
-
-log("THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.","bad");
-
+    render();
 }
-else{
-
-alert("Night 10 arrives before you uncover the truth.\n\nTHE DARKNESS CONSUMES BLACKWOOD.");
-
-location.reload();
-
-return;
-}
-}
-}
-
-startTurn();
-}
-
 function render(){
 
 let p=G.ps[G.active];
@@ -942,7 +1085,30 @@ ${sp.weaponAbility}
 <b>✨ CHARACTER ABILITY</b><br>
 ${sp.ability}
 <br><br>
+${index===G.active &&
+  !combat &&
+  sp.lifeRestoreReady &&
+  (sp.rarity==="Legendary" || sp.rarity==="G.O.A.T")
+  ? `
+    <div style="margin-top:10px;">
+      <b>💖 LIFE RESTORE READY</b><br>
+      ${G.ps.map((target,targetIndex)=>{
+        if(
+          targetIndex===index ||
+          target.dead ||
+          target.rarity==="G.O.A.T" ||
+          target.lives>=target.maxLives
+        ) return "";
 
+        return `<button onclick="restoreLives(${targetIndex})">
+          Restore ${target.name} (+2 Lives)
+        </button>`;
+      }).join("")}
+    </div>
+    <br>
+  `
+  : ""
+}
 <b>⚡ SPECIAL ABILITY</b><br>
 <div class="special-bar">
  <div class="special-fill" style="width:${sp.specialCharge}%"></div>
@@ -1058,9 +1224,12 @@ document.getElementById("actions").innerHTML=
 <br><br>
 
 <button onclick="attack()">Attack</button>
-<button onclick="useSpecial()">⚡ USE SPECIAL</button>
-<button onclick="flee()">Flee</button>`;
 
+<button onclick="useSpecial()">⚡ USE SPECIAL</button>
+
+<button onclick="flee()">Flee</button>
+
+<button onclick="endTurn()">🔄 END TURN</button>
 }
 else{
 
@@ -1070,6 +1239,109 @@ document.getElementById("actions").innerHTML=
 }
 
 renderLog();
+}
+  function endTurn(){
+
+  let p=G.ps[G.active];
+
+  // COMBAT END TURN
+if(combat){
+
+    // Creature only attacks after being provoked
+    if(combat.provoked){
+        creatureAttack(combat);
+
+        // Party may have been defeated during the creature attack
+        if(!combat){
+            return;
+        }
+
+        // If this survivor was knocked out/dead,
+        // switchCombatSurvivor() already handled the next fighter
+        if(p.knockedOut || p.dead || p.hp<=0){
+            return;
+        }
+    }
+
+    // Reset combat Actions for the active survivor
+    p.actions=combatActionCount();
+
+    // All living, conscious allies recover +1 HP
+    G.ps.forEach(ally=>{
+
+        if(
+            ally.dead ||
+            ally.knockedOut ||
+            ally.hp<=0
+        ) return;
+
+        if(ally.hp<ally.maxHp){
+
+            ally.hp=Math.min(
+                ally.maxHp,
+                ally.hp+1
+            );
+
+            log(
+                `❤️ ${ally.name} recovers 1 HP after the combat round.`,
+                "good"
+            );
+        }
+    });
+
+    log(
+        `🔄 ${p.name} begins another combat round with ${p.actions} Actions.`,
+        "good"
+    );
+
+    render();
+    return;
+}
+
+  // NORMAL ESCAPE CHECK
+  if(p.loc==="gate"&&G.clues>=3){
+
+    alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
+
+    location.reload();
+    return;
+  }
+
+  // NORMAL TURN ADVANCE
+  G.active++;
+
+  if(G.active>=G.ps.length){
+
+    G.active=0;
+    G.night++;
+
+    log(`<b>NIGHT ${G.night} BEGINS.</b>`);
+
+    if(G.night>=10){
+
+      if(G.clues>=3){
+
+        G.discovered.add("gate");
+
+        log(
+          "THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.",
+          "bad"
+        );
+
+      }
+      else{
+
+        alert(
+          "Night 10 arrives before you uncover the truth.\n\nTHE DARKNESS CONSUMES BLACKWOOD."
+        );
+
+        location.reload();
+        return;
+      }
+    }
+  }
+
+  startTurn();
 }
 function useSpecial(){
 
@@ -1088,9 +1360,17 @@ function useSpecial(){
     dmg=Math.ceil(dmg*1.25);
     log(`🐐 G.O.A.T BONUS! ${p.name}'s first Special deals 25% extra damage!`,"good");
   }
+if(p.berserkSpecialBoostReady){
+    dmg=Math.ceil(dmg*1.55);
+    p.berserkSpecialBoostReady=false;
 
+    log(
+        `🔥 BERSERK SPECIAL! ${p.name}'s Special gains +55% damage!`,
+        "good"
+    );
+}
   combat.hp-=dmg;
-
+combat.provoked=true;
   log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
 
   p.specialCharge=0;
@@ -1099,11 +1379,86 @@ function useSpecial(){
   if(combat.hp<=0){
     log(`${combat.name} is destroyed by the Special Ability!`,"good");
     G.creatures=G.creatures.filter(c=>c!==combat);
-    combat=null;
+  G.ps.forEach(s=>{
+
+    if(s.dead)return;
+
+    // Restore normal stats after Berserk
+    s.maxHp=s.baseMaxHp;
+    s.weaponDamage=s.baseWeaponDamage;
+    s.hp=Math.min(s.hp,s.maxHp);
+
+    s.berserk=false;
+    s.berserkUsedThisBattle=false;
+    s.berserkSpecialBoostReady=false;
+    if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
+    s.lifeRestoreReady=true;
+}
+
+    // Wake up knocked-out survivors after battle
+    s.knockedOut=false;
+
+    // If below 15% HP, recover to 75%
+    if(s.hp < s.maxHp*0.15){
+        s.hp=Math.ceil(s.maxHp*0.75);
+
+        log(
+            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
+            "good"
+        );
+    }
+});
+
+combat=null;
   }
 
   render();
 }
+function restoreLives(targetIndex){
+
+    let healer=G.ps[G.active];
+    let target=G.ps[targetIndex];
+
+    if(!healer || !target)return;
+
+    if(healer.rarity!=="Legendary" && healer.rarity!=="G.O.A.T"){
+        log(`❌ ${healer.name} cannot restore Lives.`,"bad");
+        return;
+    }
+
+    if(!healer.lifeRestoreReady){
+        log(`❌ ${healer.name}'s Life Restore is not ready.`,"bad");
+        return;
+    }
+
+    if(target.dead){
+        log(`☠️ ${target.name} is permanently dead and cannot be revived.`,"bad");
+        return;
+    }
+
+    if(target.rarity==="G.O.A.T"){
+        log(`🐐 ${target.name} already has unlimited Lives.`,"bad");
+        return;
+    }
+
+    if(target.lives>=target.maxLives){
+        log(`❤️ ${target.name} already has maximum Lives.`,"bad");
+        return;
+    }
+
+    let before=target.lives;
+
+    target.lives=Math.min(target.maxLives,target.lives+2);
+
+    healer.lifeRestoreReady=false;
+
+    log(
+        `✨ ${healer.name} restores ${target.name} from ${before}/${target.maxLives} to ${target.lives}/${target.maxLives} Lives!`,
+        "good"
+    );
+
+    render();
+}  
 function renderLog(){
 
 if(!G)return;
