@@ -1,0 +1,3593 @@
+/* The Last Night — core game logic.
+   Refactor pass 1 preserves the original global API because index.html still
+   uses inline onclick handlers. Follow-up passes can move those handlers to
+   event listeners and split this file into modules safely. */
+
+const L=[
+["motel","Riverside Motel",["gas","store","station"]],
+["gas","Abandoned Gas Station",["motel","store","forest"]],
+["store","Blackwood General Store",["motel","gas","station","apartments"]],
+["station","Police Station",["motel","store","library","firestation"]],
+["library","Town Library",["station","apartments","school"]],
+["apartments","Blackwood Apartments",["store","library","firestation","hotel"]],
+["firestation","Abandoned Fire Station",["station","apartments","junkyard"]],
+["cemetery","Old Cemetery",["chapel","monastery","forest"]],
+["chapel","The Chapel",["cemetery","monastery","hospital"]],
+["monastery","Ruined Monastery",["cemetery","chapel","cabins"]],
+["cabins","Abandoned Cabins",["monastery","forest","huntercamp"]],
+
+["forest","Blackwood Forest",["gas","cemetery","cabins","huntercamp","sawmill"]],
+["huntercamp","Hunter's Camp",["cabins","forest","farm"]],
+["junkyard","Blackwood Junkyard",["firestation","factory","farm"]],
+["farm","Dead Man's Farm",["huntercamp","junkyard","sawmill"]],
+["sawmill","Old Sawmill",["forest","farm","bridge"]],
+["hospital","Abandoned Hospital",["chapel","school","sewers"]],
+["school","Blackwood School",["library","hospital","subway"]],
+["sewers","Blackwood Sewers",["hospital","tunnel","factory"]],
+["tunnel","Underground Tunnel",["sewers","subway","house"]],
+["bridge","Broken Bridge",["sawmill","hotel","mines"]],
+["subway","Collapsed Subway",["school","tunnel","laboratory"]],
+
+["house","The Old House",["tunnel","basement","hotel"]],
+["hotel","Blackwood Hotel",["apartments","bridge","house","massgrave"]],
+["factory","Abandoned Factory",["junkyard","sewers","massgrave","prison"]],
+["mines","Blackwood Mines",["bridge","massgrave","laboratory"]],
+["massgrave","Mass Grave",["hotel","factory","mines","slaughterhouse"]],
+["basement","The Basement",["house","ritual"]],
+
+["slaughterhouse","The Slaughterhouse",["massgrave","prison"]],
+["prison","Blackwood Prison",["factory","slaughterhouse","asylum"]],
+["asylum","Blackwood Asylum",["prison","laboratory"]],
+["laboratory","Underground Laboratory",["subway","mines","asylum","ritual"]],
+["ritual","The Ritual Chamber",["basement","laboratory","hollow"]],
+["hollow","The Hollow",["ritual","root"]],
+["root","The Root of Blackwood",["hollow","gate"]],
+["gate","The Escape Gate",["root"]]
+];
+const LM=Object.fromEntries(L.map(x=>[x[0],x]));
+// ===============================
+// ZONE DANGER LEVELS
+// ===============================
+
+// 🟢 NORMAL — 25% encounter chance
+const NORMAL_ZONES=[
+  "motel",
+  "gas",
+  "store",
+  "station",
+  "library",
+  "apartments",
+  "firestation",
+  "cemetery",
+  "chapel",
+  "monastery",
+  "cabins"
+];
+
+// ⚠️ DANGER — 60% encounter chance
+const DANGER_ZONES=[
+  "forest",
+  "huntercamp",
+  "junkyard",
+  "farm",
+  "sawmill",
+  "hospital",
+  "school",
+  "sewers",
+  "tunnel",
+  "bridge",
+  "subway"
+];
+
+// ☠️ VERY RISKY — 90% encounter chance
+const VERY_RISKY_ZONES=[
+  "house",
+  "hotel",
+  "factory",
+  "mines",
+  "massgrave",
+  "basement"
+];
+
+// 💀 VERY DEADLY — 100% encounter chance
+const VERY_DEADLY_ZONES=[
+  "slaughterhouse",
+  "prison",
+  "asylum",
+  "laboratory",
+  "ritual",
+  "hollow"
+];
+  // ===============================
+// BLACKWOOD STORY CLUES
+// ===============================
+
+const STORY_CLUES={
+
+  station:{
+    name:"Missing Persons Report",
+    story:"Over several weeks, people began disappearing from Blackwood. Police records show every victim vanished sometime after midnight."
+  },
+
+  library:{
+    name:"The Blackwood Disappearances",
+    story:"Old newspaper records reveal the disappearances are not new. The same pattern has repeated every few decades for more than a century."
+  },
+
+  chapel:{
+    name:"Father Elias' Confession",
+    story:"A priest discovered that Blackwood was built over something ancient. His final warning reads: They aren't hunting us for food. They're keeping us here."
+  },
+
+  huntercamp:{
+    name:"The Photograph in the Woods",
+    story:"A hunter photographed a massive shadow watching Blackwood from the forest. On the back he wrote: The creatures never cross the town boundary."
+  },
+
+  hospital:{
+    name:"Patient 013's Journal",
+    story:"A survivor from an earlier cycle claimed the creatures become more aggressive every night, and that fear somehow makes them stronger."
+  },
+
+  school:{
+    name:"The Final Recording",
+    story:"Security footage from the night Blackwood fell shows people being dragged underground. A voice repeats: Ten must remember. Ten must know."
+  },
+
+  factory:{
+    name:"The Underground Map",
+    story:"Hidden tunnels connect Blackwood's oldest buildings. The map points toward a secret laboratory, a mass grave, and a ritual site beneath the town."
+  },
+
+  massgrave:{
+    name:"The First Victims",
+    story:"The bodies here are more than a century old. Symbols carved into their bones match symbols beneath the Chapel. Blackwood has repeated this nightmare for generations."
+  },
+
+  laboratory:{
+    name:"Project BLACKWOOD",
+    story:"Researchers discovered the creatures were never invading Blackwood. They were already here. Something beneath the town awakens them, and every attempt to destroy it has made the cycle worse."
+  },
+
+  ritual:{
+    name:"The Blackwood Ritual",
+    story:"The final document reveals that the creatures guard an entity known as The Hollow. The ten discoveries reveal how to break its hold over Blackwood and unseal the Escape Gate."
+  }
+
+};
+  const STORY_OBJECTIVES=[
+  {loc:"station",text:"Objective 1 — Investigate the Police Station"},
+  {loc:"library",text:"Objective 2 — Investigate the Town Library"},
+  {loc:"chapel",text:"Objective 3 — Investigate The Chapel"},
+  {loc:"huntercamp",text:"Objective 4 — Investigate Hunter's Camp"},
+  {loc:"hospital",text:"Objective 5 — Investigate the Abandoned Hospital"},
+  {loc:"school",text:"Objective 6 — Investigate Blackwood School"},
+  {loc:"factory",text:"Objective 7 — Investigate the Abandoned Factory"},
+  {loc:"massgrave",text:"Objective 8 — Investigate the Mass Grave"},
+  {loc:"laboratory",text:"Objective 9 — Investigate the Underground Laboratory"},
+  {loc:"ritual",text:"Objective 10 — Investigate the Ritual Chamber"}
+];
+const S=[
+{name:"The Doctor",hp:8,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
+{name:"The Hunter",hp:10,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
+{name:"The Runaway",hp:6,san:7,rarity:"Common",weight:20,image:"runaway.png",weapon:"Switchblade",damage:3,weaponAbility:"Quick Strike — First attack each combat costs 0 Actions.",ability:"Adrenaline Rush — Below 4 HP, gain +1 Action."},
+
+{name:"The Journalist",hp:7,san:8,rarity:"Uncommon",weight:12,image:"journalist.png",weapon:"Heavy Camera",damage:2,weaponAbility:"Flashbang — Once per combat, prevent the enemy's next attack.",ability:"Expose — Better rewards from investigations."},
+{name:"The Priest",hp:7,san:9,rarity:"Uncommon",weight:12,image:"priest.png",weapon:"Blessed Crucifix",damage:4,weaponAbility:"Exorcism — Bonus damage against supernatural creatures.",ability:"Faith — Remove 1 Fear from all Survivors once per game."},
+
+{name:"The Mechanic",hp:9,san:6,rarity:"Rare",weight:6,image:"mechanic.png",weapon:"Modified Nail Gun",damage:5,weaponAbility:"Overcharge — Spend +1 Action to deal +4 damage.",ability:"Engineering — Improved repair and item effects."},
+{name:"The Ex-Cop",hp:10,san:7,rarity:"Rare",weight:6,image:"excop.png",weapon:"Service Revolver",damage:6,weaponAbility:"Double Tap — Successful attacks may fire again.",ability:"Tactical Training — Gain +1 Action when combat begins."},
+
+{name:"The Occultist",hp:7,san:10,rarity:"Epic",weight:2,image:"occultist.png",weapon:"Ritual Dagger",damage:5,weaponAbility:"Blood Magic — Sacrifice 2 HP to deal +5 damage.",ability:"Dark Knowledge — See enemy weaknesses."},
+
+{name:"The Stranger",hp:8,san:8,rarity:"Legendary",weight:1,image:"stranger.png",weapon:"Blackwood Blade",damage:7,weaponAbility:"Unknown Power — Critical hits restore 2 HP and 2 Sanity.",ability:"Beyond Understanding — Resistant to negative events."},
+
+{name:"The Chosen",hp:12,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
+{name:"The Reaper",hp:11,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."}
+];
+
+function drawSurvivors(amount){
+let pool=[...S];
+let chosen=[];
+
+while(chosen.length<amount && pool.length){
+let total=pool.reduce((sum,s)=>sum+s.weight,0);
+let roll=Math.random()*total;
+let pick=0;
+
+for(let i=0;i<pool.length;i++){
+roll-=pool[i].weight;
+if(roll<=0){
+pick=i;
+break;
+}
+}
+
+chosen.push(pool[pick]);
+pool.splice(pick,1);
+}
+
+return chosen;
+}
+
+const ITEMS=[
+["Flashlight","tool",0,"tool",5],
+["First Aid Kit","heal",4],
+["Healing Potion","healweak",5],
+["Pistol","weapon",5,"pistol",5],
+["Shotgun","weapon",8,"shotgun",5],
+["MP5","weapon",7,"smg",5],
+["AK-47","weapon",10,"rifle",5],
+
+["Pistol Ammo","ammo",12,"pistol"],
+["Shotgun Ammo","ammo",6,"shotgun"],
+["SMG Ammo","ammo",20,"smg"],
+["Rifle Ammo","ammo",12,"rifle"],
+
+["Repair Kit","repair",5],
+
+["Rusty Key","key",0], 
+["Camera","tool",0,"tool",5],
+["Hunting Knife","weapon",2,"melee",5],
+["Fire Axe","weapon",6,"melee",5],
+["Calmative","san",3],
+["Emergency Rations","fear",2]
+];
+
+const ITEM_META={ 
+
+  "Pistol":{
+    rarity:"Rare",
+    image:"pistol.png"
+  },
+
+  "Shotgun":{
+    rarity:"Legendary",
+    image:"shotgun.png"
+  },
+
+  "MP5":{
+    rarity:"Epic",
+    image:"mp5.png"
+  },
+
+  "AK-47":{
+    rarity:"Epic",
+    image:"ak47.png"
+  },
+
+  "Hunting Knife":{
+    rarity:"Common",
+    image:"huntingknife.png"
+  },
+
+  "Fire Axe":{
+    rarity:"Rare",
+    image:"fireaxe.png"
+  },
+
+  "Repair Kit":{
+    rarity:"Uncommon",
+    image:"repairkit.png"
+  },
+
+  "Flashlight":{
+    rarity:"Common",
+    image:"flashlight.png"
+  },
+
+  "Camera":{
+    rarity:"Common",
+    image:"camera.png"
+  },
+
+  "First Aid Kit":{
+    rarity:"Uncommon",
+    image:"firstaid.png"
+  },
+"Healing Potion":{
+  rarity:"Rare",
+  image:"healingpotion.png"
+},
+  "Rusty Key":{
+    rarity:"Uncommon",
+    image:"rustykey.png"
+  },
+
+  "Calmative":{
+    rarity:"Uncommon",
+    image:"calmative.png"
+  },
+
+  "Emergency Rations":{
+    rarity:"Common",
+    image:"rations.png"
+  }
+};
+  
+const CRE=[
+
+{
+name:"The Whisperer",
+hp:7,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"whisperer.png",
+ability:"Whispers of Fear — Counter-attacks can drain Sanity."
+},
+{
+name:"The Drifter",
+hp:8,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"drifter.png",
+ability:"Desperate Lunge — Occasionally deals +1 damage when counter-attacking."
+},
+
+{
+name:"The Weeper",
+hp:6,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"weeper.png",
+ability:"Disturbing Cries — Its cries can increase Fear during combat."
+},
+
+{
+name:"The Rotter",
+hp:10,
+atk:2,
+rarity:"Common",
+weight:20,
+image:"rotter.png",
+ability:"Rotting Grip — Tougher than most Common creatures and difficult to put down."
+},
+{
+name:"The Mimic",
+hp:9,
+atk:4,
+rarity:"Uncommon",
+weight:12,
+image:"mimic.png",
+ability:"Perfect Imitation — Can copy the last attack used against it."
+},
+{
+name:"The Screecher",
+hp:10,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"screecher.png",
+ability:"Piercing Scream — Its screams can damage Sanity during combat."
+},
+
+{
+name:"The Skinwalker",
+hp:11,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"skinwalker.png",
+ability:"False Face — Can confuse Survivors and increase Fear."
+},
+
+{
+name:"The Graveborn",
+hp:12,
+atk:3,
+rarity:"Uncommon",
+weight:12,
+image:"graveborn.png",
+ability:"Grave Resilience — Has a chance to survive a killing blow with 1 HP."
+},
+{
+name:"The Stalker",
+hp:12,
+atk:3,
+rarity:"Rare",
+weight:6,
+image:"stalker.png",
+ability:"Relentless Pursuit — Becomes stronger after being provoked."
+},
+{
+name:"The Butcher",
+hp:16,
+atk:5,
+rarity:"Rare",
+weight:6,
+image:"butcher.png",
+ability:"Blood Frenzy — Becomes more dangerous after damaging a wounded Survivor."
+},
+
+{
+name:"The Night Hag",
+hp:14,
+atk:4,
+rarity:"Rare",
+weight:6,
+image:"nighthag.png",
+ability:"Nightmare Touch — Can drain Sanity and increase Fear during combat."
+},
+{
+name:"The Crawling Man",
+hp:15,
+atk:5,
+rarity:"Epic",
+weight:2,
+image:"crawlingman.png",
+ability:"Unnatural Reach — Its attacks can bypass some protection."
+},
+{
+name:"The Pale Bride",
+hp:18,
+atk:6,
+rarity:"Epic",
+weight:2,
+image:"palebride.png",
+ability:"Mourning Curse — Her attacks can drain Sanity and spread Fear through the party."
+},
+
+{
+name:"The Bone Collector",
+hp:22,
+atk:5,
+rarity:"Epic",
+weight:2,
+image:"bonecollector.png",
+ability:"Harvest the Fallen — Becomes stronger when a Survivor is knocked out."
+},
+
+{
+name:"The Wendigo",
+hp:20,
+atk:7,
+rarity:"Epic",
+weight:2,
+image:"wendigo.png",
+ability:"Predator's Hunger — Becomes more aggressive as its Health gets lower."
+},
+{
+name:"The Bloodkeeper",
+hp:28,
+atk:7,
+rarity:"Legendary",
+weight:1,
+image:"bloodkeeper.png",
+ability:"Blood Tribute — 35% chance when attacking to restore 3 HP."
+},
+{
+name:"The Blackwood Sentinel",
+hp:30,
+atk:8,
+rarity:"Legendary",
+weight:1,
+image:"blackwoodsentinel.png",
+ability:"Ancient Guard — The first successful attack against it each combat deals 50% less damage."
+},
+{
+name:"The Hollow",
+hp:38,
+atk:9,
+rarity:"Ancient",
+weight:0,
+image:"hollow.png",
+ability:"Void Consumption — Can drain Actions from its victim. Last Response — If a normal attack would kill The Hollow, it revives once at 30% HP, gains +55% Attack Damage, and summons a 15-point Void Shield.",
+bossZone:"hollow"
+},
+{
+name:"The Warden",
+hp:34,
+atk:9,
+rarity:"Mythic",
+weight:0,
+image:"warden.png",
+ability:"Prisoner's Judgment — The Warden punishes wounded Survivors with devastating attacks.",
+bossZone:"prison"
+},
+  {
+  name:"The Root of Blackwood",
+hp:55,
+atk:11,
+  rarity:"Abyssal",
+  weight:0,
+  image:"rootofblackwood.png",
+  ability:"Blackwood Awakens — The ancient source of the nightmare grows stronger as it is wounded.",
+  bossZone:"root"
+}
+];
+
+const EVENTS=[
+["Lights Out","Your flashlight flickers."],
+["Something Moved","Lose 1 Sanity."],
+["Footsteps","A creature appears nearby."],
+["Don't Look Behind You","Gain 1 Fear."],
+["The Door Opens","A creature appears immediately."]
+];
+
+let G=null;
+let combat=null;
+
+const d6=()=>1+Math.floor(Math.random()*6);
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function specialChargeRate(rarity){
+  const rates={
+    "Common":20,
+    "Uncommon":25,
+    "Rare":34,
+    "Epic":50,
+    "Legendary":100,
+    "G.O.A.T":50
+  };
+
+  return rates[rarity]||20;
+}
+
+function chargeSpecial(p){
+  if(p.specialCharge>=100)return;
+
+  let amount=specialChargeRate(p.rarity);
+
+  p.specialCharge=Math.min(100,p.specialCharge+amount);
+
+  log(`🔥 ${p.name}'s Special Meter increased to ${p.specialCharge}%.`,
+      p.specialCharge>=100?"good":"");
+
+  if(p.specialCharge>=100){
+    log(`⚡ ${p.name}'s SPECIAL ABILITY IS READY!`,"good");
+  }
+}
+function log(t,c=""){
+  G.log.unshift(`<div class="${c}">${t}</div>`);
+
+  const latest=document.getElementById("latestEvent");
+
+  if(latest){
+    latest.className="latest-event";
+
+    if(c==="good") latest.classList.add("good");
+    if(c==="bad") latest.classList.add("bad");
+
+    latest.innerHTML=t;
+  }
+
+  renderLog();
+}
+function updateStoryObjective(){
+
+  if(!G)return;
+
+  let objectiveText=document.getElementById("storyObjectiveText");
+  let objectiveProgress=document.getElementById("storyObjectiveProgress");
+
+  if(!objectiveText || !objectiveProgress)return;
+
+  let currentObjective=STORY_OBJECTIVES[G.clues];
+  let completedObjective=
+    G.clues>0 ? STORY_OBJECTIVES[G.clues-1] : null;
+
+  if(currentObjective){
+
+    if(completedObjective){
+      objectiveText.innerHTML=
+        `✅ ${completedObjective.text}<br>` +
+        `➡️ ${currentObjective.text}`;
+    }
+    else{
+      objectiveText.innerHTML=
+        `➡️ ${currentObjective.text}`;
+    }
+
+  }
+else{
+
+  if(!G.wardenDefeated || !G.hollowDefeated){
+
+    let wardenStatus=
+      G.wardenDefeated ? "✅ The Warden defeated" : "⬜ Defeat The Warden";
+
+    let hollowStatus=
+      G.hollowDefeated ? "✅ The Hollow defeated" : "⬜ Defeat The Hollow";
+
+    objectiveText.innerHTML=
+      `✅ All 10 story clues discovered.<br>` +
+      `➡️ Objective 11 — Break the Guardians<br>` +
+      `${wardenStatus}<br>` +
+      `${hollowStatus}`;
+  }
+
+else{
+
+  if(!G.bloodkeeperDefeated || !G.sentinelDefeated){
+
+    let bloodkeeperStatus=
+      G.bloodkeeperDefeated
+        ? "✅ The Bloodkeeper defeated"
+        : "⬜ Defeat The Bloodkeeper";
+
+    let sentinelStatus=
+      G.sentinelDefeated
+        ? "✅ The Blackwood Sentinel defeated"
+        : "⬜ Defeat The Blackwood Sentinel";
+
+    objectiveText.innerHTML=
+      `✅ Objective 11 — The Warden and The Hollow defeated<br>` +
+      `🔑 Warden-Hollow Relic acquired<br>` +
+      `➡️ Objective 12 — Hunt the Legendary Creatures<br>` +
+      `${bloodkeeperStatus}<br>` +
+      `${sentinelStatus}`;
+  }
+
+else{
+
+  let hasBloodkeeper=
+    G.storyItems.includes("Bloodkeeper Relic");
+
+  let hasSentinel=
+    G.storyItems.includes("Sentinel Relic");
+
+  let hasWardenHollow=
+    G.storyItems.includes("Warden-Hollow Relic");
+
+  if(!hasBloodkeeper || !hasSentinel || !hasWardenHollow){
+
+    objectiveText.innerHTML=
+      `➡️ Objective 13 — Assemble the Three Relics<br>` +
+      `${hasBloodkeeper ? "✅" : "⬜"} Bloodkeeper Relic<br>` +
+      `${hasSentinel ? "✅" : "⬜"} Sentinel Relic<br>` +
+      `${hasWardenHollow ? "✅" : "⬜"} Warden-Hollow Relic`;
+  }
+
+else{
+
+  if(!G.rootEntered){
+    objectiveText.innerHTML=
+      `✅ Objective 13 — All Three Relics Assembled<br>` +
+      `➡️ Objective 14 — Enter the Root of Blackwood`;
+  }
+
+else if(!G.rootDefeated){
+  objectiveText.innerHTML=
+    `✅ Objective 14 — Entered the Root of Blackwood<br>` +
+    `➡️ Objective 15 — Destroy the Root of Blackwood`;
+}
+
+else{
+  objectiveText.innerHTML=
+    `✅ Objective 15 — The Root of Blackwood Destroyed<br>` +
+    `➡️ Objective 16 — Reach the Escape Gate`;
+}
+}
+}
+}
+}
+  objectiveProgress.textContent=
+    `Story Clues: ${G.clues} / 10`;
+}
+  
+function maxRestsPerNight(p){
+
+  if(p.rarity==="G.O.A.T"){
+    return 5;
+  }
+
+  if(p.rarity==="Legendary"){
+    return 4;
+  }
+
+  if(p.rarity==="Epic"){
+    return 3;
+  }
+
+  return 2;
+}
+function startGame(n){
+let ps=drawSurvivors(n).map(s=>({
+name:s.name,
+maxHp:s.hp,
+hp:s.hp,
+  baseMaxHp:s.hp,
+baseWeaponDamage:s.damage,
+san:s.san,
+maxSan:s.san,
+rarity:s.rarity,
+image:s.image,
+weapon:s.weapon,
+weaponDamage:s.damage,
+weaponAbility:s.weaponAbility,
+ability:s.ability,
+specialCharge:s.rarity==="G.O.A.T"?100:0,
+specialUses:0,
+  lives:s.rarity==="G.O.A.T"?Infinity:3,
+maxLives:s.rarity==="G.O.A.T"?Infinity:3,
+knockedOut:false,
+dead:false,
+  berserk:false,
+berserkUsedThisBattle:false,
+berserkSpecialBoostReady:false,
+  lifeRestoreReady:false,
+enemyStunned:false,
+handcuffedTurns:0,
+weak:false,
+fear:0,
+loc:"motel",
+actions:25,
+combatActions:0,
+restsThisNight:0,
+  freeInvestigateUsed:false,
+items:[
+{name:"Flashlight",type:"tool",val:0},
+objItem(rnd(ITEMS.slice(1)))
+]
+}));
+
+G={
+ps,
+active:0,
+night:1,
+clues:0,
+foundClues:new Set(),
+discovered:new Set(["motel","gas","forest","station"]),
+  wardenDefeated:false,
+hollowDefeated:false,
+bloodkeeperDefeated:false,
+sentinelDefeated:false,
+  rootEntered:false,
+  rootDefeated:false,
+storyItems:[],
+creatures:[],
+  extraPockets:[],
+extraPocketMax:10,
+  ammo:{
+  pistol:0,
+  shotgun:0,
+  smg:0,
+  rifle:0
+},
+log:[]
+};
+
+document.getElementById("setup").style.display="none";
+document.getElementById("game").style.display="grid";
+
+updateStoryObjective();
+
+log("The survivors wake at the Riverside Motel.","good");
+log("Find all 10 story clues and reach the Escape Gate before Night 10.");
+startTurn();
+}
+
+function objItem(x){
+
+  let item={
+    name:x[0],
+    type:x[1],
+    val:x[2]
+  };
+
+  if(x[3]!==undefined){
+    item.ammoType=x[3];
+  }
+
+  if(x[4]!==undefined){
+    item.maxDurability=x[4];
+    item.durability=x[4];
+  }
+let meta=ITEM_META[item.name];
+
+if(meta){
+  item.rarity=meta.rarity;
+  item.image=meta.image;
+}
+else{
+  item.rarity="Common";
+  item.image=null;
+}
+  return item;
+}
+
+function startTurn(){
+
+let p=G.ps[G.active];
+// Actions are now refreshed only when a new Night begins
+
+let e=rnd(EVENTS);
+
+log(`<b>EVENT:</b> ${e[0]} — ${e[1]}`);
+
+if(e[0]==="Something Moved")
+p.san=Math.max(0,p.san-1);
+
+if(e[0]==="Footsteps"||e[0]==="The Door Opens")
+spawn(p.loc);
+
+if(e[0]==="Don't Look Behind You")
+p.fear++;
+
+check(p);
+render();
+}
+
+function useAction(cost,fn){
+
+  let p=G.ps[G.active];
+
+  if(p.actions<cost){
+    log("You don't have enough actions.","bad");
+    return;
+  }
+
+  p.actions-=cost;
+
+  fn();
+  render();
+}
+
+function useCombatAction(cost,fn){
+
+  let p=G.ps[G.active];
+// WARDEN HANDCUFF EFFECT
+if(p.handcuffedTurns>0){
+
+  p.handcuffedTurns--;
+
+  log(
+    `⛓️ ${p.name} is HANDCUFFED and loses this combat turn! ${p.handcuffedTurns} restrained turns remain.`,
+    "bad"
+  );
+
+  if(p.handcuffedTurns===0){
+
+    p.weak=true;
+
+    log(
+      `⚠️ ${p.name} breaks free but returns WEAK! Attack damage is reduced by 30% for the rest of this battle.`,
+      "bad"
+    );
+  }
+
+  render();
+  return;
+}
+  if(!combat){
+    log("You are not in combat.","bad");
+    return;
+  }
+
+  if(p.combatActions<cost){
+    log("You don't have enough Combat Actions.","bad");
+    return;
+  }
+
+  p.combatActions-=cost;
+
+  fn();
+  render();
+}
+
+function move(id){
+
+let p=G.ps[G.active];
+
+if(!LM[p.loc][2].includes(id)){
+log("That location isn't connected.");
+return;
+}
+
+if(id==="gate"&&G.clues<10){
+  log(`🔒 The Escape Gate is sealed. Find all 10 clues. (${G.clues}/10)`,"bad");
+  return;
+}
+  if(id==="gate" && !G.rootDefeated){
+  log(
+    `🔒 The Escape Gate remains sealed. Destroy the Root of Blackwood first.`,
+    "bad"
+  );
+  return;
+}
+if(
+  id==="root" &&
+  (
+    !G.storyItems.includes("Bloodkeeper Relic") ||
+    !G.storyItems.includes("Sentinel Relic") ||
+    !G.storyItems.includes("Warden-Hollow Relic")
+  )
+){
+  log(
+    `🔒 The Root of Blackwood is sealed. All 3 story relics are required.`,
+    "bad"
+  );
+  return;
+}
+// ===============================
+// DANGER WARNING BEFORE ENTERING
+// ===============================
+
+let warningText="";
+
+if(DANGER_ZONES.includes(id)){
+  warningText=
+    `⚠️ DANGER ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 60%\n\n` +
+    `Enter anyway?`;
+}
+
+else if(VERY_RISKY_ZONES.includes(id)){
+  warningText=
+    `☠️ VERY RISKY ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 90%\n\n` +
+    `Enter anyway?`;
+}
+
+else if(VERY_DEADLY_ZONES.includes(id)){
+  warningText=
+    `💀 VERY DEADLY ZONE\n\n` +
+    `${LM[id][1]}\n\n` +
+    `Creature Encounter Chance: 100%\n\n` +
+    `Enter anyway?`;
+}
+
+if(warningText && !confirm(warningText)){
+  log(`${p.name} decides not to enter ${LM[id][1]}.`);
+  return;
+}
+// Move the entire surviving party together
+G.ps.forEach(s=>{
+  if(!s.dead){
+    s.loc=id;
+  }
+});
+  // STORY — ROOT ENTERED
+if(id==="root"){
+  G.rootEntered=true;
+  updateStoryObjective();
+}
+G.discovered.add(id);
+
+LM[id][2].forEach(x=>G.discovered.add(x));
+
+log(`The party moves to ${LM[id][1]}.`);
+// ===============================
+// ZONE ENCOUNTER CHANCE
+// ===============================
+
+let encounterChance=0;
+
+if(NORMAL_ZONES.includes(id)){
+  encounterChance=0.25;
+}
+else if(DANGER_ZONES.includes(id)){
+  encounterChance=0.60;
+}
+else if(VERY_RISKY_ZONES.includes(id)){
+  encounterChance=0.90;
+}
+else if(VERY_DEADLY_ZONES.includes(id)){
+  encounterChance=1.00;
+}
+
+if(encounterChance>0 && Math.random()<encounterChance){
+  spawn(id);
+}
+
+}
+
+function search(){
+
+let p=G.ps[G.active];
+let r=d6();
+
+log(`${p.name} searches and rolls ${r}.`);
+
+if(r===1){
+encounter();
+}
+else if(r<=3){
+log("Nothing useful.");
+}
+else if(r===4){
+gainItem();
+}
+else if(r===5){
+gainClue();
+}
+else{
+gainItem();
+gainClue();
+}
+}
+
+function gainItem(){
+
+let p=G.ps[G.active];
+
+let i=objItem(rnd(ITEMS));
+
+// AMMO PICKUPS
+if(i.type==="ammo"){
+
+  G.ammo[i.ammoType]+=i.val;
+
+  log(
+    `🔫 Found <b>${i.name}</b>! +${i.val} rounds.`,
+    "good"
+  );
+
+  return;
+}
+
+// PERSONAL INVENTORY HAS ROOM
+if(p.items.length<4){
+
+  p.items.push(i);
+
+  log(
+    `🎒 Found <b>${i.name}</b> and stored it in ${p.name}'s inventory.`,
+    "good"
+  );
+
+  return;
+}
+
+// PERSONAL INVENTORY FULL → EXTRA POCKETS
+if(G.extraPockets.length<G.extraPocketMax){
+
+  G.extraPockets.push(i);
+
+  log(
+    `🎒 Personal inventory full — <b>${i.name}</b> was stored in Extra Pockets (${G.extraPockets.length}/${G.extraPocketMax}).`,
+    "good"
+  );
+
+  return;
+}
+
+// BOTH INVENTORIES FULL
+log(
+  `❌ Inventory and Extra Pockets are full. ${i.name} was left behind.`,
+  "bad"
+);
+
+}
+  function investigate(){
+
+  let p=G.ps[G.active];
+
+  // First Investigate each Night is FREE
+  if(!p.freeInvestigateUsed){
+
+    p.freeInvestigateUsed=true;
+
+    log(
+      `🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,
+      "good"
+    );
+
+    gainClue();
+    render();
+    return;
+  }
+
+  // Later Investigates cost 1 Action
+  if(p.actions<1){
+
+    log(
+      `⚡ ${p.name} needs 1 Action to Investigate again.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  p.actions-=1;
+
+  log(
+    `🔎 ${p.name} Investigates for 1 Action.`,
+    "good"
+  );
+
+  gainClue();
+  render();
+}
+function gainClue(){
+
+  let p=G.ps[G.active];
+  let clue=STORY_CLUES[p.loc];
+// STORY OBJECTIVES MUST BE COMPLETED IN ORDER
+let currentObjective=STORY_OBJECTIVES[G.clues];
+
+if(
+  currentObjective &&
+  p.loc!==currentObjective.loc
+){
+  log(
+    `📜 CURRENT OBJECTIVE: ${currentObjective.text}`,
+    "bad"
+  );
+  return;
+}
+  if(!clue){
+    log(`🔎 There is no major story clue at ${LM[p.loc][1]}.`);
+    return;
+  }
+
+  if(G.foundClues.has(p.loc)){
+    log(`📖 You already discovered the clue at ${LM[p.loc][1]}.`);
+    return;
+  }
+
+  G.foundClues.add(p.loc);
+  G.clues=G.foundClues.size;
+
+  log(
+    `📖 STORY CLUE FOUND: <b>${clue.name}</b>`,
+    "good"
+  );
+
+  log(
+    `${clue.story}`,
+    "good"
+  );
+
+updateStoryObjective();
+if(G.clues===10){
+
+  log(
+    `📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,
+    "good"
+  );
+}
+}
+
+function encounter(){
+
+let p=G.ps[G.active];
+let r=d6();
+
+if(r<=2){
+p.san=Math.max(0,p.san-1);
+log("A whisper crawls through the darkness. Lose 1 Sanity.","bad");
+}
+else if(r<=4){
+p.fear++;
+log("Something watches you. Gain 1 Fear.","bad");
+}
+else if(r===5){
+gainItem();
+}
+else{
+spawn(p.loc);
+}
+
+check(p);
+}
+function spawn(loc){
+ // ===============================
+// SPECIAL BOSS ENCOUNTER ROLLS
+// ===============================
+
+// MYTHIC — THE WARDEN
+if(loc==="prison"){
+
+  // TRUE 20% chance
+  if(Math.random() < 0.20){
+
+    let b=CRE.find(c=>
+      c.rarity==="Mythic" &&
+      c.bossZone==="prison"
+    );
+
+    if(b){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        handcuffActive:false,
+handcuffCooldownHp:null,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `🔥 MYTHIC ENCOUNTER! <b>${c.name}</b> has appeared!`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+}
+
+// ANCIENT — THE HOLLOW
+if(loc==="hollow"){
+
+  // TRUE 10% chance
+  if(Math.random() < 0.10){
+
+    let b=CRE.find(c=>
+      c.rarity==="Ancient" &&
+      c.bossZone==="hollow"
+    );
+
+    if(b){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        voidShield:0,
+voidShieldActivated:false,
+        lastStandUsed:false,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `👁️ ANCIENT ENCOUNTER! <b>${c.name}</b> has appeared!`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+}
+ // ABYSSAL — THE ROOT OF BLACKWOOD
+if(loc==="root"){
+  if(G.rootDefeated){
+  return;
+}
+if(!G.storyItems.includes("Warden-Hollow Relic")){
+  log(
+    `🌑 Something ancient sleeps beneath Blackwood. The Warden-Hollow Relic is required to awaken it.`,
+    "bad"
+  );
+  return;
+}
+  let b=CRE.find(c=>
+    c.rarity==="Abyssal" &&
+    c.bossZone==="root"
+  );
+
+  if(b){
+
+    let alreadySpawned=G.creatures.some(c=>
+      c.name==="The Root of Blackwood"
+    );
+
+    if(!alreadySpawned){
+
+      let c={
+        id:Date.now()+Math.random(),
+        name:b.name,
+        hp:b.hp,
+        maxHp:b.hp,
+        atk:b.atk,
+        rarity:b.rarity,
+        image:b.image,
+        ability:b.ability,
+        provoked:false,
+        loc
+      };
+
+      G.creatures.push(c);
+
+      log(
+        `🌑 ABYSSAL ENCOUNTER! <b>${c.name}</b> has awakened!`,
+        "bad"
+      );
+    }
+
+    return;
+  }
+}
+// ===============================
+// ZONE-BASED CREATURE POOLS
+// ===============================
+
+let allowedRarities=[];
+
+if(NORMAL_ZONES.includes(loc)){
+  allowedRarities=["Common","Uncommon"];
+}
+
+else if(DANGER_ZONES.includes(loc)){
+  allowedRarities=["Common","Uncommon","Rare"];
+}
+
+else if(VERY_RISKY_ZONES.includes(loc)){
+  allowedRarities=["Uncommon","Rare","Epic"];
+}
+
+else if(VERY_DEADLY_ZONES.includes(loc)){
+  allowedRarities=["Rare","Epic"];
+}
+
+else{
+  allowedRarities=["Common","Uncommon"];
+}
+
+let regularPool=CRE.filter(c=>
+  allowedRarities.includes(c.rarity)
+);
+
+let total=regularPool.reduce((sum,c)=>sum+c.weight,0);
+let roll=Math.random()*total;
+let b=regularPool[0];
+
+for(let i=0;i<regularPool.length;i++){
+  roll-=regularPool[i].weight;
+
+  if(roll<=0){
+    b=regularPool[i];
+    break;
+  }
+}
+let c={
+  id:Date.now()+Math.random(),
+  name:b.name,
+  hp:b.hp,
+  maxHp:b.hp,
+  atk:b.atk,
+  rarity:b.rarity,
+  image:b.image,
+  ability:b.ability,
+  provoked:false,
+  loc
+};
+
+G.creatures.push(c);
+
+log(
+  `👹 A <b>${c.rarity} ${c.name}</b> appears!`,
+  "bad"
+);
+}
+function combatActionCount(p){
+
+  const bonus={
+    "Common":0,
+    "Uncommon":1,
+    "Rare":2,
+    "Epic":3,
+    "Legendary":4,
+    "G.O.A.T":5
+  };
+
+  return 10+(bonus[p.rarity]||0);
+}
+
+
+function startCombat(id){
+
+combat=G.creatures.find(c=>String(c.id)===String(id));
+  if(
+  combat &&
+  combat.name==="The Blackwood Sentinel"
+){
+  combat.ancientGuardUsed=false;
+}
+if(combat){
+  let p=G.ps[G.active];
+  p.combatActions=combatActionCount(p);
+}
+if(combat)
+log(`Combat begins against ${combat.name}.`,"bad");
+
+render();
+}
+
+function attack(){
+
+if(!combat)return;
+
+let p=G.ps[G.active];
+
+let usingLootWeapon=!!p.equippedLootWeapon;
+
+let w=usingLootWeapon
+? p.equippedLootWeapon
+: {
+    name:p.weapon,
+    val:p.weaponDamage,
+    ammoType:null,
+    durability:Infinity,
+    maxDurability:Infinity
+  };
+// LOOT WEAPON CHECKS
+if(usingLootWeapon){
+
+  // Stop broken weapons from being used
+  if(w.durability<=0){
+    log(`🔧 ${w.name} is BROKEN! Use a Repair Kit before attacking.`,"bad");
+    return;
+  }
+
+  // Check firearm ammo
+  if(w.ammoType && w.ammoType!=="melee"){
+
+    if((G.ammo[w.ammoType]||0)<=0){
+
+      log(
+        `🔫 ${w.name} is out of ${w.ammoType.toUpperCase()} ammo!`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+}
+useCombatAction(1,()=>{
+// USE AMMO + DURABILITY
+if(usingLootWeapon){
+
+  // Firearms consume 1 round
+  if(w.ammoType && w.ammoType!=="melee"){
+    G.ammo[w.ammoType]--;
+  }
+
+  // Every loot weapon loses 1 durability
+  w.durability--;
+
+  log(
+    `🔧 ${w.name} durability: ${w.durability}/${w.maxDurability}`
+  );
+
+  if(w.durability<=0){
+    log(
+      `💥 ${w.name} has BROKEN and needs a Repair Kit!`,
+      "bad"
+    );
+  }
+}
+let r=d6();
+
+log(`Attack roll: ${r}`);
+
+if(r<=3){
+log("Your attack misses.","bad");
+}
+else{
+
+let dmg=w.val+(r===6?3:0);
+  // WEAK STATUS — 30% less attack damage
+if(p.weak){
+
+  let originalDamage=dmg;
+
+  dmg=Math.max(1,Math.floor(dmg*0.70));
+
+  log(
+    `⚠️ WEAK! ${p.name}'s attack is reduced from ${originalDamage} to ${dmg} damage.`,
+    "bad"
+  );
+}
+  // BLACKWOOD SENTINEL — ANCIENT GUARD
+// First successful attack each combat deals 50% less damage
+if(
+  combat.name==="The Blackwood Sentinel" &&
+  !combat.ancientGuardUsed
+){
+  let originalDamage=dmg;
+
+  dmg=Math.max(1,Math.floor(dmg*0.50));
+  combat.ancientGuardUsed=true;
+
+  log(
+    `🛡️ ANCIENT GUARD! The Blackwood Sentinel reduces the first attack from ${originalDamage} to ${dmg} damage.`,
+    "bad"
+  );
+}
+// THE ROTTER — 20% chance to reduce incoming damage by 1
+if(combat.name==="The Rotter" && Math.random()<0.20){
+
+  dmg=Math.max(0,dmg-1);
+
+  log(
+    `🧟 ROTTING GRIP! The Rotter reduces the attack damage by 1.`,
+    "bad"
+  );
+}
+// THE HOLLOW — VOID SHIELD absorbs damage first
+if(
+  combat.name==="The Hollow" &&
+  combat.voidShield>0
+){
+  let absorbed=Math.min(dmg,combat.voidShield);
+
+  combat.voidShield-=absorbed;
+  dmg-=absorbed;
+
+  log(
+    `🛡️ VOID SHIELD absorbs ${absorbed} damage! ${combat.voidShield} Shield remains.`,
+    "bad"
+  );
+
+  if(combat.voidShield<=0){
+    log(
+      `💥 The Hollow's VOID SHIELD SHATTERS!`,
+      "good"
+    );
+  }
+}
+
+// Any remaining damage hits The Hollow normally
+combat.hp-=dmg;
+  // THE HOLLOW — LAST RESPONSE against normal attacks
+if(
+  combat.name==="The Hollow" &&
+  combat.hp<=0 &&
+  !combat.lastStandUsed
+){
+  combat.lastStandUsed=true;
+
+  combat.hp=Math.ceil(combat.maxHp*0.30);
+  combat.atk=Math.ceil(combat.atk*1.55);
+
+  combat.voidShieldActivated=true;
+  combat.voidShield=15;
+
+  log(
+    `👁️ LAST RESPONSE! The Hollow refuses to die! It restores 30% HP, gains +55% Attack Damage, and summons a 15-point Void Shield!`,
+    "bad"
+  );
+}
+  // THE HOLLOW — activate Void Shield once at 50% HP
+if(
+  combat.name==="The Hollow" &&
+  combat.hp<=combat.maxHp*0.50 &&
+  !combat.voidShieldActivated
+){
+  combat.voidShieldActivated=true;
+  combat.voidShield=15;
+
+  log(
+   `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 15 damage!`,
+    "bad"
+  );
+}
+combat.provoked=true;
+log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
+chargeSpecial(p);
+  // THE MIMIC — 25% chance to imitate 50% of damage received
+if(
+  combat.name==="The Mimic" &&
+  combat.hp>0 &&
+  Math.random()<0.25
+){
+  let mimicDamage=Math.max(1,Math.floor(dmg*0.50));
+
+  p.hp-=mimicDamage;
+
+  log(
+    `🎭 PERFECT IMITATION! The Mimic copies your attack and deals ${mimicDamage} damage back to ${p.name}!`,
+    "bad"
+  );
+
+  check(p,combat);
+}
+// THE GRAVEBORN — 25% chance to survive a killing blow with 1 HP
+if(
+  combat.name==="The Graveborn" &&
+  combat.hp<=0 &&
+  Math.random()<0.25
+){
+  combat.hp=1;
+
+  log(
+    `💀 GRAVE RESILIENCE! The Graveborn refuses to die and survives with 1 HP!`,
+    "bad"
+  );
+}
+  if(combat.hp<=0){
+
+log(`${combat.name} is defeated!`,"good");
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
+
+  log(
+    `🌑 OBJECTIVE COMPLETE! The Root of Blackwood has been destroyed.`,
+    "good"
+  );
+
+  updateStoryObjective();
+}
+if(combat.name==="The Bloodkeeper"){
+  G.bloodkeeperDefeated=true;
+
+  log(
+    `🩸 STORY BOSS DEFEATED! The Bloodkeeper has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Bloodkeeper Relic")){
+    G.storyItems.push("Bloodkeeper Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Bloodkeeper Relic`,
+      "good"
+    );  }
+
+  updateStoryObjective();
+}
+ if(combat.name==="The Blackwood Sentinel"){
+  G.sentinelDefeated=true;
+
+  log(
+    `🛡️ STORY BOSS DEFEATED! The Blackwood Sentinel has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Sentinel Relic")){
+    G.storyItems.push("Sentinel Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Sentinel Relic`,
+      "good"
+    );
+  }
+
+  updateStoryObjective();
+}
+ if(combat.name==="The Warden"){
+  G.wardenDefeated=true;
+
+  log(
+    `⛓️ STORY BOSS DEFEATED! The Warden has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+  log(
+  `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+  "good"
+);
+}
+
+  updateStoryObjective();
+}
+
+if(combat.name==="The Hollow"){
+  G.hollowDefeated=true;
+
+  log(
+    `👁️ STORY BOSS DEFEATED! The Hollow has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+log(
+  `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+  "good"
+);
+}
+
+  updateStoryObjective();
+}
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
+
+  log(
+    `🌑 FINAL BOSS DEFEATED! The Root of Blackwood has fallen.`,
+    "good"
+  );
+}
+G.creatures=G.creatures.filter(c=>c!==combat);
+G.ps.forEach(s=>{
+
+    if(s.dead)return;
+
+    // Restore normal stats after Berserk
+    s.maxHp=s.baseMaxHp;
+    s.weaponDamage=s.baseWeaponDamage;
+  s.hp=Math.min(s.hp,s.maxHp);
+    s.berserk=false;
+    s.berserkUsedThisBattle=false;
+    s.berserkSpecialBoostReady=false;
+if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
+    s.lifeRestoreReady=true;
+}
+    // Wake up knocked-out survivors after battle
+    s.knockedOut=false;
+
+    // If below 15% HP, recover to 75%
+    if(s.hp < s.maxHp*0.15){
+        s.hp=Math.ceil(s.maxHp*0.75);
+
+        log(
+            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
+            "good"
+        );
+    }
+});
+  G.ps.forEach(s=>{
+  s.combatActions=0;
+});
+combat=null;
+return;
+}
+}
+
+
+
+});
+}
+
+function flee(){
+
+if(!combat)return;
+
+useCombatAction(1,()=>{
+let p=G.ps[G.active];
+let r=d6();
+
+if(r<=2){
+
+p.fear++;
+
+log("You fail to escape. Gain 1 Fear.","bad");
+
+creatureAttack(combat);
+
+}
+else{
+
+let exits=LM[p.loc][2];
+
+let escapeLoc=rnd(exits);
+
+// Move the entire surviving party together
+G.ps.forEach(s=>{
+  if(!s.dead){
+    s.loc=escapeLoc;
+  }
+});
+
+G.discovered.add(escapeLoc);
+
+log(`The party escapes to ${LM[escapeLoc][1]}.`,"good");
+G.ps.forEach(s=>{
+  s.combatActions=0;
+});
+combat=null;
+}
+
+});
+}
+
+function creatureAttack(c){
+
+  let p=G.ps[G.active];
+
+  let damage=c.atk;
+
+  // Fear bonus
+  if(p.fear>=4){
+    damage++;
+  }
+  // ===============================
+// MYTHIC — THE WARDEN
+// ===============================
+
+// Re-enable handcuffs after The Warden loses 35% Max HP
+if(
+  c.name==="The Warden" &&
+  c.handcuffActive &&
+  c.handcuffCooldownHp!==null &&
+  c.hp<=c.handcuffCooldownHp
+){
+  c.handcuffActive=false;
+
+  log(
+    `⛓️ The Warden's restraints are ready again!`,
+    "bad"
+  );
+}
+
+// PRISONER'S RESTRAINT — handcuff wounded Survivor for 3 turns
+if(
+  c.name==="The Warden" &&
+  p.hp>0 &&
+  p.hp<p.maxHp*0.40 &&
+  p.handcuffedTurns===0 &&
+  !c.handcuffActive
+){
+  p.handcuffedTurns=3;
+
+  c.handcuffActive=true;
+  c.handcuffCooldownHp=Math.max(
+    0,
+    c.hp-(c.maxHp*0.35)
+  );
+
+  log(
+    `⛓️ PRISONER'S RESTRAINT! The Warden handcuffs ${p.name}! They will lose their next 3 turns.`,
+    "bad"
+  );
+}
+  // PRISONER'S JUDGMENT — punish wounded Survivors
+if(
+  c.name==="The Warden" &&
+  p.hp<=p.maxHp*0.50 &&
+  Math.random()<0.40
+){
+  damage+=5;
+
+  log(
+    `⚖️ PRISONER'S JUDGMENT! The Warden punishes ${p.name} for being wounded and gains +5 damage!`,
+    "bad"
+  );
+}
+  // ===============================
+// LEGENDARY — THE BLOODKEEPER
+// ===============================
+
+// BLOOD TRIBUTE — 35% chance to restore 3 HP when attacking
+if(
+  c.name==="The Bloodkeeper" &&
+  c.hp>0 &&
+  c.hp<c.maxHp &&
+  Math.random()<0.35
+){
+  let oldHp=c.hp;
+
+  c.hp=Math.min(c.maxHp,c.hp+3);
+
+  let healed=c.hp-oldHp;
+
+  log(
+    `🩸 BLOOD TRIBUTE! The Bloodkeeper restores ${healed} HP.`,
+    "bad"
+  );
+}
+  // ===============================
+// ANCIENT — THE HOLLOW
+// ===============================
+
+// VOID CONSUMPTION — 35% chance to drain 2 Combat Actions
+if(
+  c.name==="The Hollow" &&
+Math.random()<0.35
+){
+  let drained=Math.min(2,p.combatActions);
+
+  p.combatActions=Math.max(0,p.combatActions-drained);
+
+  log(
+    `🕳️ VOID CONSUMPTION! The Hollow drains ${drained} Combat Actions from ${p.name}!`,
+    "bad"
+  );
+}
+// ===============================
+// RARE CREATURE ABILITIES
+// ===============================
+
+// THE STALKER — 30% chance for +2 damage once provoked
+if(
+  c.name==="The Stalker" &&
+  c.provoked &&
+  Math.random()<0.30
+){
+  damage+=2;
+
+  log(
+    `👁️ RELENTLESS PURSUIT! The Stalker gains +2 damage!`,
+    "bad"
+  );
+}
+  // THE BUTCHER — 30% chance for +3 damage against wounded Survivors
+if(
+  c.name==="The Butcher" &&
+  p.hp<=p.maxHp*0.50 &&
+  Math.random()<0.30
+){
+  damage+=3;
+
+  log(
+    `🔪 BLOOD FRENZY! The Butcher smells blood and gains +3 damage!`,
+    "bad"
+  );
+}
+  // ===============================
+// EPIC CREATURE ABILITIES
+// ===============================
+
+// THE CRAWLING MAN — 35% chance for +3 damage
+if(
+  c.name==="The Crawling Man" &&
+  Math.random()<0.35
+){
+  damage+=3;
+
+  log(
+    `🕷️ UNNATURAL REACH! The Crawling Man strikes from an impossible angle for +3 damage!`,
+    "bad"
+  );
+}
+  // THE WENDIGO — gets stronger as its HP gets lower
+if(c.name==="The Wendigo"){
+
+  if(c.hp<=c.maxHp*0.25){
+    damage+=4;
+
+    log(
+      `🦌 PREDATOR'S HUNGER! The Wendigo is near death and gains +4 damage!`,
+      "bad"
+    );
+  }
+
+  else if(c.hp<=c.maxHp*0.50){
+    damage+=2;
+
+    log(
+      `🦌 PREDATOR'S HUNGER! The Wendigo becomes more aggressive and gains +2 damage!`,
+      "bad"
+    );
+  }
+}
+  // ===============================
+  // COMMON CREATURE ABILITIES
+  // ===============================
+
+  // THE DRIFTER — 20% chance for +1 damage
+  if(c.name==="The Drifter" && Math.random()<0.20){
+    damage+=1;
+
+    log(
+      `🩸 DESPERATE LUNGE! The Drifter deals +1 bonus damage.`,
+      "bad"
+    );
+  }
+
+  // Deal HP damage
+  p.hp-=damage;
+
+  log(
+    `👹 COUNTER-ATTACK! ${c.name} attacks ${p.name} for ${damage} damage!`,
+    "bad"
+  );
+// THE NIGHT HAG — 30% chance to drain Sanity and increase Fear
+if(c.name==="The Night Hag" && Math.random()<0.30){
+
+  p.san=Math.max(0,p.san-1);
+  p.fear=Math.min(5,p.fear+1);
+
+  log(
+    `🌙 NIGHTMARE TOUCH! ${p.name} loses 1 Sanity and gains 1 Fear.`,
+    "bad"
+  );
+}
+  // THE PALE BRIDE — 35% chance to curse the entire party
+if(c.name==="The Pale Bride" && Math.random()<0.35){
+
+  p.san=Math.max(0,p.san-2);
+  p.fear=Math.min(5,p.fear+1);
+
+  G.ps.forEach(s=>{
+    if(!s.dead && s!==p){
+      s.fear=Math.min(5,s.fear+1);
+    }
+  });
+
+  log(
+    `👰 MOURNING CURSE! ${p.name} loses 2 Sanity and gains 1 Fear. The rest of the party gains 1 Fear.`,
+    "bad"
+  );
+}
+  // THE WHISPERER — 20% chance to drain 1 Sanity
+  if(c.name==="The Whisperer" && Math.random()<0.20){
+    p.san=Math.max(0,p.san-1);
+
+    log(
+      `👻 WHISPERS OF FEAR! ${p.name} loses 1 Sanity.`,
+      "bad"
+    );
+  }
+
+  // THE WEEPER — 20% chance to add 1 Fear
+  if(c.name==="The Weeper" && Math.random()<0.20){
+    p.fear=Math.min(5,p.fear+1);
+
+    log(
+      `😭 DISTURBING CRIES! ${p.name} gains 1 Fear.`,
+      "bad"
+    );
+  }
+// ===============================
+// UNCOMMON CREATURE ABILITIES
+// ===============================
+
+// THE SCREECHER — 25% chance to drain 1 Sanity
+if(c.name==="The Screecher" && Math.random()<0.25){
+
+  p.san=Math.max(0,p.san-1);
+
+  log(
+    `📢 PIERCING SCREAM! ${p.name} loses 1 Sanity.`,
+    "bad"
+  );
+}
+ // THE SKINWALKER — 25% chance to confuse and add 1 Fear
+if(c.name==="The Skinwalker" && Math.random()<0.25){
+
+  p.fear=Math.min(5,p.fear+1);
+
+  log(
+    `🎭 FALSE FACE! ${p.name} becomes confused and gains 1 Fear.`,
+    "bad"
+  );
+}
+  check(p,c);
+}
+function useItem(i){
+
+let p=G.ps[G.active];
+let it=p.items[i];
+
+if(!it)return;
+
+if(it.type==="heal"){
+
+p.hp=Math.min(p.maxHp,p.hp+it.val);
+
+log(`${p.name} uses ${it.name} and restores ${it.val} Health.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="healweak"){
+
+  let oldHp=p.hp;
+
+  p.hp=Math.min(p.maxHp,p.hp+it.val);
+  p.weak=false;
+
+  log(
+    `🧪 ${p.name} uses ${it.name}, restores ${p.hp-oldHp} Health, and removes the WEAK status!`,
+    "good"
+  );
+
+  p.items.splice(i,1);
+}
+else if(it.type==="san"){
+
+p.san=Math.min(10,p.san+it.val);
+
+log(`${p.name} regains ${it.val} Sanity.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="fear"){
+
+p.fear=Math.max(0,p.fear-it.val);
+
+log(`${p.name} reduces Fear.`,"good");
+
+p.items.splice(i,1);
+
+}
+else if(it.type==="key"){
+
+let locked=L.find(x=>!G.discovered.has(x[0]));
+
+if(locked){
+
+G.discovered.add(locked[0]);
+
+log(`The Rusty Key reveals ${locked[1]}.`,"good");
+
+}
+
+p.items.splice(i,1);
+}
+else if(it.type==="weapon"){
+
+  // Equip the found weapon
+  p.equippedLootWeapon=it;
+
+  log(
+    `⚔️ ${p.name} equips ${it.name}.`,
+    "good"
+  );
+}
+else if(it.type==="repair"){
+
+  let weapon=p.equippedLootWeapon;
+
+  // No loot weapon equipped
+  if(!weapon){
+    log(
+      `🔧 ${p.name} has no loot weapon equipped to repair.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Weapon cannot be repaired
+  if(weapon.maxDurability===undefined){
+    log(
+      `🔧 ${weapon.name} cannot be repaired.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Already full durability
+  if(weapon.durability>=weapon.maxDurability){
+    log(
+      `🔧 ${weapon.name} is already at full durability.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Repair weapon
+  weapon.durability=weapon.maxDurability;
+
+  // Consume Repair Kit
+  p.items.splice(i,1);
+
+  log(
+    `🔧 ${p.name} repairs ${weapon.name} to ${weapon.durability}/${weapon.maxDurability} durability!`,
+    "good"
+  );
+
+}
+else{
+
+  log(`${it.name} has no active effect right now.`);
+}
+
+render();
+}
+function canEndNight(){
+
+  if(!G)return false;
+
+  return G.ps
+    .filter(p=>!p.dead)
+    .every(p=>p.actions<=0);
+}
+  function endNight(){
+
+  if(!canEndNight()){
+    log(
+      `🌙 The Night cannot end until all living Survivors have 0 Action Points.`,
+      "bad"
+    );
+    render();
+    return;
+  }
+
+  G.night++;
+
+  // Reset every living Survivor for the new Night
+  G.ps.forEach(p=>{
+
+    if(p.dead)return;
+
+    p.actions=25;
+    p.restsThisNight=0;
+    p.freeInvestigateUsed=false;
+  });
+
+  log(
+    `🌙 NIGHT ${G.night} BEGINS! Action Points, Rest chances, and FREE Investigates have been refreshed.`,
+    "good"
+  );
+
+  render();
+}
+function recover(){
+
+  let p=G.ps[G.active];
+
+  if(combat){
+    log(
+      `⚔️ ${p.name} cannot Rest during combat.`,
+      "bad"
+    );
+    return;
+  }
+
+  let maxRests=maxRestsPerNight(p);
+
+  if(p.restsThisNight>=maxRests){
+    log(
+      `😴 ${p.name} has used all Rest chances for Night ${G.night} (${p.restsThisNight}/${maxRests}).`,
+      "bad"
+    );
+    return;
+  }
+
+  p.restsThisNight++;
+
+  let oldHp=p.hp;
+  let oldSan=p.san;
+  let oldFear=p.fear;
+
+  p.hp=Math.min(p.maxHp,p.hp+3);
+  p.san=Math.min(p.maxSan,p.san+2);
+  p.fear=Math.max(0,p.fear-1);
+
+  // Rest gives 3 Action Points
+  p.actions+=3;
+
+  log(
+    `😴 ${p.name} RESTS! ❤️ +${p.hp-oldHp} HP • 🧠 +${p.san-oldSan} Sanity • 😨 -${oldFear-p.fear} Fear • ⚡ +3 Actions • Rest ${p.restsThisNight}/${maxRests}.`,
+    "good"
+  );
+
+  render();
+}
+function activateBerserk(p){
+
+  p.berserk=true;
+  p.berserkUsedThisBattle=true;
+  p.berserkSpecialBoostReady=true;
+
+  p.maxHp=p.baseMaxHp+10;
+  p.weaponDamage=p.baseWeaponDamage+8;
+
+  p.hp=p.maxHp;
+  p.knockedOut=false;
+
+  log(
+    `🔥 ${p.name} ENTERS BERSERK MODE! +10 Max HP, +8 Attack, and their next Special gains +55% damage!`,
+    "good"
+  );
+
+  render();
+}
+function check(p,killer=null){
+
+if(p.hp<=0){
+
+  p.hp=0;
+  // LEGENDARY / G.O.A.T BERSERK
+if(
+  (p.rarity==="Legendary" || p.rarity==="G.O.A.T")
+  && !p.berserkUsedThisBattle
+){
+  activateBerserk(p);
+  return;
+}
+
+  // G.O.A.T characters can never permanently die
+if(p.rarity==="G.O.A.T"){
+
+  p.hp=0;
+  p.knockedOut=true;
+
+  log(
+    `🐐 ${p.name} cannot be killed! They are KNOCKED OUT but lose no Lives.`,
+    "good"
+  );
+
+  return;
+}
+
+  // Lose one life
+  p.lives=Math.max(0,p.lives-1);
+
+  if(p.lives>0){
+
+    p.knockedOut=true;
+// THE BONE COLLECTOR — gains +2 Attack when it knocks out a Survivor
+if(killer && killer.name==="The Bone Collector"){
+
+  killer.atk+=2;
+
+  log(
+    `💀 HARVEST THE FALLEN! The Bone Collector grows stronger and gains +2 Attack!`,
+    "bad"
+  );
+}
+    log(
+      `💀 ${p.name} has been KNOCKED OUT! ${p.lives}/${p.maxLives} Lives remain.`,
+      "bad"
+    );
+  switchCombatSurvivor();
+    return;
+  
+  }
+
+  // Final life lost
+  p.dead=true;
+  p.knockedOut=true;
+
+  log(
+    `☠️ ${p.name} has lost their FINAL LIFE!`,
+    "bad"
+  );
+  if(killer){
+
+    killer.maxHp+=10;
+    killer.hp=Math.min(killer.maxHp,killer.hp+10);
+    killer.atk+=5;
+
+    log(
+        `👹 ${killer.name} DEVOURS ${p.name}! +10 Max HP and +5 Attack!`,
+        "bad"
+    );
+}
+switchCombatSurvivor();
+return;
+}
+if(p.san<=0){
+
+p.san=1;
+p.fear=Math.min(5,p.fear+2);
+
+log(`${p.name} BREAKS. Gain 2 Fear.`,"bad");
+}
+}
+function switchCombatSurvivor(){
+
+  if(!combat)return false;
+
+  for(let step=1;step<=G.ps.length;step++){
+
+    let next=(G.active+step)%G.ps.length;
+    let survivor=G.ps[next];
+
+    if(!survivor.dead && !survivor.knockedOut && survivor.hp>0){
+
+      G.active=next;
+   survivor.combatActions=combatActionCount(survivor);
+
+      log(
+        `⚔️ ${survivor.name} steps forward to continue the battle!`,
+        "good"
+      );
+
+      render();
+      return true;
+    }
+  }
+
+  partyDefeated();
+return false;
+}
+function partyDefeated(){
+
+    log(`☠️ THE ENTIRE PARTY HAS FALLEN...`, "bad");
+    log(`🏚️ The survivors awaken back at the Riverside Motel.`, "good");
+
+    // End the current combat
+    combat=null;
+
+    // Recover every survivor and return them to the motel
+    G.ps.forEach(p=>{
+
+      if(p.dead)return;
+        p.knockedOut=false;
+
+        // Restore HP and sanity
+       p.hp=Math.ceil(p.maxHp*0.75);
+        p.san=Math.max(1,p.san);
+
+        // Return survivor to Riverside Motel
+        p.loc="motel";
+
+        // Reset combat states
+        p.fear=0;
+        p.enemyStunned=false;
+        p.berserk=false;
+        p.berserkUsedThisBattle=false;
+        p.berserkSpecialBoostReady=false;
+p.maxHp=p.baseMaxHp;
+p.weaponDamage=p.baseWeaponDamage;
+      // Lose one random regular item
+if(p.items && p.items.length>0){
+    let lostIndex=Math.floor(Math.random()*p.items.length);
+    let lostItem=p.items.splice(lostIndex,1)[0];
+
+    log(`🎒 ${p.name} lost ${lostItem.name} while escaping back to the motel.`, "bad");
+}
+        // Reset actions
+        p.actions=25;
+      p.combatActions=0;
+    });
+
+    // Return control to first survivor
+    G.active=0;
+
+    log(`🔥 The party survived... but Blackwood has taken its toll.`, "bad");
+
+    render();
+}
+  // MANUALLY SELECT A SURVIVOR
+function selectSurvivor(index){
+
+  if(!G)return;
+if(combat){
+  log(
+    `⚔️ You cannot manually switch Survivors during combat.`,
+    "bad"
+  );
+  return;
+}
+  let survivor=G.ps[index];
+
+  if(!survivor || survivor.dead){
+    return;
+  }
+
+  // Selecting does NOT restore Action Points
+  G.active=index;
+
+  log(
+    `👤 ${survivor.name} is now selected.`,
+    "good"
+  );
+
+  render();
+}
+function render(){
+updateStoryObjective();
+let p=G.ps[G.active];
+// EXTRA POCKETS UI
+document.getElementById("extraPocketsCount").innerHTML=
+`${G.extraPockets.length} / ${G.extraPocketMax} Slots`;
+
+document.getElementById("extraPockets").innerHTML=
+
+Array.from({length:G.extraPocketMax},(_,index)=>{
+
+  let item=G.extraPockets[index];
+
+  if(!item){
+    return `
+      <div class="extra-pocket-slot">
+        <span class="muted">Slot ${index+1}: Empty</span>
+      </div>
+    `;
+  }
+
+  let rarityColor=
+    item.rarity==="Common"?"#a8a8a8":
+    item.rarity==="Uncommon"?"#4caf50":
+    item.rarity==="Rare"?"#2196f3":
+    item.rarity==="Epic"?"#9c27b0":
+    item.rarity==="Legendary"?"#ffc107":
+    "#777";
+
+  return `
+    <div class="extra-pocket-slot"
+    style="border-color:${rarityColor};">
+
+      ${item.image
+      ? `<img class="extra-pocket-img"
+          src="${item.image}"
+          alt="${item.name}">`
+      : ""}
+
+      <b>${item.name}</b><br>
+
+      <span style="
+      color:${rarityColor};
+      font-weight:bold;">
+      ${item.rarity}
+      </span>
+
+      ${item.type==="weapon"
+      ? `
+        <br>⚔️ Damage: ${item.val}
+
+        ${item.maxDurability!==undefined
+        ? `<br>🔧 Durability:
+           ${item.durability}/${item.maxDurability}`
+        : ""}
+${item.type==="tool"
+? `
+  <br>🛠️ Uses:
+  ${item.durability}/${item.maxDurability}
+`
+: ""}
+        ${item.ammoType && item.ammoType!=="melee"
+        ? `<br>🔫 Uses:
+           ${item.ammoType.toUpperCase()} Ammo`
+        : ""}
+        <br><br>
+<button onclick="equipExtraPocketWeapon(${index})">
+  ⚔️ EQUIP
+</button>
+      `
+      : ""}
+${item.type!=="weapon"
+? `
+  <br><br>
+  <button onclick="useExtraPocketItem(${index})">
+    🎒 USE
+  </button>
+`
+: ""}
+    </div>
+  `;
+
+}).join("");
+  // SHARED AMMO DISPLAY
+document.getElementById("ammoDisplay").innerHTML=`
+  🔫 Pistol Ammo: <b>${G.ammo.pistol}</b><br>
+  💥 Shotgun Ammo: <b>${G.ammo.shotgun}</b><br>
+  ⚡ SMG Ammo: <b>${G.ammo.smg}</b><br>
+  🎯 Rifle Ammo: <b>${G.ammo.rifle}</b>
+`;
+document.getElementById("turnTitle").innerHTML=
+`<h2>Night ${G.night}/10 — ${p.name}</h2>
+<div class="muted">
+Clues: ${G.clues}/10 • ${
+  combat
+    ? `Combat AP: ${p.combatActions}`
+    : `Night AP: ${p.actions}`
+}
+</div>`;
+
+document.getElementById("map").innerHTML=L.map(x=>{
+
+let discovered=G.discovered.has(x[0]);
+let connected=LM[p.loc][2].includes(x[0]);
+let zoneLabel=
+  NORMAL_ZONES.includes(x[0]) ? "🟢 NORMAL" :
+  DANGER_ZONES.includes(x[0]) ? "⚠️ DANGER" :
+  VERY_RISKY_ZONES.includes(x[0]) ? "☠️ VERY RISKY" :
+  VERY_DEADLY_ZONES.includes(x[0]) ? "💀 VERY DEADLY" :
+  x[0]==="gate" ? "🏁 ESCAPE" :
+  "";
+return`
+<div class="loc
+${p.loc===x[0]?"current":""}
+${discovered?"":"locked"}">
+
+<b>${discovered?x[1]:"UNKNOWN"}</b>
+
+${discovered && zoneLabel
+  ? `<div style="margin-top:4px;font-weight:bold;">${zoneLabel}</div>`
+  : ""
+}
+
+${p.loc===x[0]?"<div>📍 YOU ARE HERE</div>":""}
+
+
+${discovered&&connected?
+`<button onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
+
+</div>`;
+
+}).join("");
+
+const rarityStyles={
+Common:{color:"#a8a8a8",label:"COMMON"},
+Uncommon:{color:"#4caf50",label:"UNCOMMON"},
+Rare:{color:"#2196f3",label:"RARE"},
+Epic:{color:"#9c27b0",label:"EPIC"},
+Legendary:{color:"#ffc107",label:"LEGENDARY"},
+"G.O.A.T":{color:"#ffffff",label:"🐐 G.O.A.T"}
+};
+
+document.getElementById("player").innerHTML=
+G.ps.map((sp,index)=>{
+
+let rarity=rarityStyles[sp.rarity]||rarityStyles.Common;
+
+let goatGlow=sp.rarity==="G.O.A.T"
+?`box-shadow:0 0 18px #fff,0 0 32px #7c4dff,0 0 44px #00e5ff;`
+:"";
+
+return`
+
+<div class="card" style="
+border:2px solid ${rarity.color};
+${goatGlow}
+${index===G.active
+?'transform:scale(1.01);'
+:'opacity:.72;'}
+">
+
+<img class="survivor-img"
+src="${sp.image}"
+alt="${sp.name}">
+
+<div style="
+font-weight:bold;
+font-size:18px;
+margin-bottom:4px;
+">
+${index===G.active?'▶️ ':''}${sp.name}
+</div>
+
+<div style="
+color:${rarity.color};
+font-weight:bold;
+letter-spacing:1px;
+margin-bottom:6px;
+">
+${rarity.label}
+</div>
+
+${index===G.active
+?'<div class="good">CURRENT TURN</div>'
+:'<div class="muted">Waiting</div>'}
+${!sp.dead
+? `
+<button onclick="selectSurvivor(${index})">
+  👤 SELECT
+</button>
+`
+: ""}
+<div class="stats">
+
+<span class="stat">❤️ ${sp.hp}/${sp.maxHp}</span>
+
+<span class="stat">🧠 ${sp.san}/${sp.maxSan}</span>
+
+<span class="stat">😨 ${sp.fear}/5</span>
+
+<span class="stat">
+  ${combat ? `⚔️ ${sp.combatActions} Combat AP` : `🌙 ${sp.actions} Night AP`}
+</span>
+
+</div>
+
+<div class="card" style="margin-top:10px;border-color:${rarity.color};">
+
+<b>⚔️ SIGNATURE WEAPON</b><br>
+${sp.weapon}<br>
+<span class="muted">Damage: ${sp.weaponDamage}</span>
+<br><br>
+
+${sp.equippedLootWeapon
+? `
+<b>🔫 EQUIPPED LOOT WEAPON</b><br>
+${sp.equippedLootWeapon.name}<br>
+
+<span class="muted">
+Damage: ${sp.equippedLootWeapon.val}
+</span>
+
+<br>
+
+<span class="muted">
+🔧 Durability:
+${sp.equippedLootWeapon.durability}/${sp.equippedLootWeapon.maxDurability}
+</span>
+
+${sp.equippedLootWeapon.ammoType &&
+sp.equippedLootWeapon.ammoType!=="melee"
+? `
+<br>
+<span class="muted">
+🔫 Ammo:
+${G.ammo[sp.equippedLootWeapon.ammoType] || 0}
+</span>
+`
+:""}
+
+<br><br>
+
+<button onclick="switchToSignatureWeapon(${index})">
+⚔️ Use Signature Weapon
+</button>
+`
+: `
+<span class="good">⚔️ Signature Weapon Equipped</span>
+`}
+<br><br>
+
+<b>🔥 WEAPON ABILITY</b><br>
+${sp.weaponAbility}
+
+<br><br>
+
+<b>✨ CHARACTER ABILITY</b><br>
+${sp.ability}
+<br><br>
+${index===G.active &&
+!combat &&
+sp.lifeRestoreReady &&
+(sp.rarity==="Legendary" || sp.rarity==="G.O.A.T")
+? `
+<div style="margin-top:10px;">
+  <b>💖 LIFE RESTORE READY</b><br>
+
+  ${G.ps.map((target,targetIndex)=>{
+
+    if(
+      targetIndex===index ||
+      target.dead ||
+      target.rarity==="G.O.A.T" ||
+      target.lives>=target.maxLives
+    ){
+      return "";
+    }
+
+    return "<button onclick='restoreLives(" + targetIndex + ")'>Restore " + target.name + " (+2 Lives)</button>";
+
+  }).join("")}
+
+</div>
+<br>
+`
+: ""
+}
+<b>⚡ SPECIAL ABILITY</b><br>
+<div class="special-bar">
+ <div class="special-fill" style="width:${sp.specialCharge}%"></div>
+</div>
+<span class="muted">${sp.specialCharge}% Charged</span>
+</div>
+
+</div>
+
+`;
+
+}).join("");
+document.getElementById("inventory").innerHTML=
+
+p.items.map((i,idx)=>
+
+`<div class="card">
+<b>${i.name}</b><br>
+<span class="muted">${i.type}</span><br>
+<button onclick="useItem(${idx})">Use</button>
+</div>`
+
+).join("");
+
+document.getElementById("location").innerHTML=
+
+`<b>${LM[p.loc][1]}</b>
+
+<br><br>
+
+<button onclick="useAction(1,search)">
+Search (1 Action)
+</button>
+
+<button onclick="investigate()">
+  🔎 Investigate
+</button>
+
+<button onclick="recover()">
+  😴 Rest
+</button>
+
+<button
+  id="endNightButton"
+  onclick="endNight()"
+  ${canEndNight() ? "" : "disabled"}
+>
+  🌙 End Night
+</button>
+`;
+
+let here=G.creatures.filter(c=>c.loc===p.loc);
+
+document.getElementById("creatures").innerHTML=
+
+here.map(c=>
+
+`<div class="card ${c.name==="The Hollow" && c.voidShield>0 ? "void-shield-active" : ""}" style="border:2px solid ${
+c.rarity==="Common"?"#a8a8a8":
+c.rarity==="Uncommon"?"#4caf50":
+c.rarity==="Rare"?"#2196f3":
+c.rarity==="Epic"?"#9c27b0":
+c.rarity==="Legendary"?"#ffc107":
+"#777"
+};
+">
+
+<img class="survivor-img"
+src="${c.image}"
+alt="${c.name}">
+
+<div style="
+font-size:18px;
+font-weight:bold;
+margin-bottom:4px;
+">
+👹 ${c.name}
+</div>
+
+<div style="
+font-weight:bold;
+letter-spacing:1px;
+margin-bottom:8px;
+">
+${c.rarity.toUpperCase()}
+</div>
+
+❤️ ${c.hp}/${c.maxHp}
+
+<br>
+
+⚔️ Damage ${c.atk}
+
+<br><br>
+
+<b>🔥 CREATURE ABILITY</b><br>
+<span class="muted">${c.ability}</span>
+
+<br><br>
+
+<button onclick="startCombat('${c.id}')">
+Fight
+</button>
+
+</div>`
+
+).join("")
+
+||"<span class='muted'>Nothing is here... yet.</span>";
+
+if(combat){
+
+document.getElementById("actions").innerHTML=
+
+`<b>⚠️ COMBAT: ${combat.name}</b>
+
+<br>
+
+❤️ ${combat.hp}/${combat.maxHp}
+
+<br><br>
+
+<button onclick="attack()">Attack</button>
+
+<button onclick="useSpecial()">⚡ USE SPECIAL</button>
+
+<button onclick="flee()">Flee</button>
+
+<button onclick="endTurn()">🔄 END TURN</button>`;
+
+}
+else{
+
+document.getElementById("actions").innerHTML=
+
+`<button onclick="endTurn()">END TURN</button>`;
+}
+
+renderLog();
+}
+  function endTurn(){
+
+  let p=G.ps[G.active];
+
+  // COMBAT END TURN
+if(combat){
+
+    // Creature only attacks after being provoked
+    if(combat.provoked){
+        creatureAttack(combat);
+
+        // Party may have been defeated during the creature attack
+        if(!combat){
+            return;
+        }
+
+        // If this survivor was knocked out/dead,
+        // switchCombatSurvivor() already handled the next fighter
+        if(p.knockedOut || p.dead || p.hp<=0){
+            return;
+        }
+    }
+
+    // Reset combat Actions for the active survivor
+  p.combatActions=combatActionCount(p);
+
+    // All living, conscious allies recover +1 HP
+    G.ps.forEach(ally=>{
+
+        if(
+            ally.dead ||
+            ally.knockedOut ||
+            ally.hp<=0
+        ) return;
+
+        if(ally.hp<ally.maxHp){
+
+            ally.hp=Math.min(
+                ally.maxHp,
+                ally.hp+1
+            );
+
+            log(
+                `❤️ ${ally.name} recovers 1 HP after the combat round.`,
+                "good"
+            );
+        }
+    });
+
+    log(
+    `🔄 ${p.name} begins another combat round with ${p.combatActions} Combat Actions.`,
+    );
+
+    render();
+    return;
+}
+
+  // NORMAL ESCAPE CHECK
+ if(p.loc==="gate"&&G.clues>=10){
+  
+    alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
+
+    location.reload();
+    return;
+  }
+
+// NORMAL SURVIVOR ADVANCE
+let startingActive=G.active;
+
+do{
+
+  G.active++;
+
+  if(G.active>=G.ps.length){
+    G.active=0;
+  }
+
+  // Stop when we find a living Survivor with Actions remaining
+  if(
+    !G.ps[G.active].dead &&
+    G.ps[G.active].actions>0
+  ){
+    break;
+  }
+
+}while(G.active!==startingActive);
+// EVERYONE IS OUT OF ACTIONS
+if(canEndNight()){
+
+  // Keep the current Survivor active so Rest/items can still be used
+  G.active=startingActive;
+
+  log(
+    `🌙 All living Survivors are out of Action Points. You may Rest, use healing/effect items, or End the Night.`,
+    "good"
+  );
+
+  render();
+  return;
+}
+  if(G.night>=10){
+
+if(G.clues>=10){
+
+      G.discovered.add("gate");
+
+        log(
+          "THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.",
+          "bad"
+        );
+
+      }
+      else{
+
+        alert(
+          "Night 10 arrives before you uncover the truth.\n\nTHE DARKNESS CONSUMES BLACKWOOD."
+        );
+
+        location.reload();
+        return;
+      }
+    }
+
+  startTurn();
+}
+  
+function useSpecial(){
+
+  if(!combat)return;
+
+  let p=G.ps[G.active];
+// Special must be fully charged first
+if(p.specialCharge<100){
+  log(`⚡ ${p.name}'s Special Ability is only ${p.specialCharge}% charged.`,"bad");
+  return;
+}
+
+// Must have 3 Combat AP
+if(p.combatActions<3){
+  log(`⚡ ${p.name} needs 3 Combat AP to use their Special Ability.`,"bad");
+  return;
+}
+
+// Charge the 3 AP ONLY when the Special can actually be used
+p.combatActions-=3;
+
+  let dmg=Math.ceil(p.weaponDamage*1.5);
+
+  if(p.rarity==="G.O.A.T" && p.specialUses===0){
+    dmg=Math.ceil(dmg*1.25);
+    log(`🐐 G.O.A.T BONUS! ${p.name}'s first Special deals 25% extra damage!`,"good");
+  }
+if(p.berserkSpecialBoostReady){
+    dmg=Math.ceil(dmg*1.55);
+    p.berserkSpecialBoostReady=false;
+
+    log(
+        `🔥 BERSERK SPECIAL! ${p.name}'s Special gains +55% damage!`,
+        "good"
+    );
+}
+  // THE HOLLOW — SPECIAL ATTACKS MUST HIT VOID SHIELD FIRST
+if(
+  combat.name==="The Hollow" &&
+  combat.voidShield>0
+){
+  let absorbed=Math.min(dmg,combat.voidShield);
+
+  combat.voidShield-=absorbed;
+  dmg-=absorbed;
+
+  log(
+    `🛡️ VOID SHIELD absorbs ${absorbed} Special damage! ${combat.voidShield} Shield remains.`,
+    "bad"
+  );
+
+  if(combat.voidShield<=0){
+    log(
+      `💥 The Hollow's VOID SHIELD SHATTERS!`,
+      "good"
+    );
+  }
+}
+
+// Any remaining Special damage hits The Hollow
+combat.hp-=dmg;
+  // THE HOLLOW — activate Void Shield once at 50% HP
+if(
+  combat.name==="The Hollow" &&
+  combat.hp>0 &&
+combat.hp<=combat.maxHp*0.50 &&
+  !combat.voidShieldActivated
+){
+  combat.voidShieldActivated=true;
+  combat.voidShield=15;
+
+  log(
+    `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 15 damage!`,
+    "bad"
+  );
+}
+combat.provoked=true;
+  log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
+
+  p.specialCharge=0;
+  p.specialUses++;
+if(combat.hp<=0){
+  log(`${combat.name} is destroyed by the Special Ability!`,"good");
+if(combat.name==="The Warden"){
+  G.wardenDefeated=true;
+
+  log(
+    `⛓️ STORY BOSS DEFEATED! The Warden has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+      "good"
+    );
+  }
+}
+
+if(combat.name==="The Hollow"){
+  G.hollowDefeated=true;
+
+  log(
+    `👁️ STORY BOSS DEFEATED! The Hollow has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+      "good"
+    );
+  }
+}
+if(combat.name==="The Bloodkeeper"){
+  G.bloodkeeperDefeated=true;
+
+  log(
+    `🩸 STORY BOSS DEFEATED! The Bloodkeeper has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Bloodkeeper Relic")){
+    G.storyItems.push("Bloodkeeper Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Bloodkeeper Relic`,
+      "good"
+    );
+  }
+}
+
+if(combat.name==="The Blackwood Sentinel"){
+  G.sentinelDefeated=true;
+
+  log(
+    `🛡️ STORY BOSS DEFEATED! The Blackwood Sentinel has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Sentinel Relic")){
+    G.storyItems.push("Sentinel Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Sentinel Relic`,
+      "good"
+    );
+  }
+}
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
+
+  log(
+    `🌑 FINAL BOSS DEFEATED! The Root of Blackwood has fallen.`,
+    "good"
+  );
+}
+
+updateStoryObjective();
+
+G.creatures=G.creatures.filter(c=>c!==combat);
+  G.ps.forEach(s=>{
+
+    if(s.dead)return;
+
+    // Restore normal stats after Berserk
+    s.maxHp=s.baseMaxHp;
+    s.weaponDamage=s.baseWeaponDamage;
+    s.hp=Math.min(s.hp,s.maxHp);
+
+    s.berserk=false;
+    s.berserkUsedThisBattle=false;
+    s.berserkSpecialBoostReady=false;
+    if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
+    s.lifeRestoreReady=true;
+}
+
+    // Wake up knocked-out survivors after battle
+    s.knockedOut=false;
+
+    // If below 15% HP, recover to 75%
+    if(s.hp < s.maxHp*0.15){
+        s.hp=Math.ceil(s.maxHp*0.75);
+
+        log(
+            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
+            "good"
+        );
+    }
+});
+G.ps.forEach(s=>{
+  s.combatActions=0;
+});
+combat=null;
+  }
+
+  render();
+}
+function switchToSignatureWeapon(index){
+
+  let p=G.ps[index];
+
+  if(!p)return;
+
+  // Return equipped loot weapon to Extra Pockets first
+  if(p.equippedLootWeapon){
+
+    if(G.extraPockets.length>=G.extraPocketMax){
+      log(
+        `🎒 Extra Pockets are full! Cannot switch to Signature Weapon.`,
+        "bad"
+      );
+      return;
+    }
+
+    G.extraPockets.push(p.equippedLootWeapon);
+
+    log(
+      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      "good"
+    );
+
+    p.equippedLootWeapon=null;
+  }
+
+  log(
+    `⚔️ ${p.name} switches back to ${p.weapon}.`,
+    "good"
+  );
+
+  render();
+}
+
+function equipExtraPocketWeapon(index){
+
+  let p=G.ps[G.active];
+  let weapon=G.extraPockets[index];
+
+  if(!p || !weapon)return;
+
+  // Make sure the selected item is actually a weapon
+  if(weapon.type!=="weapon"){
+    log(`❌ ${weapon.name} is not a weapon.`,"bad");
+    return;
+  }
+
+  // Don't equip a broken weapon
+  if(
+    weapon.maxDurability!==undefined &&
+    weapon.durability<=0
+  ){
+    log(
+      `🔧 ${weapon.name} is BROKEN! Repair it before equipping.`,
+      "bad"
+    );
+    return;
+  }
+
+  // Save the selected weapon
+  let selectedWeapon=weapon;
+
+  // Remove selected weapon from Extra Pockets first
+  G.extraPockets.splice(index,1);
+
+  // Return currently equipped loot weapon to Extra Pockets
+  if(p.equippedLootWeapon){
+
+    G.extraPockets.push(p.equippedLootWeapon);
+
+    log(
+      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      "good"
+    );
+  }
+
+  // Equip the selected weapon
+  p.equippedLootWeapon=selectedWeapon;
+
+  render();
+}
+
+
+function useExtraPocketItem(index){
+
+  let p=G.ps[G.active];
+  let item=G.extraPockets[index];
+
+  if(!p || !item)return;
+
+  // Weapons must use EQUIP
+  if(item.type==="weapon"){
+    log(`❌ Use the EQUIP button for ${item.name}.`,"bad");
+    return;
+  }
+
+  // HEAL ITEM
+  if(item.type==="heal"){
+
+    p.hp=Math.min(p.maxHp,p.hp+item.val);
+
+    log(
+      `❤️ ${p.name} uses ${item.name} and restores ${item.val} Health.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // SANITY ITEM
+  else if(item.type==="san"){
+
+    p.san=Math.min(p.maxSan,p.san+item.val);
+
+    log(
+      `🧠 ${p.name} uses ${item.name} and restores ${item.val} Sanity.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // FEAR ITEM
+  else if(item.type==="fear"){
+
+    p.fear=Math.max(0,p.fear-item.val);
+
+    log(
+      `😨 ${p.name} uses ${item.name} and reduces Fear by ${item.val}.`,
+      "good"
+    );
+
+    G.extraPockets.splice(index,1);
+  }
+
+  // KEY ITEM
+  else if(item.type==="key"){
+
+    let locked=L.find(x=>!G.discovered.has(x[0]));
+
+    if(locked){
+
+      G.discovered.add(locked[0]);
+
+      log(
+        `🗝️ ${item.name} reveals ${locked[1]}.`,
+        "good"
+      );
+
+      G.extraPockets.splice(index,1);
+    }
+    else{
+
+      log(
+        `🗝️ There are no locked locations left to reveal.`,
+        "bad"
+      );
+
+      return;
+    }
+  }
+
+  // REPAIR KIT
+  else if(item.type==="repair"){
+
+    let weapon=p.equippedLootWeapon;
+
+    if(!weapon){
+      log(
+        `🔧 ${p.name} has no loot weapon equipped to repair.`,
+        "bad"
+      );
+      return;
+    }
+
+    if(weapon.maxDurability===undefined){
+      log(
+        `🔧 ${weapon.name} cannot be repaired.`,
+        "bad"
+      );
+      return;
+    }
+
+    if(weapon.durability>=weapon.maxDurability){
+      log(
+        `🔧 ${weapon.name} is already at full durability.`,
+        "bad"
+      );
+      return;
+    }
+
+    weapon.durability=weapon.maxDurability;
+
+    G.extraPockets.splice(index,1);
+
+    log(
+      `🔧 ${p.name} repairs ${weapon.name} to ${weapon.durability}/${weapon.maxDurability} durability!`,
+      "good"
+    );
+  }
+
+  // TOOL — not implemented yet
+  else if(item.type==="tool"){
+
+    log(
+      `🛠️ ${item.name} does not have an active effect yet.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  else{
+
+    log(
+      `❌ ${item.name} cannot be used right now.`,
+      "bad"
+    );
+
+    return;
+  }
+
+  render();
+}
+    function restoreLives(targetIndex){
+  let healer=G.ps[G.active];
+    let target=G.ps[targetIndex];
+
+    if(!healer || !target)return;
+
+    if(healer.rarity!=="Legendary" && healer.rarity!=="G.O.A.T"){
+        log(`❌ ${healer.name} cannot restore Lives.`,"bad");
+        return;
+    }
+
+    if(!healer.lifeRestoreReady){
+        log(`❌ ${healer.name}'s Life Restore is not ready.`,"bad");
+        return;
+    }
+
+    if(target.dead){
+        log(`☠️ ${target.name} is permanently dead and cannot be revived.`,"bad");
+        return;
+    }
+
+    if(target.rarity==="G.O.A.T"){
+        log(`🐐 ${target.name} already has unlimited Lives.`,"bad");
+        return;
+    }
+
+    if(target.lives>=target.maxLives){
+        log(`❤️ ${target.name} already has maximum Lives.`,"bad");
+        return;
+    }
+
+    let before=target.lives;
+
+    target.lives=Math.min(target.maxLives,target.lives+2);
+
+    healer.lifeRestoreReady=false;
+
+    log(
+        `✨ ${healer.name} restores ${target.name} from ${before}/${target.maxLives} to ${target.lives}/${target.maxLives} Lives!`,
+        "good"
+    );
+
+    render();
+}  
+function renderLog(){
+
+if(!G)return;
+
+document.getElementById("log").innerHTML=G.log.join("");
+}
+function toggleLog(){
+  document.getElementById("logPanel").classList.toggle("log-open");
+}
+
+// DRAGGABLE EXTRA POCKETS
+const extraPocketsPanel=document.getElementById("extraPocketsPanel");
+const extraPocketsHandle=document.getElementById("extraPocketsHandle");
+const resetExtraPocketsPosition=
+  document.getElementById("resetExtraPocketsPosition");
+
+let draggingExtraPockets=false;
+let extraPocketOffsetX=0;
+let extraPocketOffsetY=0;
+
+const savedExtraPocketsPosition=
+  localStorage.getItem("extraPocketsPosition");
+
+if(savedExtraPocketsPosition && window.innerWidth>850){
+
+  const savedPosition=
+    JSON.parse(savedExtraPocketsPosition);
+
+  if(savedPosition.left){
+    extraPocketsPanel.style.left=savedPosition.left;
+  }
+
+  if(savedPosition.top){
+    extraPocketsPanel.style.top=savedPosition.top;
+  }
+
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+}
+  
+extraPocketsHandle.addEventListener("mousedown",function(e){
+
+  if(window.innerWidth<=850)return;
+
+  draggingExtraPockets=true;
+
+  const rect=extraPocketsPanel.getBoundingClientRect();
+
+  extraPocketOffsetX=e.clientX-rect.left;
+  extraPocketOffsetY=e.clientY-rect.top;
+
+  extraPocketsHandle.style.cursor="grabbing";
+
+  e.preventDefault();
+});
+
+document.addEventListener("mousemove",function(e){
+
+  if(!draggingExtraPockets)return;
+
+  let newLeft=e.clientX-extraPocketOffsetX;
+  let newTop=e.clientY-extraPocketOffsetY;
+
+  // Keep panel inside screen
+  newLeft=Math.max(
+    0,
+    Math.min(newLeft,window.innerWidth-extraPocketsPanel.offsetWidth)
+  );
+
+  newTop=Math.max(
+    0,
+    Math.min(newTop,window.innerHeight-extraPocketsPanel.offsetHeight)
+  );
+
+  extraPocketsPanel.style.left=newLeft+"px";
+  extraPocketsPanel.style.top=newTop+"px";
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+});
+
+document.addEventListener("mouseup",function(){
+
+  if(!draggingExtraPockets)return;
+
+  draggingExtraPockets=false;
+  extraPocketsHandle.style.cursor="move";
+  localStorage.setItem(
+  "extraPocketsPosition",
+  JSON.stringify({
+    left:extraPocketsPanel.style.left,
+    top:extraPocketsPanel.style.top
+  })
+);
+});
+  
+  resetExtraPocketsPosition.addEventListener("click",function(){
+
+  localStorage.removeItem("extraPocketsPosition");
+
+  extraPocketsPanel.style.left="12px";
+  extraPocketsPanel.style.top="90px";
+  extraPocketsPanel.style.right="auto";
+  extraPocketsPanel.style.bottom="auto";
+
+});
