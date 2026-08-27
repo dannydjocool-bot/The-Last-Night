@@ -178,7 +178,26 @@ button:disabled{opacity:.35}
   }
 }
 .muted{color:#aaa}.good{color:#8fd18f}.bad{color:#ee7777}
+/* STORY OBJECTIVE TRACKER */
+.story-objective{
+  background:#101010;
+  border:1px solid #444;
+  border-left:4px solid #d6b85a;
+  border-radius:8px;
+  padding:9px 12px;
+  margin:8px 0 12px;
+  font-size:13px;
+  line-height:1.5;
+}
 
+.story-objective b{
+  font-size:12px;
+  letter-spacing:1px;
+}
+
+#storyObjectiveText{
+  color:#eee;
+}
 </style>
 </head>
 <body>
@@ -227,7 +246,11 @@ button:disabled{opacity:.35}
 <div id="latestEvent" class="latest-event">
 Waiting for the night to begin...
 </div>
-
+<div id="storyObjective" class="story-objective">
+  <b>📜 STORY OBJECTIVE</b><br>
+  <span id="storyObjectiveText">Objective 1 — Investigate the Police Station</span><br>
+  <span id="storyObjectiveProgress" class="muted">Story Clues: 0 / 10</span>
+</div>
 <div id="actions"></div>
 </div>
 
@@ -417,6 +440,18 @@ const STORY_CLUES={
   }
 
 };
+  const STORY_OBJECTIVES=[
+  {loc:"station",text:"Objective 1 — Investigate the Police Station"},
+  {loc:"library",text:"Objective 2 — Investigate the Town Library"},
+  {loc:"chapel",text:"Objective 3 — Investigate The Chapel"},
+  {loc:"huntercamp",text:"Objective 4 — Investigate Hunter's Camp"},
+  {loc:"hospital",text:"Objective 5 — Investigate the Abandoned Hospital"},
+  {loc:"school",text:"Objective 6 — Investigate Blackwood School"},
+  {loc:"factory",text:"Objective 7 — Investigate the Abandoned Factory"},
+  {loc:"massgrave",text:"Objective 8 — Investigate the Mass Grave"},
+  {loc:"laboratory",text:"Objective 9 — Investigate the Underground Laboratory"},
+  {loc:"ritual",text:"Objective 10 — Investigate the Ritual Chamber"}
+];
 const S=[
 {name:"The Doctor",hp:8,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
 {name:"The Hunter",hp:10,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
@@ -700,19 +735,37 @@ image:"wendigo.png",
 ability:"Predator's Hunger — Becomes more aggressive as its Health gets lower."
 },
 {
+name:"The Bloodkeeper",
+hp:28,
+atk:7,
+rarity:"Legendary",
+weight:1,
+image:"bloodkeeper.png",
+ability:"Blood Tribute — 35% chance when attacking to restore 3 HP."
+},
+{
+name:"The Blackwood Sentinel",
+hp:30,
+atk:8,
+rarity:"Legendary",
+weight:1,
+image:"blackwoodsentinel.png",
+ability:"Ancient Guard — The first successful attack against it each combat deals 50% less damage."
+},
+{
 name:"The Hollow",
-hp:20,
-atk:6,
+hp:38,
+atk:9,
 rarity:"Ancient",
 weight:0,
 image:"hollow.png",
-ability:"Void Consumption — Can drain Actions from its victim.",
+ability:"Void Consumption — Can drain Actions from its victim. Last Response — If a normal attack would kill The Hollow, it revives once at 30% HP, gains +55% Attack Damage, and summons a 15-point Void Shield.",
 bossZone:"hollow"
 },
 {
 name:"The Warden",
-hp:26,
-atk:7,
+hp:34,
+atk:9,
 rarity:"Mythic",
 weight:0,
 image:"warden.png",
@@ -721,8 +774,8 @@ bossZone:"prison"
 },
   {
   name:"The Root of Blackwood",
-  hp:40,
-  atk:8,
+hp:55,
+atk:11,
   rarity:"Abyssal",
   weight:0,
   image:"rootofblackwood.png",
@@ -787,6 +840,118 @@ function log(t,c=""){
 
   renderLog();
 }
+function updateStoryObjective(){
+
+  if(!G)return;
+
+  let objectiveText=document.getElementById("storyObjectiveText");
+  let objectiveProgress=document.getElementById("storyObjectiveProgress");
+
+  if(!objectiveText || !objectiveProgress)return;
+
+  let currentObjective=STORY_OBJECTIVES[G.clues];
+  let completedObjective=
+    G.clues>0 ? STORY_OBJECTIVES[G.clues-1] : null;
+
+  if(currentObjective){
+
+    if(completedObjective){
+      objectiveText.innerHTML=
+        `✅ ${completedObjective.text}<br>` +
+        `➡️ ${currentObjective.text}`;
+    }
+    else{
+      objectiveText.innerHTML=
+        `➡️ ${currentObjective.text}`;
+    }
+
+  }
+else{
+
+  if(!G.wardenDefeated || !G.hollowDefeated){
+
+    let wardenStatus=
+      G.wardenDefeated ? "✅ The Warden defeated" : "⬜ Defeat The Warden";
+
+    let hollowStatus=
+      G.hollowDefeated ? "✅ The Hollow defeated" : "⬜ Defeat The Hollow";
+
+    objectiveText.innerHTML=
+      `✅ All 10 story clues discovered.<br>` +
+      `➡️ Objective 11 — Break the Guardians<br>` +
+      `${wardenStatus}<br>` +
+      `${hollowStatus}`;
+  }
+
+else{
+
+  if(!G.bloodkeeperDefeated || !G.sentinelDefeated){
+
+    let bloodkeeperStatus=
+      G.bloodkeeperDefeated
+        ? "✅ The Bloodkeeper defeated"
+        : "⬜ Defeat The Bloodkeeper";
+
+    let sentinelStatus=
+      G.sentinelDefeated
+        ? "✅ The Blackwood Sentinel defeated"
+        : "⬜ Defeat The Blackwood Sentinel";
+
+    objectiveText.innerHTML=
+      `✅ Objective 11 — The Warden and The Hollow defeated<br>` +
+      `🔑 Warden-Hollow Relic acquired<br>` +
+      `➡️ Objective 12 — Hunt the Legendary Creatures<br>` +
+      `${bloodkeeperStatus}<br>` +
+      `${sentinelStatus}`;
+  }
+
+else{
+
+  let hasBloodkeeper=
+    G.storyItems.includes("Bloodkeeper Relic");
+
+  let hasSentinel=
+    G.storyItems.includes("Sentinel Relic");
+
+  let hasWardenHollow=
+    G.storyItems.includes("Warden-Hollow Relic");
+
+  if(!hasBloodkeeper || !hasSentinel || !hasWardenHollow){
+
+    objectiveText.innerHTML=
+      `➡️ Objective 13 — Assemble the Three Relics<br>` +
+      `${hasBloodkeeper ? "✅" : "⬜"} Bloodkeeper Relic<br>` +
+      `${hasSentinel ? "✅" : "⬜"} Sentinel Relic<br>` +
+      `${hasWardenHollow ? "✅" : "⬜"} Warden-Hollow Relic`;
+  }
+
+else{
+
+  if(!G.rootEntered){
+    objectiveText.innerHTML=
+      `✅ Objective 13 — All Three Relics Assembled<br>` +
+      `➡️ Objective 14 — Enter the Root of Blackwood`;
+  }
+
+else if(!G.rootDefeated){
+  objectiveText.innerHTML=
+    `✅ Objective 14 — Entered the Root of Blackwood<br>` +
+    `➡️ Objective 15 — Destroy the Root of Blackwood`;
+}
+
+else{
+  objectiveText.innerHTML=
+    `✅ Objective 15 — The Root of Blackwood Destroyed<br>` +
+    `➡️ Objective 16 — Reach the Escape Gate`;
+}
+}
+}
+}
+}
+  objectiveProgress.textContent=
+    `Story Clues: ${G.clues} / 10`;
+}
+  
 function maxRestsPerNight(p){
 
   if(p.rarity==="G.O.A.T"){
@@ -850,6 +1015,13 @@ night:1,
 clues:0,
 foundClues:new Set(),
 discovered:new Set(["motel","gas","forest","station"]),
+  wardenDefeated:false,
+hollowDefeated:false,
+bloodkeeperDefeated:false,
+sentinelDefeated:false,
+  rootEntered:false,
+  rootDefeated:false,
+storyItems:[],
 creatures:[],
   extraPockets:[],
 extraPocketMax:10,
@@ -864,6 +1036,8 @@ log:[]
 
 document.getElementById("setup").style.display="none";
 document.getElementById("game").style.display="grid";
+
+updateStoryObjective();
 
 log("The survivors wake at the Riverside Motel.","good");
 log("Find all 10 story clues and reach the Escape Gate before Night 10.");
@@ -991,6 +1165,27 @@ if(id==="gate"&&G.clues<10){
   log(`🔒 The Escape Gate is sealed. Find all 10 clues. (${G.clues}/10)`,"bad");
   return;
 }
+  if(id==="gate" && !G.rootDefeated){
+  log(
+    `🔒 The Escape Gate remains sealed. Destroy the Root of Blackwood first.`,
+    "bad"
+  );
+  return;
+}
+if(
+  id==="root" &&
+  (
+    !G.storyItems.includes("Bloodkeeper Relic") ||
+    !G.storyItems.includes("Sentinel Relic") ||
+    !G.storyItems.includes("Warden-Hollow Relic")
+  )
+){
+  log(
+    `🔒 The Root of Blackwood is sealed. All 3 story relics are required.`,
+    "bad"
+  );
+  return;
+}
 // ===============================
 // DANGER WARNING BEFORE ENTERING
 // ===============================
@@ -1031,6 +1226,11 @@ G.ps.forEach(s=>{
     s.loc=id;
   }
 });
+  // STORY — ROOT ENTERED
+if(id==="root"){
+  G.rootEntered=true;
+  updateStoryObjective();
+}
 G.discovered.add(id);
 
 LM[id][2].forEach(x=>G.discovered.add(x));
@@ -1182,7 +1382,19 @@ function gainClue(){
 
   let p=G.ps[G.active];
   let clue=STORY_CLUES[p.loc];
+// STORY OBJECTIVES MUST BE COMPLETED IN ORDER
+let currentObjective=STORY_OBJECTIVES[G.clues];
 
+if(
+  currentObjective &&
+  p.loc!==currentObjective.loc
+){
+  log(
+    `📜 CURRENT OBJECTIVE: ${currentObjective.text}`,
+    "bad"
+  );
+  return;
+}
   if(!clue){
     log(`🔎 There is no major story clue at ${LM[p.loc][1]}.`);
     return;
@@ -1206,22 +1418,14 @@ function gainClue(){
     "good"
   );
 
-  alert(
-    `📖 STORY CLUE FOUND\n\n` +
-    `${clue.name}\n\n` +
-    `${clue.story}\n\n` +
-    `Clues Found: ${G.clues}/10`
+updateStoryObjective();
+if(G.clues===10){
+
+  log(
+    `📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,
+    "good"
   );
-
-  if(G.clues===10){
-
-    G.discovered.add("gate");
-
-    log(
-      `🔓 ALL 10 CLUES FOUND! The truth of Blackwood has been uncovered. The Escape Gate can now be opened.`,
-      "good"
-    );
-  }
+}
 }
 
 function encounter(){
@@ -1316,6 +1520,7 @@ if(loc==="hollow"){
         provoked:false,
         voidShield:0,
 voidShieldActivated:false,
+        lastStandUsed:false,
         loc
       };
 
@@ -1332,7 +1537,16 @@ voidShieldActivated:false,
 }
  // ABYSSAL — THE ROOT OF BLACKWOOD
 if(loc==="root"){
-
+  if(G.rootDefeated){
+  return;
+}
+if(!G.storyItems.includes("Warden-Hollow Relic")){
+  log(
+    `🌑 Something ancient sleeps beneath Blackwood. The Warden-Hollow Relic is required to awaken it.`,
+    "bad"
+  );
+  return;
+}
   let b=CRE.find(c=>
     c.rarity==="Abyssal" &&
     c.bossZone==="root"
@@ -1450,6 +1664,12 @@ function combatActionCount(p){
 function startCombat(id){
 
 combat=G.creatures.find(c=>String(c.id)===String(id));
+  if(
+  combat &&
+  combat.name==="The Blackwood Sentinel"
+){
+  combat.ancientGuardUsed=false;
+}
 if(combat){
   let p=G.ps[G.active];
   p.combatActions=combatActionCount(p);
@@ -1545,6 +1765,22 @@ if(p.weak){
     "bad"
   );
 }
+  // BLACKWOOD SENTINEL — ANCIENT GUARD
+// First successful attack each combat deals 50% less damage
+if(
+  combat.name==="The Blackwood Sentinel" &&
+  !combat.ancientGuardUsed
+){
+  let originalDamage=dmg;
+
+  dmg=Math.max(1,Math.floor(dmg*0.50));
+  combat.ancientGuardUsed=true;
+
+  log(
+    `🛡️ ANCIENT GUARD! The Blackwood Sentinel reduces the first attack from ${originalDamage} to ${dmg} damage.`,
+    "bad"
+  );
+}
 // THE ROTTER — 20% chance to reduce incoming damage by 1
 if(combat.name==="The Rotter" && Math.random()<0.20){
 
@@ -1580,6 +1816,25 @@ if(
 
 // Any remaining damage hits The Hollow normally
 combat.hp-=dmg;
+  // THE HOLLOW — LAST RESPONSE against normal attacks
+if(
+  combat.name==="The Hollow" &&
+  combat.hp<=0 &&
+  !combat.lastStandUsed
+){
+  combat.lastStandUsed=true;
+
+  combat.hp=Math.ceil(combat.maxHp*0.30);
+  combat.atk=Math.ceil(combat.atk*1.55);
+
+  combat.voidShieldActivated=true;
+  combat.voidShield=15;
+
+  log(
+    `👁️ LAST RESPONSE! The Hollow refuses to die! It restores 30% HP, gains +55% Attack Damage, and summons a 15-point Void Shield!`,
+    "bad"
+  );
+}
   // THE HOLLOW — activate Void Shield once at 50% HP
 if(
   combat.name==="The Hollow" &&
@@ -1587,10 +1842,10 @@ if(
   !combat.voidShieldActivated
 ){
   combat.voidShieldActivated=true;
-  combat.voidShield=10;
+  combat.voidShield=15;
 
   log(
-    `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 10 damage!`,
+   `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 15 damage!`,
     "bad"
   );
 }
@@ -1630,7 +1885,108 @@ if(
   if(combat.hp<=0){
 
 log(`${combat.name} is defeated!`,"good");
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
 
+  log(
+    `🌑 OBJECTIVE COMPLETE! The Root of Blackwood has been destroyed.`,
+    "good"
+  );
+
+  updateStoryObjective();
+}
+if(combat.name==="The Bloodkeeper"){
+  G.bloodkeeperDefeated=true;
+
+  log(
+    `🩸 STORY BOSS DEFEATED! The Bloodkeeper has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Bloodkeeper Relic")){
+    G.storyItems.push("Bloodkeeper Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Bloodkeeper Relic`,
+      "good"
+    );  }
+
+  updateStoryObjective();
+}
+ if(combat.name==="The Blackwood Sentinel"){
+  G.sentinelDefeated=true;
+
+  log(
+    `🛡️ STORY BOSS DEFEATED! The Blackwood Sentinel has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Sentinel Relic")){
+    G.storyItems.push("Sentinel Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Sentinel Relic`,
+      "good"
+    );
+  }
+
+  updateStoryObjective();
+}
+ if(combat.name==="The Warden"){
+  G.wardenDefeated=true;
+
+  log(
+    `⛓️ STORY BOSS DEFEATED! The Warden has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+  log(
+  `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+  "good"
+);
+}
+
+  updateStoryObjective();
+}
+
+if(combat.name==="The Hollow"){
+  G.hollowDefeated=true;
+
+  log(
+    `👁️ STORY BOSS DEFEATED! The Hollow has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+log(
+  `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+  "good"
+);
+}
+
+  updateStoryObjective();
+}
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
+
+  log(
+    `🌑 FINAL BOSS DEFEATED! The Root of Blackwood has fallen.`,
+    "good"
+  );
+}
 G.creatures=G.creatures.filter(c=>c!==combat);
 G.ps.forEach(s=>{
 
@@ -1778,13 +2134,35 @@ if(
   );
 }
   // ===============================
+// LEGENDARY — THE BLOODKEEPER
+// ===============================
+
+// BLOOD TRIBUTE — 35% chance to restore 3 HP when attacking
+if(
+  c.name==="The Bloodkeeper" &&
+  c.hp>0 &&
+  c.hp<c.maxHp &&
+  Math.random()<0.35
+){
+  let oldHp=c.hp;
+
+  c.hp=Math.min(c.maxHp,c.hp+3);
+
+  let healed=c.hp-oldHp;
+
+  log(
+    `🩸 BLOOD TRIBUTE! The Bloodkeeper restores ${healed} HP.`,
+    "bad"
+  );
+}
+  // ===============================
 // ANCIENT — THE HOLLOW
 // ===============================
 
-// VOID CONSUMPTION — 30% chance to drain 2 Combat Actions
+// VOID CONSUMPTION — 35% chance to drain 2 Combat Actions
 if(
   c.name==="The Hollow" &&
-  Math.random()<0.30
+Math.random()<0.35
 ){
   let drained=Math.min(2,p.combatActions);
 
@@ -2363,7 +2741,7 @@ if(combat){
   render();
 }
 function render(){
-
+updateStoryObjective();
 let p=G.ps[G.active];
 // EXTRA POCKETS UI
 document.getElementById("extraPocketsCount").innerHTML=
@@ -2950,16 +3328,143 @@ if(p.berserkSpecialBoostReady){
         "good"
     );
 }
-  combat.hp-=dmg;
+  // THE HOLLOW — SPECIAL ATTACKS MUST HIT VOID SHIELD FIRST
+if(
+  combat.name==="The Hollow" &&
+  combat.voidShield>0
+){
+  let absorbed=Math.min(dmg,combat.voidShield);
+
+  combat.voidShield-=absorbed;
+  dmg-=absorbed;
+
+  log(
+    `🛡️ VOID SHIELD absorbs ${absorbed} Special damage! ${combat.voidShield} Shield remains.`,
+    "bad"
+  );
+
+  if(combat.voidShield<=0){
+    log(
+      `💥 The Hollow's VOID SHIELD SHATTERS!`,
+      "good"
+    );
+  }
+}
+
+// Any remaining Special damage hits The Hollow
+combat.hp-=dmg;
+  // THE HOLLOW — activate Void Shield once at 50% HP
+if(
+  combat.name==="The Hollow" &&
+  combat.hp>0 &&
+combat.hp<=combat.maxHp*0.50 &&
+  !combat.voidShieldActivated
+){
+  combat.voidShieldActivated=true;
+  combat.voidShield=15;
+
+  log(
+    `🛡️ VOID SHIELD! The Hollow surrounds itself in a dark barrier that can absorb 15 damage!`,
+    "bad"
+  );
+}
 combat.provoked=true;
   log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
 
   p.specialCharge=0;
   p.specialUses++;
+if(combat.hp<=0){
+  log(`${combat.name} is destroyed by the Special Ability!`,"good");
+if(combat.name==="The Warden"){
+  G.wardenDefeated=true;
 
-  if(combat.hp<=0){
-    log(`${combat.name} is destroyed by the Special Ability!`,"good");
-    G.creatures=G.creatures.filter(c=>c!==combat);
+  log(
+    `⛓️ STORY BOSS DEFEATED! The Warden has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+      "good"
+    );
+  }
+}
+
+if(combat.name==="The Hollow"){
+  G.hollowDefeated=true;
+
+  log(
+    `👁️ STORY BOSS DEFEATED! The Hollow has fallen.`,
+    "good"
+  );
+
+  if(
+    G.wardenDefeated &&
+    G.hollowDefeated &&
+    !G.storyItems.includes("Warden-Hollow Relic")
+  ){
+    G.storyItems.push("Warden-Hollow Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Warden-Hollow Relic`,
+      "good"
+    );
+  }
+}
+if(combat.name==="The Bloodkeeper"){
+  G.bloodkeeperDefeated=true;
+
+  log(
+    `🩸 STORY BOSS DEFEATED! The Bloodkeeper has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Bloodkeeper Relic")){
+    G.storyItems.push("Bloodkeeper Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Bloodkeeper Relic`,
+      "good"
+    );
+  }
+}
+
+if(combat.name==="The Blackwood Sentinel"){
+  G.sentinelDefeated=true;
+
+  log(
+    `🛡️ STORY BOSS DEFEATED! The Blackwood Sentinel has fallen.`,
+    "good"
+  );
+
+  if(!G.storyItems.includes("Sentinel Relic")){
+    G.storyItems.push("Sentinel Relic");
+
+    log(
+      `🔑 STORY ITEM ACQUIRED: Sentinel Relic`,
+      "good"
+    );
+  }
+}
+    if(combat.name==="The Root of Blackwood"){
+  G.rootDefeated=true;
+
+  log(
+    `🌑 FINAL BOSS DEFEATED! The Root of Blackwood has fallen.`,
+    "good"
+  );
+}
+
+updateStoryObjective();
+
+G.creatures=G.creatures.filter(c=>c!==combat);
   G.ps.forEach(s=>{
 
     if(s.dead)return;
