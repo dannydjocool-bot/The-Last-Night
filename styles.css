@@ -1,0 +1,195 @@
+/* The Last Night — extracted from the original single-file build.
+   Refactor pass 1: presentation only; gameplay behavior intentionally unchanged. */
+
+.extra-pockets-panel{
+  position:fixed;
+  left:12px;
+  top:90px;
+  width:220px;
+  max-height:calc(100vh - 110px);
+  overflow-y:auto;
+  background:#111;
+  border:1px solid #444;
+  border-radius:10px;
+  padding:10px;
+  z-index:40;
+  box-shadow:0 8px 30px rgba(0,0,0,.55);
+}
+
+#extraPocketsHandle{
+  cursor:move;
+  user-select:none;
+}
+
+
+.extra-pocket-slot{
+  background:#181818;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px;
+  margin:7px 0;
+  font-size:12px;
+}
+
+.extra-pocket-img{
+  width:100%;
+  border-radius:7px;
+  margin-bottom:6px;
+}
+
+.ammo-box{
+  background:#181818;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:8px;
+  line-height:1.6;
+}
+
+@media(max-width:850px){
+
+  .extra-pockets-panel{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin-bottom:12px;
+  }
+
+}
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#eee;font-family:Arial,sans-serif}
+header{padding:16px 20px;background:#111;border-bottom:1px solid #333;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:24px;letter-spacing:2px}
+button{background:#252525;color:#fff;border:1px solid #555;border-radius:8px;padding:10px 12px;margin:4px;cursor:pointer}
+button:disabled{opacity:.35}
+.wrap{max-width:1100px;margin:auto;padding:14px}
+.grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}
+.panel{background:#121212;border:1px solid #303030;border-radius:10px;padding:12px}
+.wide{grid-column:1/-1}
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.loc{min-height:72px;background:#181818;border:1px solid #444;border-radius:7px;padding:7px;font-size:12px}
+.loc.current{outline:2px solid white}
+.loc.locked{opacity:.4}
+.card{background:#171717;border:1px solid #444;border-radius:8px;padding:9px;margin:6px 0}
+  /* THE HOLLOW — VOID SHIELD ANIMATION */
+.void-shield-active{
+  animation:voidShieldPulse 1.2s infinite alternate;
+}
+
+@keyframes voidShieldPulse{
+  0%{
+    transform:scale(1);
+    box-shadow:
+      0 0 8px #5b00ff,
+      0 0 18px #5b00ff,
+      inset 0 0 12px #24004f;
+  }
+
+  100%{
+    transform:scale(1.02);
+    box-shadow:
+      0 0 18px #9d4dff,
+      0 0 38px #5b00ff,
+      inset 0 0 24px #4b0082;
+  }
+}
+  .survivor-img{width:100%;max-width:320px;display:block;margin:0 auto 10px;border-radius:10px;border:1px solid #555}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{background:#1e1e1e;border:1px solid #333;border-radius:6px;padding:6px 8px}
+.log{height:calc(100vh - 150px);overflow:auto;background:#0d0d0d;border-radius:7px;padding:10px;font-size:13px}
+.latest-event{
+  background:#181818;
+  border:2px solid #666;
+  border-left:5px solid #fff;
+  border-radius:8px;
+  padding:12px 14px;
+  margin:10px 0 12px;
+  font-size:16px;
+  font-weight:bold;
+  line-height:1.4;
+  min-height:48px;
+}
+
+.latest-event.good{
+  border-left-color:#8fd18f;
+}
+
+.latest-event.bad{
+  border-left-color:#ee7777;
+}
+#logButton{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:9999;
+  padding:12px 16px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+#logPanel{
+  position:fixed;
+  right:16px;
+  bottom:70px;
+  width:min(420px,calc(100vw - 32px));
+  max-height:70vh;
+  z-index:9998;
+  display:none;
+  overflow:hidden;
+  box-shadow:0 0 25px rgba(0,0,0,.8);
+}
+
+#logPanel.log-open{
+  display:block;
+}
+
+#logPanel .log{
+  height:50vh;
+  max-height:450px;
+  overflow-y:auto;
+}
+
+#logClose{
+  float:right;
+  display:inline-block;
+  cursor:pointer;
+}
+
+@media(max-width:600px){
+  #logButton{
+    right:12px;
+    bottom:12px;
+  }
+
+  #logPanel{
+    left:10px;
+    right:10px;
+    bottom:65px;
+    width:auto;
+    max-height:70vh;
+  }
+
+  #logPanel .log{
+    height:55vh;
+  }
+}
+.muted{color:#aaa}.good{color:#8fd18f}.bad{color:#ee7777}
+/* STORY OBJECTIVE TRACKER */
+.story-objective{
+  background:#101010;
+  border:1px solid #444;
+  border-left:4px solid #d6b85a;
+  border-radius:8px;
+  padding:9px 12px;
+  margin:8px 0 12px;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.story-objective b{
+  font-size:12px;
+  letter-spacing:1px;
+}
+
+#storyObjectiveText{
+  color:#eee;
+}
