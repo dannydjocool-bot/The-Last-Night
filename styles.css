@@ -193,3 +193,50 @@ button:disabled{opacity:.35}
 #storyObjectiveText{
   color:#eee;
 }
+
+
+/* Full survivor card artwork layout */
+.survivor-card-shell{
+  background:#101010;
+  border-radius:12px;
+  padding:8px;
+  margin:8px 0 14px;
+  overflow:hidden;
+}
+
+.survivor-card-art{
+  width:100%;
+  max-width:320px;
+  height:auto;
+  display:block;
+  margin:0 auto;
+  border-radius:10px;
+}
+
+.survivor-live-state{
+  max-width:320px;
+  margin:8px auto 0;
+}
+
+.survivor-card-status{
+  margin:6px 0;
+  font-size:12px;
+  letter-spacing:.8px;
+}
+
+.survivor-live-stats{
+  margin-top:8px;
+}
+
+.survivor-live-box{
+  background:#171717;
+  border:1px solid #3b3b3b;
+  border-radius:8px;
+  padding:8px;
+  margin-top:8px;
+}
+
+.survivor-equipped-label{
+  margin-top:8px;
+  font-size:12px;
+}
