@@ -268,22 +268,37 @@ body{
   padding:9px;border:1px solid #373a3e;border-radius:9px;background:#0c0e10;
 }
 .game-save-bar b{margin-right:4px;color:#c9a76b;font-size:11px;letter-spacing:1px}
+.menu-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.menu-actions button{margin:0;padding:10px 14px;background:rgba(19,20,22,.88);border-color:#54585d}
+.menu-actions button:hover{border-color:#bd5962;color:#fff}
+.menu-art-strip{position:relative;grid-column:1/-1;min-height:230px;overflow:hidden;border:1px solid #34373a;border-radius:14px;background:radial-gradient(circle at 50% 115%,rgba(153,40,50,.28),transparent 55%),#0d0e10}
+.menu-art-strip:after{content:"THEY ARE ALREADY WAITING";position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;white-space:nowrap;color:#d2b8ba;font:800 11px Arial;letter-spacing:4px;text-shadow:0 2px 8px #000}
+.menu-art-card{position:absolute;bottom:-50px;left:50%;width:145px;aspect-ratio:2/3;object-fit:cover;border:1px solid #666;border-radius:12px;box-shadow:0 12px 35px #000;filter:saturate(.84) brightness(.78);transition:.25s}
+.menu-art-card:hover{z-index:5!important;bottom:-20px;filter:saturate(1.05) brightness(1)}
+.menu-art-card:nth-child(1){transform:translateX(-310%) rotate(-12deg)}.menu-art-card:nth-child(2){transform:translateX(-220%) rotate(-8deg)}.menu-art-card:nth-child(3){transform:translateX(-130%) rotate(-3deg)}.menu-art-card:nth-child(4){transform:translateX(-40%) rotate(3deg)}.menu-art-card:nth-child(5){transform:translateX(50%) rotate(8deg)}.menu-art-card:nth-child(6){transform:translateX(140%) rotate(12deg)}
+.menu-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.84);backdrop-filter:blur(8px)}
+.menu-overlay.open{display:flex}.menu-dialog{width:min(1060px,100%);max-height:90vh;overflow:auto;border:1px solid #555b60;border-radius:16px;background:linear-gradient(145deg,#191b1e,#0b0c0e);box-shadow:0 30px 100px #000;padding:24px}.menu-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:-24px;z-index:4;padding:16px 0;background:#151719}.menu-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.menu-dialog-close{font-size:20px;margin:0}.guide-grid,.codex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.guide-card,.codex-card{border:1px solid #373b40;border-radius:12px;background:#111315;padding:15px}.guide-card h3,.codex-card h3{margin:0 0 7px;color:#e5c7ca}.guide-card p,.guide-card li,.codex-card p{color:#b8bdc2;font-size:13px;line-height:1.55}.guide-card ul{margin:8px 0 0;padding-left:20px}.codex-tabs{display:flex;gap:8px;margin:4px 0 16px}.codex-card{display:grid;grid-template-columns:115px 1fr;gap:14px}.codex-card img{width:115px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;border:1px solid #565b60}.codex-stats{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.codex-stats span{font-size:11px;padding:4px 7px;border-radius:12px;background:#24272a}.settings-list{display:grid;gap:10px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px;border:1px solid #373b40;border-radius:10px;background:#111315}.setting-row label{font-weight:bold}.setting-row small{display:block;color:#949aa0;margin-top:3px}.setting-row input{width:20px;height:20px}.toast{position:fixed;left:50%;bottom:24px;z-index:12000;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 18px;border:1px solid #76545a;border-radius:10px;background:#171214;color:#f1dadd;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+body.large-text{font-size:18px}body.high-contrast{filter:contrast(1.14)}body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButton,body.menu-mode #logPanel{display:none!important}body.menu-mode .wrap{max-width:1180px;padding-top:28px}
+.combat-locked{opacity:.45;cursor:not-allowed!important}.combat-notice{margin-top:10px;padding:9px;border-left:3px solid #b84b55;background:#1b1113;color:#e2b9bd;font-size:12px}
 @media(max-width:850px){
   #extraPocketsPanel{display:none}
   .menu-hero{padding:30px 24px 24px}
   .menu-content{grid-template-columns:1fr;padding:16px}
   .survivor-counts{grid-template-columns:repeat(3,1fr)}
+  .guide-grid,.codex-grid{grid-template-columns:1fr}.menu-art-card{width:120px}.menu-art-card:nth-child(1){transform:translateX(-240%) rotate(-10deg)}.menu-art-card:nth-child(2){transform:translateX(-175%) rotate(-6deg)}.menu-art-card:nth-child(3){transform:translateX(-110%) rotate(-2deg)}.menu-art-card:nth-child(4){transform:translateX(-45%) rotate(2deg)}.menu-art-card:nth-child(5){transform:translateX(20%) rotate(6deg)}.menu-art-card:nth-child(6){transform:translateX(85%) rotate(10deg)}
 }
 @media(max-width:500px){
   .survivor-counts{grid-template-columns:repeat(2,1fr)}
   .save-slot{grid-template-columns:1fr}
   .save-slot-actions{width:100%}
   .save-slot-actions button{flex:1}
+  .menu-art-strip{min-height:190px}.menu-art-card{width:100px}.codex-card{grid-template-columns:80px 1fr}.codex-card img{width:80px}.menu-dialog{padding:16px}.menu-dialog-head{top:-16px}
 }
 
 </style>
 </head>
-<body>
+<body class="menu-mode">
 
 <header>
 <h1>THE LAST NIGHT</h1>
@@ -314,6 +329,12 @@ body{
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
     <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, and make it through ten nights.</p>
+    <nav class="menu-actions" aria-label="Game information">
+      <button onclick="openMenuPanel('tips')">💡 Tips &amp; Tricks</button>
+      <button onclick="openMenuPanel('controls')">🎮 Controls</button>
+      <button onclick="openMenuPanel('info')">📖 Survivor &amp; Creature Info</button>
+      <button onclick="openMenuPanel('settings')">⚙️ Settings</button>
+    </nav>
   </section>
   <div class="menu-content">
     <section class="menu-section">
@@ -332,9 +353,25 @@ body{
       <p class="menu-section-copy">Three independent local save files. Each slot preserves its own full run.</p>
       <div id="saveSlots" class="save-slots"></div>
     </section>
+    <section class="menu-art-strip" aria-label="Featured card artwork">
+      <img class="menu-art-card" src="doctor.png" alt="The Doctor card art">
+      <img class="menu-art-card" src="excop.png" alt="The Ex-Cop card art">
+      <img class="menu-art-card" src="chosen.png" alt="The Chosen card art">
+      <img class="menu-art-card" src="graveborn.png" alt="The Graveborn card art">
+      <img class="menu-art-card" src="palebride.png" alt="The Pale Bride card art">
+      <img class="menu-art-card" src="hollow.png" alt="The Hollow card art">
+    </section>
     <div class="menu-tip">Tip: saves live in this browser on this device. Use the in-game save bar whenever you want to preserve a run.</div>
   </div>
 </div>
+
+<div id="menuOverlay" class="menu-overlay" role="dialog" aria-modal="true" aria-labelledby="menuDialogTitle" onclick="closeMenuPanel(event)">
+  <section class="menu-dialog" onclick="event.stopPropagation()">
+    <div class="menu-dialog-head"><h2 id="menuDialogTitle">Field Guide</h2><button class="menu-dialog-close" onclick="closeMenuPanel()" aria-label="Close">✕</button></div>
+    <div id="menuDialogContent"></div>
+  </section>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <div id="game" class="grid" style="display:none">
 
@@ -889,6 +926,93 @@ atk:11,
 }
 ];
 
+const MENU_GUIDES={
+  tips:{
+    title:"Tips & Tricks",
+    html:`<div class="guide-grid">
+      <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to retreat or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
+      <article class="guide-card"><h3>Build the Right Team</h3><ul><li>High-HP survivors can protect fragile investigators.</li><li>The Doctor is excellent for conserving healing items.</li><li>The Journalist gains better investigation rewards.</li><li>The Hunter reveals enemy information at combat start.</li><li>Rare survivors are powerful, but every common survivor has a useful role.</li></ul></article>
+      <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions.</li><li>Attacking provokes the creature; it can retaliate when you end the round.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li><li>Read every creature ability—boss mechanics can change normal combat rules.</li></ul></article>
+      <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
+      <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always points toward the next major clue.</li><li>Investigate marked locations instead of searching them repeatedly.</li><li>Ten story clues are required to open the escape route.</li><li>Boss relics and the Root of Blackwood are also required before escape.</li><li>Unknown map spaces are revealed by traveling through connected routes.</li></ul></article>
+      <article class="guide-card"><h3>Protect Your Progress</h3><ul><li>Use all three slots for different runs or rotating backups.</li><li>Save before entering a deadly zone or starting a boss fight.</li><li>Overwrite carefully—the three slots are independent.</li><li>Saves live only in this browser and device; clearing site data removes them.</li></ul></article>
+    </div>`
+  },
+  controls:{
+    title:"Controls",
+    html:`<div class="guide-grid">
+      <article class="guide-card"><h3>Menu</h3><ul><li>Choose 1–5 Survivors to begin a new run.</li><li>Load or delete a run from one of the three save slots.</li><li>Press Escape to close any guide or settings window.</li></ul></article>
+      <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions.</li></ul></article>
+      <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Use:</b> consume or activate an inventory item.</li><li><b>Equip:</b> move a weapon from Extra Pockets to the active survivor.</li><li>Drag Extra Pockets by its heading on desktop; Reset Position returns it to the corner.</li></ul></article>
+      <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon.</li><li><b>Use Special:</b> unleash the charged survivor ability.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> allow retaliation if the enemy was provoked, then begin a new combat round.</li><li>Exploration controls lock until combat ends.</li></ul></article>
+      <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
+    </div>`
+  }
+};
+
+function codexCards(list,type){
+  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>`:`<p><b>Creature Ability:</b> ${entry.ability}</p>`}</div></article>`).join("")}</div>`;
+}
+
+function showCodex(type){
+  document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");
+  document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");
+  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:CRE,type);
+}
+
+function settingsHtml(){
+  return `<div class="settings-list">
+    <div class="setting-row"><div><label for="settingLargeText">Larger Text</label><small>Increase interface text for easier reading.</small></div><input id="settingLargeText" type="checkbox" ${document.body.classList.contains("large-text")?"checked":""} onchange="setPreference('largeText',this.checked)"></div>
+    <div class="setting-row"><div><label for="settingContrast">Enhanced Contrast</label><small>Strengthen the difference between panels, text, and controls.</small></div><input id="settingContrast" type="checkbox" ${document.body.classList.contains("high-contrast")?"checked":""} onchange="setPreference('highContrast',this.checked)"></div>
+    <div class="setting-row"><div><label for="settingMotion">Reduce Motion</label><small>Disable pulsing, hover movement, and animated transitions.</small></div><input id="settingMotion" type="checkbox" ${document.body.classList.contains("reduce-motion")?"checked":""} onchange="setPreference('reduceMotion',this.checked)"></div>
+  </div><p class="menu-section-copy" style="margin-top:16px">Settings are saved automatically in this browser.</p>`;
+}
+
+function openMenuPanel(type){
+  const overlay=document.getElementById("menuOverlay");
+  const content=document.getElementById("menuDialogContent");
+  if(type==="info"){
+    document.getElementById("menuDialogTitle").textContent="Blackwood Field Codex";
+    content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+CRE.length+')</button></div><div id="codexContent"></div>';
+    showCodex("survivors");
+  }else if(type==="settings"){
+    document.getElementById("menuDialogTitle").textContent="Settings";
+    content.innerHTML=settingsHtml();
+  }else{
+    document.getElementById("menuDialogTitle").textContent=MENU_GUIDES[type].title;
+    content.innerHTML=MENU_GUIDES[type].html;
+  }
+  overlay.classList.add("open");
+  document.body.style.overflow="hidden";
+}
+
+function closeMenuPanel(event){
+  if(event && event.target!==document.getElementById("menuOverlay"))return;
+  document.getElementById("menuOverlay").classList.remove("open");
+  document.body.style.overflow="";
+}
+
+function setPreference(key,value){
+  localStorage.setItem("theLastNightSetting_"+key,String(value));
+  applyPreferences();
+  showToast("Setting saved");
+}
+
+function applyPreferences(){
+  document.body.classList.toggle("large-text",localStorage.getItem("theLastNightSetting_largeText")==="true");
+  document.body.classList.toggle("high-contrast",localStorage.getItem("theLastNightSetting_highContrast")==="true");
+  document.body.classList.toggle("reduce-motion",localStorage.getItem("theLastNightSetting_reduceMotion")==="true");
+}
+
+function showToast(message){
+  const toast=document.getElementById("toast");
+  toast.textContent=message;toast.classList.add("show");
+  clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove("show"),1800);
+}
+
+document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMenuPanel();});
+applyPreferences();
+
 const EVENTS=[
 ["Lights Out","Your flashlight flickers."],
 ["Something Moved","Lose 1 Sanity."],
@@ -1074,6 +1198,7 @@ function maxRestsPerNight(p){
   return 2;
 }
 function startGame(n){
+if(G && !confirm("Start a new game? Any progress not stored in a save slot will be lost."))return;
 let ps=drawSurvivors(n).map(s=>({
 name:s.name,
 maxHp:s.hp,
@@ -1141,6 +1266,7 @@ log:[]
 
 document.getElementById("setup").style.display="none";
 document.getElementById("game").style.display="grid";
+document.body.classList.remove("menu-mode");
 
 updateStoryObjective();
 
@@ -1203,6 +1329,12 @@ render();
 function useAction(cost,fn){
 
   let p=G.ps[G.active];
+
+  if(combat){
+    log("Exploration controls are unavailable until combat ends.","bad");
+    render();
+    return;
+  }
 
   if(p.actions<cost){
     log("You don't have enough actions.","bad");
@@ -1768,6 +1900,11 @@ function combatActionCount(p){
 
 function startCombat(id){
 
+if(combat){
+  log(`You are already fighting ${combat.name}. Finish or flee from this encounter first.`,"bad");
+  render();
+  return;
+}
 combat=G.creatures.find(c=>String(c.id)===String(id));
   if(
   combat &&
@@ -2972,7 +3109,7 @@ ${p.loc===x[0]?"<div>📍 YOU ARE HERE</div>":""}
 
 
 ${discovered&&connected?
-`<button onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
+`<button ${combat?'disabled class="combat-locked" title="Finish combat before moving"':''} onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
 
 </div>`;
 
@@ -3032,7 +3169,7 @@ ${index===G.active
 :'<div class="muted">Waiting</div>'}
 ${!sp.dead
 ? `
-<button onclick="selectSurvivor(${index})">
+<button ${combat?'disabled class="combat-locked" title="Survivors cannot be switched manually during combat"':''} onclick="selectSurvivor(${index})">
   👤 SELECT
 </button>
 `
@@ -3162,15 +3299,15 @@ document.getElementById("location").innerHTML=
 
 <br><br>
 
-<button onclick="useAction(1,search)">
+<button ${combat?'disabled class="combat-locked"':''} onclick="useAction(1,search)">
 Search (1 Action)
 </button>
 
-<button onclick="investigate()">
+<button ${combat?'disabled class="combat-locked"':''} onclick="investigate()">
   🔎 Investigate
 </button>
 
-<button onclick="recover()">
+<button ${combat?'disabled class="combat-locked"':''} onclick="recover()">
   😴 Rest
 </button>
 
@@ -3181,6 +3318,7 @@ Search (1 Action)
 >
   🌙 End Night
 </button>
+${combat?'<div class="combat-notice">⚔️ Exploration is locked. Defeat the creature or flee to continue.</div>':''}
 `;
 
 let here=G.creatures.filter(c=>c.loc===p.loc);
@@ -3232,9 +3370,11 @@ ${c.rarity.toUpperCase()}
 
 <br><br>
 
-<button onclick="startCombat('${c.id}')">
-Fight
-</button>
+${combat&&String(combat.id)===String(c.id)
+?'<button disabled class="combat-locked">⚔️ In Combat</button>'
+:combat
+?'<button disabled class="combat-locked">Fight</button>'
+:`<button onclick="startCombat('${c.id}')">Fight</button>`}
 
 </div>`
 
@@ -3929,6 +4069,7 @@ function saveGameToSlot(slot){
     localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(payload,saveReplacer));
     updateSaveSlots();
     log("Game saved to Slot "+slot+".","good");
+    showToast("Game saved to Slot "+slot);
   }catch(error){
     console.error("Unable to save game",error);
     alert("This browser could not save the game. Storage may be full or disabled.");
@@ -3947,6 +4088,7 @@ function loadGameFromSlot(slot){
   if(!(G.discovered instanceof Set))G.discovered=new Set(G.discovered||["motel"]);
   document.getElementById("setup").style.display="none";
   document.getElementById("game").style.display="grid";
+  document.body.classList.remove("menu-mode");
   render();
   renderLog();
   log("Save Slot "+slot+" loaded.","good");
@@ -3960,8 +4102,10 @@ function deleteSaveSlot(slot){
 }
 
 function returnToMenu(){
+  if(!confirm("Return to the Main Menu? Save first if you want to preserve your latest progress."))return;
   document.getElementById("game").style.display="none";
   document.getElementById("setup").style.display="block";
+  document.body.classList.add("menu-mode");
   updateSaveSlots();
 }
 
@@ -4090,3 +4234,4 @@ document.addEventListener("mouseup",function(){
 
 </body>
 </html>
+
