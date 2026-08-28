@@ -207,7 +207,12 @@ ${index===G.active
 
 <img class="survivor-card-art"
 src="${sp.image}"
-alt="${sp.name}">
+alt="${sp.name}"
+width="320"
+height="480"
+loading="eager"
+decoding="async"
+draggable="false">
 
 <div class="survivor-live-state">
 
