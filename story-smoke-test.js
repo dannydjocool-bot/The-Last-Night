@@ -44,8 +44,8 @@ assert(run(`G.outcome==="victory"`),"Victory ending did not complete");
 assert(storage.has("theLastNightSaveSlot2"),"Completed victory was not preserved in the active slot");
 assert(JSON.parse(storage.get("theLastNightSaveSlot2")).outcome==="victory","Saved completion status is missing");
 
-run(`G=${base};combat=null;currentSaveSlot=null;endNight();`);
-assert(run(`G.outcome==="defeat"&&G.outcomeReason==="deadline"`),"Night 10 did not trigger the deadline ending");
+run(`G=${base};G.night=30;combat=null;currentSaveSlot=null;render=()=>{};endNight();`);
+assert(run(`G.night===31&&G.outcome===null`),"The unlimited run incorrectly ended after Night 30");
 
-console.log("Story smoke test passed: 5 guaranteed bosses, victory, defeat, and completed saves.");
+console.log("Story smoke test passed: 5 guaranteed bosses, victory, unlimited nights, and completed saves.");
 
