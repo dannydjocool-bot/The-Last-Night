@@ -332,7 +332,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   <section class="menu-hero">
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
-    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, and make it through ten nights.</p>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p>
   </section>
   <nav class="menu-actions" aria-label="Game information">
     <button onclick="openMenuPanel('tips')">💡 Tips &amp; Tricks</button>
@@ -963,11 +963,11 @@ const MENU_GUIDES={
   tips:{
     title:"Tips & Tricks",
     html:`<div class="guide-grid">
-      <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to retreat or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
+      <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to retreat or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
       <article class="guide-card"><h3>Build the Right Team</h3><ul><li>High-HP survivors can protect fragile investigators.</li><li>The Doctor is excellent for conserving healing items.</li><li>The Journalist gains better investigation rewards.</li><li>The Hunter reveals enemy information at combat start.</li><li>Rare survivors are powerful, but every common survivor has a useful role.</li></ul></article>
       <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions.</li><li>Attacking provokes the creature; it can retaliate when you end the round.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li><li>Read every creature ability—boss mechanics can change normal combat rules.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
-      <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always points toward the next major clue.</li><li>Investigate marked locations instead of searching them repeatedly.</li><li>Ten story clues are required to open the escape route.</li><li>Boss relics and the Root of Blackwood are also required before escape.</li><li>Unknown map spaces are revealed by traveling through connected routes.</li></ul></article>
+      <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always shows the next required destination.</li><li>Collect all ten clues in order, then defeat the required story bosses.</li><li>The Warden waits at Prison and The Hollow waits inside The Hollow.</li><li>After both Guardians fall, hunt the Bloodkeeper at Slaughterhouse and the Sentinel at Asylum.</li><li>Assemble all three relics, destroy the Root, then reach the Escape Gate.</li></ul></article>
       <article class="guide-card"><h3>Protect Your Progress</h3><ul><li>Use all three slots for different runs or rotating backups.</li><li>Save before entering a deadly zone or starting a boss fight.</li><li>Overwrite carefully—the three slots are independent.</li><li>Saves live only in this browser and device; clearing site data removes them.</li></ul></article>
     </div>`
   },
@@ -978,13 +978,13 @@ const MENU_GUIDES={
       <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions.</li></ul></article>
       <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Use:</b> consume or activate an inventory item.</li><li><b>Equip:</b> move a weapon from Extra Pockets to the active survivor.</li><li>Drag Extra Pockets by its heading on desktop; Reset Position returns it to the corner.</li></ul></article>
       <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon.</li><li><b>Use Special:</b> unleash the charged survivor ability.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> allow retaliation if the enemy was provoked, then begin a new combat round.</li><li>Exploration controls lock until combat ends.</li></ul></article>
-      <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
+      <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Completed victories and defeats can also be preserved in any slot.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
     </div>`
   }
 };
 
 function codexCards(list,type){
-  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${type==="survivors"?"AVAILABLE SURVIVOR":"KNOWN THREAT"}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>`:`<p><b>Creature Ability:</b> ${entry.ability}</p>`}</div></article>`).join("")}</div>`;
+  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${type==="survivors"?"AVAILABLE SURVIVOR":"KNOWN THREAT"}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
 }
 
 function showCodex(type){
@@ -1156,9 +1156,8 @@ function updateStoryObjective(){
   }else{
     objectiveText.innerHTML=`✅ Objective 14 — Root destroyed<br>➡️ FINAL OBJECTIVE — Reach the Escape Gate`;
   }
-  const nightsLeft=Math.max(0,11-G.night);
   const relicCount=["Bloodkeeper Relic","Sentinel Relic","Warden-Hollow Relic"].filter(item=>G.storyItems.includes(item)).length;
-  objectiveProgress.textContent=`Clues ${G.clues}/10 · Bosses ${[G.wardenDefeated,G.hollowDefeated,G.bloodkeeperDefeated,G.sentinelDefeated,G.rootDefeated].filter(Boolean).length}/5 · Relics ${relicCount}/3 · Night ${G.night}/10 · ${nightsLeft} night${nightsLeft===1?"":"s"} including tonight`;
+  objectiveProgress.textContent=`Clues ${G.clues}/10 · Bosses ${[G.wardenDefeated,G.hollowDefeated,G.bloodkeeperDefeated,G.sentinelDefeated,G.rootDefeated].filter(Boolean).length}/5 · Relics ${relicCount}/3 · Night ${G.night} · No night limit`;
 }
   
 function maxRestsPerNight(p){
@@ -1254,7 +1253,7 @@ document.body.classList.remove("menu-mode");
 updateStoryObjective();
 
 log("The survivors wake at the Riverside Motel.","good");
-log("Find all 10 story clues and reach the Escape Gate before Night 10.");
+log("Find all 10 story clues, defeat the story bosses, destroy the Root, and reach the Escape Gate. There is no night limit.");
 startTurn();
 }
 
@@ -2734,11 +2733,6 @@ function canEndNight(){
     return;
   }
 
-  if(G.night>=10){
-    completeRun("defeat","deadline");
-    return;
-  }
-
   G.night++;
 
   // Reset every living Survivor for the new Night
@@ -3099,7 +3093,7 @@ document.getElementById("ammoDisplay").innerHTML=`
   🎯 Rifle Ammo: <b>${G.ammo.rifle}</b>
 `;
 document.getElementById("turnTitle").innerHTML=
-`<h2>Night ${G.night}/10 — ${p.name}</h2>
+`<h2>Night ${G.night} — ${p.name}</h2>
 <div class="muted">
 Clues: ${G.clues}/10 • ${
   combat
@@ -3535,23 +3529,6 @@ if(canEndNight()){
   render();
   return;
 }
-  if(G.night>=10){
-
-if(G.rootDefeated){
-
-      G.discovered.add("gate");
-
-        log(
-          "THE FINAL NIGHT HAS BEGUN. THE ESCAPE GATE IS OPEN.",
-          "bad"
-        );
-
-      }
-      else if(G.night>=10){
-        log("🌑 FINAL NIGHT: Complete the remaining objectives and reach the Escape Gate before ending the night.","bad");
-      }
-    }
-
   startTurn();
 }
   
@@ -4063,7 +4040,7 @@ function completeRun(outcome,reason=null){
   G.outcomeReason=reason;
   G.completedAt=new Date().toISOString();
   combat=null;
-  log(outcome==="victory"?"🏁 BLACKWOOD ESCAPED. The case file is complete.":"🌑 NIGHT 10 ENDS. Blackwood claims the investigation.",outcome==="victory"?"good":"bad");
+  log(outcome==="victory"?"🏁 BLACKWOOD ESCAPED. The case file is complete.":"🌑 The final investigator has fallen. Blackwood claims the investigation.",outcome==="victory"?"good":"bad");
   if(currentSaveSlot){
     try{persistRunToSlot(currentSaveSlot);}catch(error){console.error("Unable to preserve completed run",error);}
   }
@@ -4077,7 +4054,7 @@ function showEnding(outcome){
   card.classList.toggle("ending-defeat",!victory);
   document.getElementById("endingKicker").textContent=victory?"CASE FILE COMPLETE":"CASE FILE CLOSED";
   document.getElementById("endingTitle").textContent=victory?"BLACKWOOD ESCAPED":"THE DARKNESS REMAINS";
-  document.getElementById("endingMessage").textContent=victory?"The Root is silent, the gate is open, and the surviving investigators carry Blackwood's truth beyond the county line.":G.outcomeReason==="party"?"The final investigator falls. With no one left to carry the truth beyond the county line, Blackwood begins another cycle.":"The tenth night ends before the investigation is complete. The roads disappear, the radio falls silent, and Blackwood begins another cycle.";
+  document.getElementById("endingMessage").textContent=victory?"The Root is silent, the gate is open, and the surviving investigators carry Blackwood's truth beyond the county line.":"The final investigator falls. With no one left to carry the truth beyond the county line, Blackwood begins another cycle.";
   const living=G.ps.filter(p=>!p.dead).length;
   document.getElementById("endingSummary").innerHTML=`<div><b>${G.clues}/10</b>Clues</div><div><b>${living}/${G.ps.length}</b>Survivors</div><div><b>Night ${G.night}</b>${victory?"Escaped":"Lost"}</div>`;
   document.getElementById("endingOverlay").classList.add("open");
@@ -4184,7 +4161,7 @@ function saveSummary(payload){
   const lead=state.ps && state.ps[state.active||0];
   const when=payload.savedAt?new Date(payload.savedAt).toLocaleString():"Unknown time";
   if(payload.outcome||state.outcome)return (payload.outcome||state.outcome)==="victory"?"✅ Completed — Blackwood Escaped · "+when:"☠ Completed — Darkness Remains · "+when;
-  return "Night "+(state.night||1)+" of 10 · "+(lead?lead.name:"Unknown survivor")+" · "+when;
+  return "Night "+(state.night||1)+" · Unlimited run · "+(lead?lead.name:"Unknown survivor")+" · "+when;
 }
 
 function updateSaveSlots(){
