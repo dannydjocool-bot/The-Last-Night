@@ -47,5 +47,11 @@ assert(JSON.parse(storage.get("theLastNightSaveSlot2")).outcome==="victory","Sav
 run(`G=${base};G.night=30;combat=null;currentSaveSlot=null;render=()=>{};endNight();`);
 assert(run(`G.night===31&&G.outcome===null`),"The unlimited run incorrectly ended after Night 30");
 
-console.log("Story smoke test passed: 5 guaranteed bosses, victory, unlimited nights, and completed saves.");
+assert(run(`S.every(s=>s.hp===({Common:25,Uncommon:30,Rare:35,Epic:40,Legendary:45,"G.O.A.T":50}[s.rarity]))`),"Survivor HP does not match the rarity scale");
+run(`G=${base};combat={name:"Test Creature",provoked:false,attacksSinceCounter:0,testCounters:0};creatureAttack=c=>c.testCounters++;registerCombatAttack();`);
+assert(run(`combat.testCounters===0&&combat.attacksSinceCounter===1`),"Creature countered before the second attack");
+run(`registerCombatAttack();`);
+assert(run(`combat.testCounters===1&&combat.attacksSinceCounter===0`),"Creature did not counter after the second attack");
+
+console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, counterattacks, and completed saves.");
 
