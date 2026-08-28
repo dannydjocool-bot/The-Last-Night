@@ -279,10 +279,12 @@ body{
 .menu-art-card:nth-child(1){transform:translateX(-310%) rotate(-12deg)}.menu-art-card:nth-child(2){transform:translateX(-220%) rotate(-8deg)}.menu-art-card:nth-child(3){transform:translateX(-130%) rotate(-3deg)}.menu-art-card:nth-child(4){transform:translateX(-40%) rotate(3deg)}.menu-art-card:nth-child(5){transform:translateX(50%) rotate(8deg)}.menu-art-card:nth-child(6){transform:translateX(140%) rotate(12deg)}
 .menu-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.84);backdrop-filter:blur(8px)}
 .menu-overlay.open{display:flex}.menu-dialog{width:min(1120px,100%);max-height:92dvh;overflow:auto;border:1px solid #555b60;border-radius:16px;background:linear-gradient(145deg,#191b1e,#0b0c0e);box-shadow:0 30px 100px #000;padding:24px}.menu-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:-24px;z-index:4;padding:16px 0;background:#151719}.menu-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.menu-dialog-close{font-size:20px;margin:0}.guide-grid,.codex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.guide-card,.codex-card{border:1px solid #373b40;border-radius:12px;background:#111315;padding:15px}.guide-card h3,.codex-card h3{margin:0 0 7px;color:#e5c7ca}.guide-card p,.guide-card li,.codex-card p{color:#b8bdc2;font-size:13px;line-height:1.55}.guide-card ul{margin:8px 0 0;padding-left:20px}.codex-tabs{position:sticky;top:52px;z-index:3;display:flex;gap:8px;margin:4px 0 16px;padding:9px;background:#151719}.codex-card{display:grid;grid-template-columns:115px 1fr;gap:14px}.codex-card img{width:115px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;border:1px solid #565b60}.codex-availability{display:inline-block;color:#8fd18f;font-size:10px;font-weight:800;letter-spacing:1px}.codex-stats{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.codex-stats span{font-size:11px;padding:4px 7px;border-radius:12px;background:#24272a}.settings-list{display:grid;gap:10px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px;border:1px solid #373b40;border-radius:10px;background:#111315}.setting-row label{font-weight:bold}.setting-row small{display:block;color:#949aa0;margin-top:3px}.setting-row input{width:20px;height:20px}.toast{position:fixed;left:50%;bottom:24px;z-index:12000;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 18px;border:1px solid #76545a;border-radius:10px;background:#171214;color:#f1dadd;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
-.warning-overlay{position:fixed;inset:0;z-index:13000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,3,4,.88);backdrop-filter:blur(10px)}.warning-overlay.open{display:flex}.warning-dialog{position:relative;width:min(480px,100%);overflow:hidden;border:1px solid #714148;border-radius:16px;background:linear-gradient(150deg,#221518,#0d0e10 58%);box-shadow:0 30px 100px #000,0 0 50px rgba(155,43,55,.17);padding:28px}.warning-dialog:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c04b57,transparent)}.warning-icon{display:grid;place-items:center;width:52px;height:52px;margin-bottom:17px;border:1px solid #814b52;border-radius:50%;background:#2b171b;font-size:23px}.warning-dialog h2{margin:0 0 9px;font-family:Georgia,serif;font-size:25px;letter-spacing:1px}.warning-dialog p{margin:0;color:#b9bdc1;line-height:1.65}.warning-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:25px}.warning-actions button{margin:0}.warning-cancel{background:#17191b}.warning-confirm{border-color:#984751;background:linear-gradient(#7b3039,#541e25);font-weight:800}.warning-confirm.danger{border-color:#c44d59;background:linear-gradient(#922e39,#641b24)}
+.warning-overlay{position:fixed;inset:0;z-index:15000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,3,4,.88);backdrop-filter:blur(10px)}.warning-overlay.open{display:flex}.warning-dialog{position:relative;width:min(480px,100%);overflow:hidden;border:1px solid #714148;border-radius:16px;background:linear-gradient(150deg,#221518,#0d0e10 58%);box-shadow:0 30px 100px #000,0 0 50px rgba(155,43,55,.17);padding:28px}.warning-dialog:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c04b57,transparent)}.warning-icon{display:grid;place-items:center;width:52px;height:52px;margin-bottom:17px;border:1px solid #814b52;border-radius:50%;background:#2b171b;font-size:23px}.warning-dialog h2{margin:0 0 9px;font-family:Georgia,serif;font-size:25px;letter-spacing:1px}.warning-dialog p{margin:0;color:#b9bdc1;line-height:1.65}.warning-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:25px}.warning-actions button{margin:0}.warning-cancel{background:#17191b}.warning-confirm{border-color:#984751;background:linear-gradient(#7b3039,#541e25);font-weight:800}.warning-confirm.danger{border-color:#c44d59;background:linear-gradient(#922e39,#641b24)}
+.ending-overlay{position:fixed;inset:0;z-index:14000;display:none;place-items:center;padding:20px;background:radial-gradient(circle at 50% 25%,rgba(137,39,50,.28),transparent 45%),rgba(1,2,3,.94);backdrop-filter:blur(12px)}.ending-overlay.open{display:grid}.ending-card{width:min(720px,100%);border:1px solid #765058;border-radius:20px;background:linear-gradient(150deg,#211619,#0b0c0e 62%);box-shadow:0 35px 120px #000;padding:clamp(28px,6vw,60px);text-align:center}.ending-kicker{color:#d66570;font-size:11px;font-weight:900;letter-spacing:4px}.ending-card h2{margin:12px 0;font-family:Georgia,serif;font-size:clamp(38px,8vw,72px);letter-spacing:4px}.ending-card p{max-width:580px;margin:0 auto;color:#c4c7ca;line-height:1.7}.ending-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:24px 0}.ending-summary div{padding:12px;border:1px solid #3c3f43;border-radius:10px;background:#111315}.ending-summary b{display:block;color:#e8d6d8;font-size:20px}.ending-actions,.ending-save-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.ending-save-actions{margin-bottom:14px}.ending-save-actions span{width:100%;color:#9da2a7;font-size:12px}.ending-defeat .ending-kicker{color:#a5a8ab}.ending-defeat h2{color:#c5c7c9}
 body.large-text{font-size:18px}body.high-contrast{filter:contrast(1.14)}body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButton,body.menu-mode #logPanel{display:none!important}body.menu-mode .wrap{max-width:1320px;padding-top:28px}
 .combat-locked{opacity:.45;cursor:not-allowed!important}.combat-notice{margin-top:10px;padding:9px;border-left:3px solid #b84b55;background:#1b1113;color:#e2b9bd;font-size:12px}
+@media(min-width:1051px) and (max-width:1600px){body:not(.menu-mode) .wrap{max-width:none;margin-left:240px;margin-right:12px}}
 @media(max-width:1050px){
   #extraPocketsPanel{display:none}
   .menu-hero{padding:30px 24px 24px}
@@ -373,6 +375,16 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <h2 id="warningTitle">Are you sure?</h2>
     <p id="warningMessage"></p>
     <div class="warning-actions"><button id="warningCancel" class="warning-cancel">Cancel</button><button id="warningConfirm" class="warning-confirm">Continue</button></div>
+  </section>
+</div>
+<div id="endingOverlay" class="ending-overlay" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
+  <section id="endingCard" class="ending-card">
+    <div id="endingKicker" class="ending-kicker">CASE FILE COMPLETE</div>
+    <h2 id="endingTitle">BLACKWOOD ESCAPED</h2>
+    <p id="endingMessage"></p>
+    <div id="endingSummary" class="ending-summary"></div>
+    <div class="ending-save-actions"><span>Preserve this completed run:</span><button onclick="saveCompletedRun(1)">Save Slot 1</button><button onclick="saveCompletedRun(2)">Save Slot 2</button><button onclick="saveCompletedRun(3)">Save Slot 3</button></div>
+    <div class="ending-actions"><button onclick="endingToMenu()">Main Menu</button><button onclick="endingNewRun()">Begin New Descent</button></div>
   </section>
 </div>
 
@@ -887,6 +899,7 @@ rarity:"Legendary",
 weight:1,
 image:"bloodkeeper.png",
 ability:"Blood Tribute — 35% chance when attacking to restore 3 HP."
+ ,bossZone:"slaughterhouse"
 },
 {
 name:"The Blackwood Sentinel",
@@ -896,6 +909,7 @@ rarity:"Legendary",
 weight:1,
 image:"blackwoodsentinel.png",
 ability:"Ancient Guard — The first successful attack against it each combat deals 50% less damage."
+ ,bossZone:"asylum"
 },
 {
 name:"The Hollow",
@@ -1075,6 +1089,7 @@ const EVENTS=[
 
 let G=null;
 let combat=null;
+let currentSaveSlot=null;
 
 const d6=()=>1+Math.floor(Math.random()*6);
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
@@ -1122,115 +1137,28 @@ function log(t,c=""){
   renderLog();
 }
 function updateStoryObjective(){
-
   if(!G)return;
-
   let objectiveText=document.getElementById("storyObjectiveText");
   let objectiveProgress=document.getElementById("storyObjectiveProgress");
-
   if(!objectiveText || !objectiveProgress)return;
-
   let currentObjective=STORY_OBJECTIVES[G.clues];
-  let completedObjective=
-    G.clues>0 ? STORY_OBJECTIVES[G.clues-1] : null;
-
+  let completedObjective=G.clues>0 ? STORY_OBJECTIVES[G.clues-1] : null;
   if(currentObjective){
-
-    if(completedObjective){
-      objectiveText.innerHTML=
-        `✅ ${completedObjective.text}<br>` +
-        `➡️ ${currentObjective.text}`;
-    }
-    else{
-      objectiveText.innerHTML=
-        `➡️ ${currentObjective.text}`;
-    }
-
+    objectiveText.innerHTML=(completedObjective?`✅ ${completedObjective.text}<br>`:"")+`➡️ ${currentObjective.text}`;
+  }else if(!G.wardenDefeated || !G.hollowDefeated){
+    objectiveText.innerHTML=`✅ All 10 story clues discovered.<br>➡️ Objective 11 — Break the Guardians<br>${G.wardenDefeated?"✅":"⬜"} The Warden — Blackwood Prison<br>${G.hollowDefeated?"✅":"⬜"} The Hollow — The Hollow`;
+  }else if(!G.bloodkeeperDefeated || !G.sentinelDefeated){
+    objectiveText.innerHTML=`✅ Objective 11 — The Guardians defeated<br>➡️ Objective 12 — Hunt the Legendary Creatures<br>${G.bloodkeeperDefeated?"✅":"⬜"} The Bloodkeeper — Slaughterhouse<br>${G.sentinelDefeated?"✅":"⬜"} Blackwood Sentinel — Asylum`;
+  }else if(!G.rootEntered){
+    objectiveText.innerHTML=`✅ Objective 12 — Legendary Creatures defeated<br>✅ Three relics assembled<br>➡️ Objective 13 — Enter the Root of Blackwood`;
+  }else if(!G.rootDefeated){
+    objectiveText.innerHTML=`✅ Objective 13 — Entered the Root of Blackwood<br>➡️ Objective 14 — Destroy the Root of Blackwood`;
+  }else{
+    objectiveText.innerHTML=`✅ Objective 14 — Root destroyed<br>➡️ FINAL OBJECTIVE — Reach the Escape Gate`;
   }
-else{
-
-  if(!G.wardenDefeated || !G.hollowDefeated){
-
-    let wardenStatus=
-      G.wardenDefeated ? "✅ The Warden defeated" : "⬜ Defeat The Warden";
-
-    let hollowStatus=
-      G.hollowDefeated ? "✅ The Hollow defeated" : "⬜ Defeat The Hollow";
-
-    objectiveText.innerHTML=
-      `✅ All 10 story clues discovered.<br>` +
-      `➡️ Objective 11 — Break the Guardians<br>` +
-      `${wardenStatus}<br>` +
-      `${hollowStatus}`;
-  }
-
-else{
-
-  if(!G.bloodkeeperDefeated || !G.sentinelDefeated){
-
-    let bloodkeeperStatus=
-      G.bloodkeeperDefeated
-        ? "✅ The Bloodkeeper defeated"
-        : "⬜ Defeat The Bloodkeeper";
-
-    let sentinelStatus=
-      G.sentinelDefeated
-        ? "✅ The Blackwood Sentinel defeated"
-        : "⬜ Defeat The Blackwood Sentinel";
-
-    objectiveText.innerHTML=
-      `✅ Objective 11 — The Warden and The Hollow defeated<br>` +
-      `🔑 Warden-Hollow Relic acquired<br>` +
-      `➡️ Objective 12 — Hunt the Legendary Creatures<br>` +
-      `${bloodkeeperStatus}<br>` +
-      `${sentinelStatus}`;
-  }
-
-else{
-
-  let hasBloodkeeper=
-    G.storyItems.includes("Bloodkeeper Relic");
-
-  let hasSentinel=
-    G.storyItems.includes("Sentinel Relic");
-
-  let hasWardenHollow=
-    G.storyItems.includes("Warden-Hollow Relic");
-
-  if(!hasBloodkeeper || !hasSentinel || !hasWardenHollow){
-
-    objectiveText.innerHTML=
-      `➡️ Objective 13 — Assemble the Three Relics<br>` +
-      `${hasBloodkeeper ? "✅" : "⬜"} Bloodkeeper Relic<br>` +
-      `${hasSentinel ? "✅" : "⬜"} Sentinel Relic<br>` +
-      `${hasWardenHollow ? "✅" : "⬜"} Warden-Hollow Relic`;
-  }
-
-else{
-
-  if(!G.rootEntered){
-    objectiveText.innerHTML=
-      `✅ Objective 13 — All Three Relics Assembled<br>` +
-      `➡️ Objective 14 — Enter the Root of Blackwood`;
-  }
-
-else if(!G.rootDefeated){
-  objectiveText.innerHTML=
-    `✅ Objective 14 — Entered the Root of Blackwood<br>` +
-    `➡️ Objective 15 — Destroy the Root of Blackwood`;
-}
-
-else{
-  objectiveText.innerHTML=
-    `✅ Objective 15 — The Root of Blackwood Destroyed<br>` +
-    `➡️ Objective 16 — Reach the Escape Gate`;
-}
-}
-}
-}
-}
-  objectiveProgress.textContent=
-    `Story Clues: ${G.clues} / 10`;
+  const nightsLeft=Math.max(0,11-G.night);
+  const relicCount=["Bloodkeeper Relic","Sentinel Relic","Warden-Hollow Relic"].filter(item=>G.storyItems.includes(item)).length;
+  objectiveProgress.textContent=`Clues ${G.clues}/10 · Bosses ${[G.wardenDefeated,G.hollowDefeated,G.bloodkeeperDefeated,G.sentinelDefeated,G.rootDefeated].filter(Boolean).length}/5 · Relics ${relicCount}/3 · Night ${G.night}/10 · ${nightsLeft} night${nightsLeft===1?"":"s"} including tonight`;
 }
   
 function maxRestsPerNight(p){
@@ -1251,6 +1179,7 @@ function maxRestsPerNight(p){
 }
 async function startGame(n){
 if(G && !await showWarning({title:"Begin a New Descent?",message:"Starting another game replaces the active run. Save your current progress first if you want to return to it.",confirmLabel:"Start New Game",icon:"🌑",danger:true}))return;
+currentSaveSlot=null;
 let ps=drawSurvivors(n).map(s=>({
 name:s.name,
 maxHp:s.hp,
@@ -1304,6 +1233,8 @@ sentinelDefeated:false,
   rootEntered:false,
   rootDefeated:false,
 storyItems:[],
+outcome:null,
+completedAt:null,
 creatures:[],
   extraPockets:[],
 extraPocketMax:10,
@@ -1532,6 +1463,10 @@ G.discovered.add(id);
 LM[id][2].forEach(x=>G.discovered.add(x));
 
 log(`The party moves to ${LM[id][1]}.`);
+if(id==="gate"&&G.rootDefeated){
+  completeRun("victory");
+  return;
+}
 // ===============================
 // ZONE ENCOUNTER CHANCE
 // ===============================
@@ -1551,7 +1486,8 @@ else if(VERY_DEADLY_ZONES.includes(id)){
   encounterChance=1.00;
 }
 
-if(encounterChance>0 && Math.random()<encounterChance){
+const storyBossSpawned=spawnStoryBoss(id);
+if(!storyBossSpawned && encounterChance>0 && Math.random()<encounterChance){
   spawn(id);
 }
 
@@ -1746,13 +1682,35 @@ spawn(p.loc);
 
 check(p);
 }
+function spawnStoryBoss(loc){
+  if(G.clues<10)return false;
+  const guardiansComplete=G.wardenDefeated&&G.hollowDefeated;
+  const relicsComplete=["Bloodkeeper Relic","Sentinel Relic","Warden-Hollow Relic"].every(item=>G.storyItems.includes(item));
+  let bossName=null;
+  if(loc==="prison"&&!G.wardenDefeated)bossName="The Warden";
+  else if(loc==="hollow"&&!G.hollowDefeated)bossName="The Hollow";
+  else if(loc==="slaughterhouse"&&guardiansComplete&&!G.bloodkeeperDefeated)bossName="The Bloodkeeper";
+  else if(loc==="asylum"&&guardiansComplete&&!G.sentinelDefeated)bossName="The Blackwood Sentinel";
+  else if(loc==="root"&&relicsComplete&&!G.rootDefeated)bossName="The Root of Blackwood";
+  if(!bossName||G.creatures.some(c=>c.name===bossName))return false;
+  const b=CRE.find(c=>c.name===bossName);
+  if(!b)return false;
+  const c={id:Date.now()+Math.random(),name:b.name,hp:b.hp,maxHp:b.hp,atk:b.atk,rarity:b.rarity,image:b.image,ability:b.ability,provoked:false,loc};
+  if(bossName==="The Warden"){c.handcuffActive=false;c.handcuffCooldownHp=null;}
+  if(bossName==="The Hollow"){c.voidShield=0;c.voidShieldActivated=false;c.lastStandUsed=false;}
+  G.creatures.push(c);
+  log(`🔥 STORY ENCOUNTER: <b>${bossName}</b> blocks the path. This objective encounter is guaranteed.`,"bad");
+  return true;
+}
+
 function spawn(loc){
+if(spawnStoryBoss(loc))return;
  // ===============================
 // SPECIAL BOSS ENCOUNTER ROLLS
 // ===============================
 
 // MYTHIC — THE WARDEN
-if(loc==="prison"){
+if(false&&loc==="prison"){
 
   // TRUE 20% chance
   if(Math.random() < 0.20){
@@ -1792,7 +1750,7 @@ handcuffCooldownHp:null,
 }
 
 // ANCIENT — THE HOLLOW
-if(loc==="hollow"){
+if(false&&loc==="hollow"){
 
   // TRUE 10% chance
   if(Math.random() < 0.10){
@@ -2776,6 +2734,11 @@ function canEndNight(){
     return;
   }
 
+  if(G.night>=10){
+    completeRun("defeat","deadline");
+    return;
+  }
+
   G.night++;
 
   // Reset every living Survivor for the new Night
@@ -2969,6 +2932,10 @@ return false;
 function partyDefeated(){
 
     log(`☠️ THE ENTIRE PARTY HAS FALLEN...`, "bad");
+    if(G.ps.every(p=>p.dead)){
+      completeRun("defeat","party");
+      return;
+    }
     log(`🏚️ The survivors awaken back at the Riverside Motel.`, "good");
 
     // End the current combat
@@ -3529,11 +3496,8 @@ if(combat){
 }
 
   // NORMAL ESCAPE CHECK
- if(p.loc==="gate"&&G.clues>=10){
-  
-    alert("YOU ESCAPED BLACKWOOD!\n\nYou survived The Last Night.");
-
-    location.reload();
+ if(p.loc==="gate"&&G.rootDefeated){
+    completeRun("victory");
     return;
   }
 
@@ -3573,7 +3537,7 @@ if(canEndNight()){
 }
   if(G.night>=10){
 
-if(G.clues>=10){
+if(G.rootDefeated){
 
       G.discovered.add("gate");
 
@@ -3583,14 +3547,8 @@ if(G.clues>=10){
         );
 
       }
-      else{
-
-        alert(
-          "Night 10 arrives before you uncover the truth.\n\nTHE DARKNESS CONSUMES BLACKWOOD."
-        );
-
-        location.reload();
-        return;
+      else if(G.night>=10){
+        log("🌑 FINAL NIGHT: Complete the remaining objectives and reach the Escape Gate before ending the night.","bad");
       }
     }
 
@@ -4087,7 +4045,63 @@ function toggleLog(){
 
 
 const SAVE_PREFIX="theLastNightSaveSlot";
-const SAVE_VERSION=1;
+const SAVE_VERSION=2;
+
+function buildSavePayload(){
+  return {version:SAVE_VERSION,savedAt:new Date().toISOString(),outcome:G&&G.outcome||null,G:G,combat:combat};
+}
+
+function persistRunToSlot(slot){
+  localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(buildSavePayload(),saveReplacer));
+  currentSaveSlot=slot;
+  updateSaveSlots();
+}
+
+function completeRun(outcome,reason=null){
+  if(!G||G.outcome)return;
+  G.outcome=outcome;
+  G.outcomeReason=reason;
+  G.completedAt=new Date().toISOString();
+  combat=null;
+  log(outcome==="victory"?"🏁 BLACKWOOD ESCAPED. The case file is complete.":"🌑 NIGHT 10 ENDS. Blackwood claims the investigation.",outcome==="victory"?"good":"bad");
+  if(currentSaveSlot){
+    try{persistRunToSlot(currentSaveSlot);}catch(error){console.error("Unable to preserve completed run",error);}
+  }
+  showEnding(outcome);
+}
+
+function showEnding(outcome){
+  if(!G)return;
+  const victory=outcome==="victory";
+  const card=document.getElementById("endingCard");
+  card.classList.toggle("ending-defeat",!victory);
+  document.getElementById("endingKicker").textContent=victory?"CASE FILE COMPLETE":"CASE FILE CLOSED";
+  document.getElementById("endingTitle").textContent=victory?"BLACKWOOD ESCAPED":"THE DARKNESS REMAINS";
+  document.getElementById("endingMessage").textContent=victory?"The Root is silent, the gate is open, and the surviving investigators carry Blackwood's truth beyond the county line.":G.outcomeReason==="party"?"The final investigator falls. With no one left to carry the truth beyond the county line, Blackwood begins another cycle.":"The tenth night ends before the investigation is complete. The roads disappear, the radio falls silent, and Blackwood begins another cycle.";
+  const living=G.ps.filter(p=>!p.dead).length;
+  document.getElementById("endingSummary").innerHTML=`<div><b>${G.clues}/10</b>Clues</div><div><b>${living}/${G.ps.length}</b>Survivors</div><div><b>Night ${G.night}</b>${victory?"Escaped":"Lost"}</div>`;
+  document.getElementById("endingOverlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+
+async function saveCompletedRun(slot){
+  if(!G||!G.outcome)return;
+  const existing=readSaveSlot(slot);
+  if(existing&&!await showWarning({title:"Overwrite Save Slot "+slot+"?",message:"Replace this slot with the completed case file?",confirmLabel:"Save Completed Run",icon:"🏁",danger:true}))return;
+  try{persistRunToSlot(slot);showToast("Completed run saved to Slot "+slot);}catch(error){console.error("Unable to save completed run",error);}
+}
+
+function closeEndingToMenu(){
+  document.getElementById("endingOverlay").classList.remove("open");
+  document.body.style.overflow="";
+  document.getElementById("game").style.display="none";
+  document.getElementById("setup").style.display="block";
+  document.body.classList.add("menu-mode");
+  renderMenuArtStrip();updateSaveSlots();
+}
+
+function endingToMenu(){closeEndingToMenu();}
+function endingNewRun(){closeEndingToMenu();G=null;combat=null;currentSaveSlot=null;showToast("Choose your new survivor party");}
 
 function saveReplacer(key,value){
   if(value instanceof Set)return {__saveType:"Set",values:Array.from(value)};
@@ -4118,15 +4132,8 @@ async function saveGameToSlot(slot){
   }
   const existing=readSaveSlot(slot);
   if(existing && !await showWarning({title:"Overwrite Save Slot "+slot+"?",message:"The previous run stored in this slot will be replaced with your current progress.",confirmLabel:"Overwrite Save",icon:"💾",danger:true}))return;
-  const payload={
-    version:SAVE_VERSION,
-    savedAt:new Date().toISOString(),
-    G:G,
-    combat:combat
-  };
   try{
-    localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(payload,saveReplacer));
-    updateSaveSlots();
+    persistRunToSlot(slot);
     log("Game saved to Slot "+slot+".","good");
     showToast("Game saved to Slot "+slot);
   }catch(error){
@@ -4143,11 +4150,13 @@ function loadGameFromSlot(slot){
   }
   G=payload.G;
   combat=payload.combat||null;
+  currentSaveSlot=slot;
   if(!(G.foundClues instanceof Set))G.foundClues=new Set(G.foundClues||[]);
   if(!(G.discovered instanceof Set))G.discovered=new Set(G.discovered||["motel"]);
   document.getElementById("setup").style.display="none";
   document.getElementById("game").style.display="grid";
   document.body.classList.remove("menu-mode");
+  if(G.outcome||payload.outcome){showEnding(G.outcome||payload.outcome);return;}
   render();
   renderLog();
   log("Save Slot "+slot+" loaded.","good");
@@ -4174,6 +4183,7 @@ function saveSummary(payload){
   const state=payload.G;
   const lead=state.ps && state.ps[state.active||0];
   const when=payload.savedAt?new Date(payload.savedAt).toLocaleString():"Unknown time";
+  if(payload.outcome||state.outcome)return (payload.outcome||state.outcome)==="victory"?"✅ Completed — Blackwood Escaped · "+when:"☠ Completed — Darkness Remains · "+when;
   return "Night "+(state.night||1)+" of 10 · "+(lead?lead.name:"Unknown survivor")+" · "+when;
 }
 
