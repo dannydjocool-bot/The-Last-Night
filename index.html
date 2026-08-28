@@ -273,9 +273,9 @@ body{
 .menu-actions button{flex:0 1 auto;margin:0;padding:10px 14px;background:rgba(28,30,33,.94);border-color:#54585d}
 .menu-actions button:hover{border-color:#bd5962;color:#fff}
 .menu-art-strip{position:relative;grid-column:1/-1;min-height:230px;overflow:hidden;border:1px solid #34373a;border-radius:14px;background:radial-gradient(circle at 50% 115%,rgba(153,40,50,.28),transparent 55%),#0d0e10}
-.menu-art-strip:after{content:"THEY ARE ALREADY WAITING";position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;white-space:nowrap;color:#d2b8ba;font:800 11px Arial;letter-spacing:4px;text-shadow:0 2px 8px #000}
-.menu-art-card{position:absolute;bottom:-50px;left:50%;width:145px;aspect-ratio:2/3;object-fit:cover;border:1px solid #666;border-radius:12px;box-shadow:0 12px 35px #000;filter:saturate(.84) brightness(.78);transition:.25s}
-.menu-art-card:hover{z-index:5!important;bottom:-20px;filter:saturate(1.05) brightness(1)}
+.menu-art-card{position:absolute;bottom:-4px;left:50%;width:145px;aspect-ratio:2/3;overflow:hidden;border:1px solid #666;border-radius:12px;box-shadow:0 12px 35px #000;filter:saturate(.84) brightness(.82);transition:.25s}
+.menu-art-card img{width:100%;height:100%;object-fit:cover}.menu-art-name{position:absolute;inset:auto 0 0;z-index:2;padding:30px 8px 18px;background:linear-gradient(transparent,rgba(0,0,0,.96));color:#fff;font-size:11px;font-weight:900;letter-spacing:.7px;text-align:center;text-shadow:0 2px 5px #000}.menu-art-type{display:block;margin-top:3px;color:#d18a91;font-size:8px;letter-spacing:1.5px}
+.menu-art-card:hover{z-index:5!important;bottom:-10px;filter:saturate(1.05) brightness(1)}
 .menu-art-card:nth-child(1){transform:translateX(-310%) rotate(-12deg)}.menu-art-card:nth-child(2){transform:translateX(-220%) rotate(-8deg)}.menu-art-card:nth-child(3){transform:translateX(-130%) rotate(-3deg)}.menu-art-card:nth-child(4){transform:translateX(-40%) rotate(3deg)}.menu-art-card:nth-child(5){transform:translateX(50%) rotate(8deg)}.menu-art-card:nth-child(6){transform:translateX(140%) rotate(12deg)}
 .menu-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.84);backdrop-filter:blur(8px)}
 .menu-overlay.open{display:flex}.menu-dialog{width:min(1120px,100%);max-height:92dvh;overflow:auto;border:1px solid #555b60;border-radius:16px;background:linear-gradient(145deg,#191b1e,#0b0c0e);box-shadow:0 30px 100px #000;padding:24px}.menu-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:-24px;z-index:4;padding:16px 0;background:#151719}.menu-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.menu-dialog-close{font-size:20px;margin:0}.guide-grid,.codex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.guide-card,.codex-card{border:1px solid #373b40;border-radius:12px;background:#111315;padding:15px}.guide-card h3,.codex-card h3{margin:0 0 7px;color:#e5c7ca}.guide-card p,.guide-card li,.codex-card p{color:#b8bdc2;font-size:13px;line-height:1.55}.guide-card ul{margin:8px 0 0;padding-left:20px}.codex-tabs{position:sticky;top:52px;z-index:3;display:flex;gap:8px;margin:4px 0 16px;padding:9px;background:#151719}.codex-card{display:grid;grid-template-columns:115px 1fr;gap:14px}.codex-card img{width:115px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;border:1px solid #565b60}.codex-availability{display:inline-block;color:#8fd18f;font-size:10px;font-weight:800;letter-spacing:1px}.codex-stats{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.codex-stats span{font-size:11px;padding:4px 7px;border-radius:12px;background:#24272a}.settings-list{display:grid;gap:10px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px;border:1px solid #373b40;border-radius:10px;background:#111315}.setting-row label{font-weight:bold}.setting-row small{display:block;color:#949aa0;margin-top:3px}.setting-row input{width:20px;height:20px}.toast{position:fixed;left:50%;bottom:24px;z-index:12000;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 18px;border:1px solid #76545a;border-radius:10px;background:#171214;color:#f1dadd;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
@@ -355,14 +355,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
       <p class="menu-section-copy">Three independent local save files. Each slot preserves its own full run.</p>
       <div id="saveSlots" class="save-slots"></div>
     </section>
-    <section class="menu-art-strip" aria-label="Featured card artwork">
-      <img class="menu-art-card" src="doctor.png" alt="The Doctor card art">
-      <img class="menu-art-card" src="excop.png" alt="The Ex-Cop card art">
-      <img class="menu-art-card" src="chosen.png" alt="The Chosen card art">
-      <img class="menu-art-card" src="graveborn.png" alt="The Graveborn card art">
-      <img class="menu-art-card" src="palebride.png" alt="The Pale Bride card art">
-      <img class="menu-art-card" src="hollow.png" alt="The Hollow card art">
-    </section>
+    <section id="menuArtStrip" class="menu-art-strip" aria-label="Six randomized survivor and creature cards"></section>
     <div class="menu-tip">Tip: saves live in this browser on this device. Use the in-game save bar whenever you want to preserve a run.</div>
   </div>
 </div>
@@ -936,6 +929,22 @@ atk:11,
 }
 ];
 
+function randomMenuCards(list,count,type){
+  return [...list].sort(()=>Math.random()-.5).slice(0,count).map(entry=>({...entry,cardType:type}));
+}
+
+function renderMenuArtStrip(){
+  const strip=document.getElementById("menuArtStrip");
+  if(!strip)return;
+  const featured=[
+    ...randomMenuCards(S,3,"SURVIVOR"),
+    ...randomMenuCards(CRE,3,"CREATURE")
+  ].sort(()=>Math.random()-.5);
+  strip.innerHTML=featured.map(entry=>
+    `<article class="menu-art-card" title="${entry.name}"><img src="${entry.image}" alt="${entry.name} card artwork"><div class="menu-art-name">${entry.name}<span class="menu-art-type">${entry.cardType}</span></div></article>`
+  ).join("");
+}
+
 const MENU_GUIDES={
   tips:{
     title:"Tips & Tricks",
@@ -982,7 +991,7 @@ function openMenuPanel(type){
   const overlay=document.getElementById("menuOverlay");
   const content=document.getElementById("menuDialogContent");
   if(type==="info"){
-    document.getElementById("menuDialogTitle").textContent="Blackwood Field Codex";
+    document.getElementById("menuDialogTitle").textContent="Blackwood Survivor & Creature Codex";
     content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+CRE.length+')</button></div><div id="codexContent"></div>';
     showCodex("survivors");
   }else if(type==="settings"){
@@ -1054,6 +1063,7 @@ document.addEventListener("keydown",event=>{
   else closeMenuPanel();
 });
 applyPreferences();
+renderMenuArtStrip();
 
 const EVENTS=[
 ["Lights Out","Your flashlight flickers."],
@@ -4155,6 +4165,7 @@ async function returnToMenu(){
   document.getElementById("game").style.display="none";
   document.getElementById("setup").style.display="block";
   document.body.classList.add("menu-mode");
+  renderMenuArtStrip();
   updateSaveSlots();
 }
 
