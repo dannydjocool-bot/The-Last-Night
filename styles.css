@@ -200,17 +200,23 @@ button:disabled{opacity:.35}
   background:#101010;
   border-radius:12px;
   padding:8px;
-  margin:8px 0 14px;
-  overflow:hidden;
+  margin:8px auto 14px;
+  width:100%;
+  max-width:344px;
+  overflow:visible;
 }
 
 .survivor-card-art{
+  display:block;
   width:100%;
   max-width:320px;
   height:auto;
-  display:block;
+  aspect-ratio:2 / 3;
+  object-fit:contain;
+  object-position:center;
   margin:0 auto;
   border-radius:10px;
+  background:#080808;
 }
 
 .survivor-live-state{
@@ -239,4 +245,33 @@ button:disabled{opacity:.35}
 .survivor-equipped-label{
   margin-top:8px;
   font-size:12px;
+}
+
+
+/* Survivor card safety: full 2:3 artwork must never be cropped */
+#player{
+  min-width:0;
+}
+
+#player .survivor-card-shell{
+  contain:layout;
+}
+
+#player .survivor-card-art{
+  min-width:0;
+  max-height:none;
+  clip-path:none;
+}
+
+@media(max-width:600px){
+  .survivor-card-shell{
+    max-width:100%;
+    padding:6px;
+  }
+
+  .survivor-card-art,
+  .survivor-live-state{
+    max-width:320px;
+    width:100%;
+  }
 }
