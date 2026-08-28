@@ -899,7 +899,7 @@ if(p.items && p.items.length>0){
     log(`🎒 ${p.name} lost ${lostItem.name} while escaping back to the motel.`, "bad");
 }
         // Reset actions
-        p.actions=25;
+        p.actions=15;
       p.combatActions=0;
     });
 
