@@ -610,22 +610,22 @@ const STORY_CLUES={
   {loc:"ritual",text:"Objective 10 — Investigate the Ritual Chamber"}
 ];
 const S=[
-{name:"The Doctor",hp:8,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
-{name:"The Hunter",hp:10,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
-{name:"The Runaway",hp:6,san:7,rarity:"Common",weight:20,image:"runaway.png",weapon:"Switchblade",damage:3,weaponAbility:"Quick Strike — First attack each combat costs 0 Actions.",ability:"Adrenaline Rush — Below 4 HP, gain +1 Action."},
+{name:"The Doctor",hp:25,san:7,rarity:"Common",weight:20,image:"doctor.png",weapon:"Surgical Scalpel",damage:3,weaponAbility:"Precision Cut — Successful attacks restore 1 Sanity.",ability:"Medical Training — Heal 2 HP."},
+{name:"The Hunter",hp:25,san:5,rarity:"Common",weight:20,image:"hunter.png",weapon:"Hunting Bow",damage:5,weaponAbility:"Deadeye — Rolling a 6 deals double damage.",ability:"Tracker — Reveal enemy information at combat start."},
+{name:"The Runaway",hp:25,san:7,rarity:"Common",weight:20,image:"runaway.png",weapon:"Switchblade",damage:3,weaponAbility:"Quick Strike — First attack each combat costs 0 Actions.",ability:"Adrenaline Rush — Below 4 HP, gain +1 Action."},
 
-{name:"The Journalist",hp:7,san:8,rarity:"Uncommon",weight:12,image:"journalist.png",weapon:"Heavy Camera",damage:2,weaponAbility:"Flashbang — Once per combat, prevent the enemy's next attack.",ability:"Expose — Better rewards from investigations."},
-{name:"The Priest",hp:7,san:9,rarity:"Uncommon",weight:12,image:"priest.png",weapon:"Blessed Crucifix",damage:4,weaponAbility:"Exorcism — Bonus damage against supernatural creatures.",ability:"Faith — Remove 1 Fear from all Survivors once per game."},
+{name:"The Journalist",hp:30,san:8,rarity:"Uncommon",weight:12,image:"journalist.png",weapon:"Heavy Camera",damage:2,weaponAbility:"Flashbang — Once per combat, prevent the enemy's next attack.",ability:"Expose — Better rewards from investigations."},
+{name:"The Priest",hp:30,san:9,rarity:"Uncommon",weight:12,image:"priest.png",weapon:"Blessed Crucifix",damage:4,weaponAbility:"Exorcism — Bonus damage against supernatural creatures.",ability:"Faith — Remove 1 Fear from all Survivors once per game."},
 
-{name:"The Mechanic",hp:9,san:6,rarity:"Rare",weight:6,image:"mechanic.png",weapon:"Modified Nail Gun",damage:5,weaponAbility:"Overcharge — Spend +1 Action to deal +4 damage.",ability:"Engineering — Improved repair and item effects."},
-{name:"The Ex-Cop",hp:10,san:7,rarity:"Rare",weight:6,image:"excop.png",weapon:"Service Revolver",damage:6,weaponAbility:"Double Tap — Successful attacks may fire again.",ability:"Tactical Training — Gain +1 Action when combat begins."},
+{name:"The Mechanic",hp:35,san:6,rarity:"Rare",weight:6,image:"mechanic.png",weapon:"Modified Nail Gun",damage:5,weaponAbility:"Overcharge — Spend +1 Action to deal +4 damage.",ability:"Engineering — Improved repair and item effects."},
+{name:"The Ex-Cop",hp:35,san:7,rarity:"Rare",weight:6,image:"excop.png",weapon:"Service Revolver",damage:6,weaponAbility:"Double Tap — Successful attacks may fire again.",ability:"Tactical Training — Gain +1 Action when combat begins."},
 
-{name:"The Occultist",hp:7,san:10,rarity:"Epic",weight:2,image:"occultist.png",weapon:"Ritual Dagger",damage:5,weaponAbility:"Blood Magic — Sacrifice 2 HP to deal +5 damage.",ability:"Dark Knowledge — See enemy weaknesses."},
+{name:"The Occultist",hp:40,san:10,rarity:"Epic",weight:2,image:"occultist.png",weapon:"Ritual Dagger",damage:5,weaponAbility:"Blood Magic — Sacrifice 2 HP to deal +5 damage.",ability:"Dark Knowledge — See enemy weaknesses."},
 
-{name:"The Stranger",hp:8,san:8,rarity:"Legendary",weight:1,image:"stranger.png",weapon:"Blackwood Blade",damage:7,weaponAbility:"Unknown Power — Critical hits restore 2 HP and 2 Sanity.",ability:"Beyond Understanding — Resistant to negative events."},
+{name:"The Stranger",hp:45,san:8,rarity:"Legendary",weight:1,image:"stranger.png",weapon:"Blackwood Blade",damage:7,weaponAbility:"Unknown Power — Critical hits restore 2 HP and 2 Sanity.",ability:"Beyond Understanding — Resistant to negative events."},
 
-{name:"The Chosen",hp:12,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
-{name:"The Reaper",hp:11,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."}
+{name:"The Chosen",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
+{name:"The Reaper",hp:50,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."}
 ];
 
 function drawSurvivors(amount){
@@ -965,7 +965,7 @@ const MENU_GUIDES={
     html:`<div class="guide-grid">
       <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to retreat or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
       <article class="guide-card"><h3>Build the Right Team</h3><ul><li>High-HP survivors can protect fragile investigators.</li><li>The Doctor is excellent for conserving healing items.</li><li>The Journalist gains better investigation rewards.</li><li>The Hunter reveals enemy information at combat start.</li><li>Rare survivors are powerful, but every common survivor has a useful role.</li></ul></article>
-      <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions.</li><li>Attacking provokes the creature; it can retaliate when you end the round.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li><li>Read every creature ability—boss mechanics can change normal combat rules.</li></ul></article>
+      <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
       <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always shows the next required destination.</li><li>Collect all ten clues in order, then defeat the required story bosses.</li><li>The Warden waits at Prison and The Hollow waits inside The Hollow.</li><li>After both Guardians fall, hunt the Bloodkeeper at Slaughterhouse and the Sentinel at Asylum.</li><li>Assemble all three relics, destroy the Root, then reach the Escape Gate.</li></ul></article>
       <article class="guide-card"><h3>Protect Your Progress</h3><ul><li>Use all three slots for different runs or rotating backups.</li><li>Save before entering a deadly zone or starting a boss fight.</li><li>Overwrite carefully—the three slots are independent.</li><li>Saves live only in this browser and device; clearing site data removes them.</li></ul></article>
@@ -977,7 +977,7 @@ const MENU_GUIDES={
       <article class="guide-card"><h3>Menu</h3><ul><li>Choose 1–5 Survivors to begin a new run.</li><li>Load or delete a run from one of the three save slots.</li><li>Press Escape to close any guide or settings window.</li></ul></article>
       <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions.</li></ul></article>
       <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Use:</b> consume or activate an inventory item.</li><li><b>Equip:</b> move a weapon from Extra Pockets to the active survivor.</li><li>Drag Extra Pockets by its heading on desktop; Reset Position returns it to the corner.</li></ul></article>
-      <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon.</li><li><b>Use Special:</b> unleash the charged survivor ability.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> allow retaliation if the enemy was provoked, then begin a new combat round.</li><li>Exploration controls lock until combat ends.</li></ul></article>
+      <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon; every attempt adds counter pressure.</li><li><b>Use Special:</b> spend 3 Combat AP; Specials also count toward retaliation.</li><li><b>Counterattack:</b> the creature strikes automatically after every second attack attempt.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> resolves any pending creature counterattack, then refreshes Combat AP.</li><li>Exploration controls lock until combat ends.</li></ul></article>
       <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Completed victories and defeats can also be preserved in any slot.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
     </div>`
   }
@@ -1914,6 +1914,16 @@ function combatActionCount(p){
 }
 
 
+function registerCombatAttack(){
+  if(!combat)return;
+  combat.provoked=true;
+  combat.attacksSinceCounter=(combat.attacksSinceCounter||0)+1;
+  if(combat.attacksSinceCounter<2)return;
+  combat.attacksSinceCounter=0;
+  log(`⚠️ ${combat.name} seizes an opening and counterattacks!`,"bad");
+  creatureAttack(combat);
+}
+
 function startCombat(id){
 
 if(combat){
@@ -1931,6 +1941,7 @@ combat=G.creatures.find(c=>String(c.id)===String(id));
 if(combat){
   let p=G.ps[G.active];
   p.combatActions=combatActionCount(p);
+  combat.attacksSinceCounter=0;
 }
 if(combat)
 log(`Combat begins against ${combat.name}.`,"bad");
@@ -2107,7 +2118,6 @@ if(
     "bad"
   );
 }
-combat.provoked=true;
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
 chargeSpecial(p);
   // THE MIMIC — 25% chance to imitate 50% of damage received
@@ -2280,6 +2290,7 @@ combat=null;
 return;
 }
 }
+registerCombatAttack();
 
 
 
@@ -3439,8 +3450,9 @@ renderLog();
   // COMBAT END TURN
 if(combat){
 
-    // Creature only attacks after being provoked
-    if(combat.provoked){
+    // Resolve one pending attack attempt before refreshing the round
+    if(combat.provoked && (combat.attacksSinceCounter||0)>0){
+        combat.attacksSinceCounter=0;
         creatureAttack(combat);
 
         // Party may have been defeated during the creature attack
@@ -3607,7 +3619,6 @@ combat.hp<=combat.maxHp*0.50 &&
     "bad"
   );
 }
-combat.provoked=true;
   log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
 
   p.specialCharge=0;
@@ -3738,6 +3749,8 @@ G.ps.forEach(s=>{
 });
 combat=null;
   }
+
+  registerCombatAttack();
 
   render();
 }
