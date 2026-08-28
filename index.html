@@ -198,6 +198,89 @@ button:disabled{opacity:.35}
 #storyObjectiveText{
   color:#eee;
 }
+
+/* CINEMATIC START MENU + SAVE SLOTS */
+body{
+  background:
+    radial-gradient(circle at 72% 18%,rgba(115,25,34,.16),transparent 28%),
+    radial-gradient(circle at 22% 78%,rgba(50,72,82,.12),transparent 34%),
+    linear-gradient(180deg,#090a0b 0%,#050607 100%);
+}
+#setup.start-menu{
+  position:relative;
+  overflow:hidden;
+  max-width:1120px;
+  margin:2px auto 40px;
+  padding:0;
+  border:1px solid #383b3f;
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(24,25,27,.97),rgba(10,11,12,.98));
+  box-shadow:0 28px 90px rgba(0,0,0,.7),inset 0 1px rgba(255,255,255,.04);
+}
+#setup.start-menu:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(110deg,transparent 0 52%,rgba(146,33,44,.08) 70%,transparent 100%);
+}
+.menu-hero{
+  position:relative;
+  padding:42px 44px 30px;
+  border-bottom:1px solid #34373a;
+  background:
+    linear-gradient(90deg,rgba(5,6,7,.96),rgba(16,17,19,.78)),
+    radial-gradient(circle at 84% 30%,rgba(177,43,55,.22),transparent 36%);
+}
+.menu-kicker{color:#c76970;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
+.menu-title{margin:8px 0 8px;font-family:Georgia,serif;font-size:clamp(34px,5vw,64px);letter-spacing:5px;line-height:.95;text-shadow:0 3px 24px #000}
+.menu-subtitle{max-width:600px;color:#b6b9bd;font-size:15px;line-height:1.7}
+.menu-content{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:22px;padding:26px}
+.menu-section{
+  min-width:0;padding:24px;border:1px solid #34373a;border-radius:14px;
+  background:linear-gradient(150deg,rgba(30,31,34,.86),rgba(17,18,20,.9));
+}
+.menu-section h2{margin:0 0 6px;font-size:21px}
+.menu-section-copy{color:#979ca1;font-size:13px;margin:0 0 20px}
+.survivor-counts{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.survivor-choice{
+  min-height:68px;border:1px solid #4a4e52!important;border-radius:10px!important;
+  background:linear-gradient(#292b2e,#1b1d20)!important;font-weight:800;
+  transition:transform .16s,border-color .16s,box-shadow .16s;
+}
+.survivor-choice:hover{transform:translateY(-2px);border-color:#b94b56!important;box-shadow:0 7px 22px rgba(132,31,41,.25)}
+.survivor-choice strong{display:block;font-size:20px;color:#f2d7d9}
+.save-slots{display:grid;gap:9px}
+.save-slot{
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  padding:13px 14px;border:1px solid #35383c;border-radius:10px;background:#101214;
+}
+.save-slot.has-save{border-color:#665038;background:linear-gradient(90deg,#171512,#111315)}
+.save-slot-title{font-weight:800;letter-spacing:.5px}
+.save-slot-meta{margin-top:3px;color:#8f9499;font-size:11px;line-height:1.45}
+.save-slot-actions{display:flex;gap:6px}
+.save-slot-actions button,.game-save-bar button{padding:8px 10px;font-size:11px}
+.load-save{border-color:#8d6c3e!important;color:#f0d29b!important}
+.delete-save{border-color:#63353a!important;color:#dc858c!important}
+.menu-tip{grid-column:1/-1;padding:13px 16px;border-left:3px solid #9a3944;background:#111214;color:#aeb2b6;font-size:12px}
+.game-save-bar{
+  display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:8px 0 12px;
+  padding:9px;border:1px solid #373a3e;border-radius:9px;background:#0c0e10;
+}
+.game-save-bar b{margin-right:4px;color:#c9a76b;font-size:11px;letter-spacing:1px}
+@media(max-width:850px){
+  #extraPocketsPanel{display:none}
+  .menu-hero{padding:30px 24px 24px}
+  .menu-content{grid-template-columns:1fr;padding:16px}
+  .survivor-counts{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:500px){
+  .survivor-counts{grid-template-columns:repeat(2,1fr)}
+  .save-slot{grid-template-columns:1fr}
+  .save-slot-actions{width:100%}
+  .save-slot-actions button{flex:1}
+}
+
 </style>
 </head>
 <body>
@@ -226,22 +309,44 @@ button:disabled{opacity:.35}
     <span id="ammoDisplay"></span>
   </div>
 </div>
-<div id="setup" class="panel">
-<h2>Start Game</h2>
-<p>You wake up in Blackwood. Something is hunting you.</p>
-<p>Choose the number of Survivors:</p>
-
-<button onclick="startGame(1)">1 Survivor</button>
-<button onclick="startGame(2)">2 Survivors</button>
-<button onclick="startGame(3)">3 Survivors</button>
-<button onclick="startGame(4)">4 Survivors</button>
-<button onclick="startGame(5)">5 Survivors</button>
+<div id="setup" class="panel start-menu">
+  <section class="menu-hero">
+    <div class="menu-kicker">Blackwood County Incident File 01</div>
+    <h2 class="menu-title">THE LAST NIGHT</h2>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, and make it through ten nights.</p>
+  </section>
+  <div class="menu-content">
+    <section class="menu-section">
+      <h2>Begin a New Descent</h2>
+      <p class="menu-section-copy">Choose your party size. Larger groups offer more skills—but draw more attention.</p>
+      <div class="survivor-counts">
+        <button class="survivor-choice" onclick="startGame(1)"><strong>1</strong>Survivor</button>
+        <button class="survivor-choice" onclick="startGame(2)"><strong>2</strong>Survivors</button>
+        <button class="survivor-choice" onclick="startGame(3)"><strong>3</strong>Survivors</button>
+        <button class="survivor-choice" onclick="startGame(4)"><strong>4</strong>Survivors</button>
+        <button class="survivor-choice" onclick="startGame(5)"><strong>5</strong>Survivors</button>
+      </div>
+    </section>
+    <section class="menu-section">
+      <h2>Continue the Investigation</h2>
+      <p class="menu-section-copy">Three independent local save files. Each slot preserves its own full run.</p>
+      <div id="saveSlots" class="save-slots"></div>
+    </section>
+    <div class="menu-tip">Tip: saves live in this browser on this device. Use the in-game save bar whenever you want to preserve a run.</div>
+  </div>
 </div>
 
 <div id="game" class="grid" style="display:none">
 
 <div class="panel wide">
 <div id="turnTitle"></div>
+<div class="game-save-bar">
+  <b>CASE FILES</b>
+  <button onclick="saveGameToSlot(1)">Save Slot 1</button>
+  <button onclick="saveGameToSlot(2)">Save Slot 2</button>
+  <button onclick="saveGameToSlot(3)">Save Slot 3</button>
+  <button onclick="returnToMenu()">Main Menu</button>
+</div>
 
 <div id="latestEvent" class="latest-event">
 Waiting for the night to begin...
@@ -3780,6 +3885,111 @@ document.getElementById("log").innerHTML=G.log.join("");
 function toggleLog(){
   document.getElementById("logPanel").classList.toggle("log-open");
 }
+
+
+const SAVE_PREFIX="theLastNightSaveSlot";
+const SAVE_VERSION=1;
+
+function saveReplacer(key,value){
+  if(value instanceof Set)return {__saveType:"Set",values:Array.from(value)};
+  if(value===Infinity)return {__saveType:"Infinity"};
+  return value;
+}
+
+function saveReviver(key,value){
+  if(value && value.__saveType==="Set")return new Set(value.values||[]);
+  if(value && value.__saveType==="Infinity")return Infinity;
+  return value;
+}
+
+function readSaveSlot(slot){
+  try{
+    const raw=localStorage.getItem(SAVE_PREFIX+slot);
+    return raw?JSON.parse(raw,saveReviver):null;
+  }catch(error){
+    console.error("Unable to read save slot",slot,error);
+    return null;
+  }
+}
+
+function saveGameToSlot(slot){
+  if(!G){
+    alert("Start or load a game before saving.");
+    return;
+  }
+  const existing=readSaveSlot(slot);
+  if(existing && !confirm("Overwrite Save Slot "+slot+"?"))return;
+  const payload={
+    version:SAVE_VERSION,
+    savedAt:new Date().toISOString(),
+    G:G,
+    combat:combat
+  };
+  try{
+    localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(payload,saveReplacer));
+    updateSaveSlots();
+    log("Game saved to Slot "+slot+".","good");
+  }catch(error){
+    console.error("Unable to save game",error);
+    alert("This browser could not save the game. Storage may be full or disabled.");
+  }
+}
+
+function loadGameFromSlot(slot){
+  const payload=readSaveSlot(slot);
+  if(!payload || !payload.G){
+    alert("Save Slot "+slot+" is empty.");
+    return;
+  }
+  G=payload.G;
+  combat=payload.combat||null;
+  if(!(G.foundClues instanceof Set))G.foundClues=new Set(G.foundClues||[]);
+  if(!(G.discovered instanceof Set))G.discovered=new Set(G.discovered||["motel"]);
+  document.getElementById("setup").style.display="none";
+  document.getElementById("game").style.display="grid";
+  render();
+  renderLog();
+  log("Save Slot "+slot+" loaded.","good");
+}
+
+function deleteSaveSlot(slot){
+  if(!readSaveSlot(slot))return;
+  if(!confirm("Delete Save Slot "+slot+"? This cannot be undone."))return;
+  localStorage.removeItem(SAVE_PREFIX+slot);
+  updateSaveSlots();
+}
+
+function returnToMenu(){
+  document.getElementById("game").style.display="none";
+  document.getElementById("setup").style.display="block";
+  updateSaveSlots();
+}
+
+function saveSummary(payload){
+  if(!payload || !payload.G)return "Empty slot";
+  const state=payload.G;
+  const lead=state.ps && state.ps[state.active||0];
+  const when=payload.savedAt?new Date(payload.savedAt).toLocaleString():"Unknown time";
+  return "Night "+(state.night||1)+" of 10 · "+(lead?lead.name:"Unknown survivor")+" · "+when;
+}
+
+function updateSaveSlots(){
+  const container=document.getElementById("saveSlots");
+  if(!container)return;
+  container.innerHTML=[1,2,3].map(function(slot){
+    const payload=readSaveSlot(slot);
+    return '<div class="save-slot '+(payload?'has-save':'')+'">'+
+      '<div><div class="save-slot-title">Save Slot '+slot+'</div>'+
+      '<div class="save-slot-meta">'+saveSummary(payload)+'</div></div>'+
+      '<div class="save-slot-actions">'+
+      (payload?'<button class="load-save" onclick="loadGameFromSlot('+slot+')">Load</button>'+
+      '<button class="delete-save" onclick="deleteSaveSlot('+slot+')">Delete</button>':
+      '<button disabled>Empty</button>')+
+      '</div></div>';
+  }).join("");
+}
+
+updateSaveSlots();
 
 // DRAGGABLE EXTRA POCKETS
 const extraPocketsPanel=document.getElementById("extraPocketsPanel");
