@@ -278,6 +278,7 @@ body{
 .menu-art-card:nth-child(1){transform:translateX(-310%) rotate(-12deg)}.menu-art-card:nth-child(2){transform:translateX(-220%) rotate(-8deg)}.menu-art-card:nth-child(3){transform:translateX(-130%) rotate(-3deg)}.menu-art-card:nth-child(4){transform:translateX(-40%) rotate(3deg)}.menu-art-card:nth-child(5){transform:translateX(50%) rotate(8deg)}.menu-art-card:nth-child(6){transform:translateX(140%) rotate(12deg)}
 .menu-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.84);backdrop-filter:blur(8px)}
 .menu-overlay.open{display:flex}.menu-dialog{width:min(1060px,100%);max-height:90vh;overflow:auto;border:1px solid #555b60;border-radius:16px;background:linear-gradient(145deg,#191b1e,#0b0c0e);box-shadow:0 30px 100px #000;padding:24px}.menu-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:-24px;z-index:4;padding:16px 0;background:#151719}.menu-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.menu-dialog-close{font-size:20px;margin:0}.guide-grid,.codex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.guide-card,.codex-card{border:1px solid #373b40;border-radius:12px;background:#111315;padding:15px}.guide-card h3,.codex-card h3{margin:0 0 7px;color:#e5c7ca}.guide-card p,.guide-card li,.codex-card p{color:#b8bdc2;font-size:13px;line-height:1.55}.guide-card ul{margin:8px 0 0;padding-left:20px}.codex-tabs{display:flex;gap:8px;margin:4px 0 16px}.codex-card{display:grid;grid-template-columns:115px 1fr;gap:14px}.codex-card img{width:115px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;border:1px solid #565b60}.codex-stats{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.codex-stats span{font-size:11px;padding:4px 7px;border-radius:12px;background:#24272a}.settings-list{display:grid;gap:10px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px;border:1px solid #373b40;border-radius:10px;background:#111315}.setting-row label{font-weight:bold}.setting-row small{display:block;color:#949aa0;margin-top:3px}.setting-row input{width:20px;height:20px}.toast{position:fixed;left:50%;bottom:24px;z-index:12000;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 18px;border:1px solid #76545a;border-radius:10px;background:#171214;color:#f1dadd;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.warning-overlay{position:fixed;inset:0;z-index:13000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,3,4,.88);backdrop-filter:blur(10px)}.warning-overlay.open{display:flex}.warning-dialog{position:relative;width:min(480px,100%);overflow:hidden;border:1px solid #714148;border-radius:16px;background:linear-gradient(150deg,#221518,#0d0e10 58%);box-shadow:0 30px 100px #000,0 0 50px rgba(155,43,55,.17);padding:28px}.warning-dialog:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c04b57,transparent)}.warning-icon{display:grid;place-items:center;width:52px;height:52px;margin-bottom:17px;border:1px solid #814b52;border-radius:50%;background:#2b171b;font-size:23px}.warning-dialog h2{margin:0 0 9px;font-family:Georgia,serif;font-size:25px;letter-spacing:1px}.warning-dialog p{margin:0;color:#b9bdc1;line-height:1.65}.warning-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:25px}.warning-actions button{margin:0}.warning-cancel{background:#17191b}.warning-confirm{border-color:#984751;background:linear-gradient(#7b3039,#541e25);font-weight:800}.warning-confirm.danger{border-color:#c44d59;background:linear-gradient(#922e39,#641b24)}
 body.large-text{font-size:18px}body.high-contrast{filter:contrast(1.14)}body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButton,body.menu-mode #logPanel{display:none!important}body.menu-mode .wrap{max-width:1180px;padding-top:28px}
 .combat-locked{opacity:.45;cursor:not-allowed!important}.combat-notice{margin-top:10px;padding:9px;border-left:3px solid #b84b55;background:#1b1113;color:#e2b9bd;font-size:12px}
@@ -372,6 +373,14 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   </section>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="warningOverlay" class="warning-overlay" role="alertdialog" aria-modal="true" aria-labelledby="warningTitle" aria-describedby="warningMessage">
+  <section class="warning-dialog">
+    <div id="warningIcon" class="warning-icon">⚠️</div>
+    <h2 id="warningTitle">Are you sure?</h2>
+    <p id="warningMessage"></p>
+    <div class="warning-actions"><button id="warningCancel" class="warning-cancel">Cancel</button><button id="warningConfirm" class="warning-confirm">Continue</button></div>
+  </section>
+</div>
 
 <div id="game" class="grid" style="display:none">
 
@@ -1010,7 +1019,39 @@ function showToast(message){
   clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove("show"),1800);
 }
 
-document.addEventListener("keydown",event=>{if(event.key==="Escape")closeMenuPanel();});
+let warningResolver=null;
+function showWarning({title="Are you sure?",message,confirmLabel="Continue",icon="⚠️",danger=false}){
+  if(warningResolver)warningResolver(false);
+  const overlay=document.getElementById("warningOverlay");
+  const confirmButton=document.getElementById("warningConfirm");
+  document.getElementById("warningTitle").textContent=title;
+  document.getElementById("warningMessage").textContent=message;
+  document.getElementById("warningIcon").textContent=icon;
+  confirmButton.textContent=confirmLabel;
+  confirmButton.classList.toggle("danger",danger);
+  overlay.classList.add("open");
+  document.body.style.overflow="hidden";
+  setTimeout(()=>confirmButton.focus(),0);
+  return new Promise(resolve=>{
+    warningResolver=resolve;
+    document.getElementById("warningCancel").onclick=()=>finishWarning(false);
+    confirmButton.onclick=()=>finishWarning(true);
+  });
+}
+
+function finishWarning(result){
+  document.getElementById("warningOverlay").classList.remove("open");
+  document.body.style.overflow="";
+  const resolve=warningResolver;
+  warningResolver=null;
+  if(resolve)resolve(result);
+}
+
+document.addEventListener("keydown",event=>{
+  if(event.key!=="Escape")return;
+  if(warningResolver)finishWarning(false);
+  else closeMenuPanel();
+});
 applyPreferences();
 
 const EVENTS=[
@@ -1197,8 +1238,8 @@ function maxRestsPerNight(p){
 
   return 2;
 }
-function startGame(n){
-if(G && !confirm("Start a new game? Any progress not stored in a save slot will be lost."))return;
+async function startGame(n){
+if(G && !await showWarning({title:"Begin a New Descent?",message:"Starting another game replaces the active run. Save your current progress first if you want to return to it.",confirmLabel:"Start New Game",icon:"🌑",danger:true}))return;
 let ps=drawSurvivors(n).map(s=>({
 name:s.name,
 maxHp:s.hp,
@@ -1326,7 +1367,7 @@ check(p);
 render();
 }
 
-function useAction(cost,fn){
+async function useAction(cost,fn){
 
   let p=G.ps[G.active];
 
@@ -1343,7 +1384,8 @@ function useAction(cost,fn){
 
   p.actions-=cost;
 
-  fn();
+  const completed=await fn();
+  if(completed===false)p.actions+=cost;
   render();
 }
 
@@ -1389,7 +1431,7 @@ if(p.handcuffedTurns>0){
   render();
 }
 
-function move(id){
+async function move(id){
 
 let p=G.ps[G.active];
 
@@ -1453,9 +1495,15 @@ else if(VERY_DEADLY_ZONES.includes(id)){
     `Enter anyway?`;
 }
 
-if(warningText && !confirm(warningText)){
+if(warningText && !await showWarning({
+  title:DANGER_ZONES.includes(id)?"Enter a Danger Zone?":VERY_RISKY_ZONES.includes(id)?"Enter a Very Risky Zone?":"Enter a Very Deadly Zone?",
+  message:warningText.replace(/\n+/g," ").replace("Enter anyway?",""),
+  confirmLabel:"Enter Zone",
+  icon:DANGER_ZONES.includes(id)?"⚠️":VERY_RISKY_ZONES.includes(id)?"☠️":"💀",
+  danger:true
+})){
   log(`${p.name} decides not to enter ${LM[id][1]}.`);
-  return;
+  return false;
 }
 // Move the entire surviving party together
 G.ps.forEach(s=>{
@@ -4052,13 +4100,13 @@ function readSaveSlot(slot){
   }
 }
 
-function saveGameToSlot(slot){
+async function saveGameToSlot(slot){
   if(!G){
     alert("Start or load a game before saving.");
     return;
   }
   const existing=readSaveSlot(slot);
-  if(existing && !confirm("Overwrite Save Slot "+slot+"?"))return;
+  if(existing && !await showWarning({title:"Overwrite Save Slot "+slot+"?",message:"The previous run stored in this slot will be replaced with your current progress.",confirmLabel:"Overwrite Save",icon:"💾",danger:true}))return;
   const payload={
     version:SAVE_VERSION,
     savedAt:new Date().toISOString(),
@@ -4094,15 +4142,15 @@ function loadGameFromSlot(slot){
   log("Save Slot "+slot+" loaded.","good");
 }
 
-function deleteSaveSlot(slot){
+async function deleteSaveSlot(slot){
   if(!readSaveSlot(slot))return;
-  if(!confirm("Delete Save Slot "+slot+"? This cannot be undone."))return;
+  if(!await showWarning({title:"Delete Save Slot "+slot+"?",message:"This saved run will be permanently removed from this browser and cannot be restored.",confirmLabel:"Delete Save",icon:"🗑️",danger:true}))return;
   localStorage.removeItem(SAVE_PREFIX+slot);
   updateSaveSlots();
 }
 
-function returnToMenu(){
-  if(!confirm("Return to the Main Menu? Save first if you want to preserve your latest progress."))return;
+async function returnToMenu(){
+  if(!await showWarning({title:"Return to the Main Menu?",message:"Progress made since your last save may be lost. Save the game first if you want to preserve this run.",confirmLabel:"Return to Menu",icon:"🚪"}))return;
   document.getElementById("game").style.display="none";
   document.getElementById("setup").style.display="block";
   document.body.classList.add("menu-mode");
