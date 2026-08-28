@@ -197,140 +197,84 @@ let goatGlow=sp.rarity==="G.O.A.T"
 
 return`
 
-<div class="card" style="
+<div class="survivor-card-shell" style="
 border:2px solid ${rarity.color};
 ${goatGlow}
 ${index===G.active
 ?'transform:scale(1.01);'
-:'opacity:.72;'}
+:'opacity:.82;'}
 ">
 
-<img class="survivor-img"
+<img class="survivor-card-art"
 src="${sp.image}"
 alt="${sp.name}">
 
-<div style="
-font-weight:bold;
-font-size:18px;
-margin-bottom:4px;
-">
-${index===G.active?'▶️ ':''}${sp.name}
+<div class="survivor-live-state">
+
+<div class="survivor-card-status">
+  <b>${index===G.active?'▶️ CURRENT TURN':'WAITING'}</b>
 </div>
 
-<div style="
-color:${rarity.color};
-font-weight:bold;
-letter-spacing:1px;
-margin-bottom:6px;
-">
-${rarity.label}
-</div>
-
-${index===G.active
-?'<div class="good">CURRENT TURN</div>'
-:'<div class="muted">Waiting</div>'}
 ${!sp.dead
 ? `
 <button onclick="selectSurvivor(${index})">
   👤 SELECT
 </button>
 `
-: ""}
-<div class="stats">
+: '<div class="bad"><b>DEAD</b></div>'}
 
+<div class="stats survivor-live-stats">
 <span class="stat">❤️ ${sp.hp}/${sp.maxHp}</span>
-
 <span class="stat">🧠 ${sp.san}/${sp.maxSan}</span>
-
 <span class="stat">😨 ${sp.fear}/5</span>
-
 <span class="stat">
   ${combat ? `⚔️ ${sp.combatActions} Combat AP` : `🌙 ${sp.actions} Night AP`}
 </span>
-
 </div>
-
-<div class="card" style="margin-top:10px;border-color:${rarity.color};">
-
-<b>⚔️ SIGNATURE WEAPON</b><br>
-${sp.weapon}<br>
-<span class="muted">Damage: ${sp.weaponDamage}</span>
-<br><br>
 
 ${sp.equippedLootWeapon
 ? `
+<div class="survivor-live-box">
 <b>🔫 EQUIPPED LOOT WEAPON</b><br>
 ${sp.equippedLootWeapon.name}<br>
-
-<span class="muted">
-Damage: ${sp.equippedLootWeapon.val}
-</span>
-
-<br>
-
-<span class="muted">
-🔧 Durability:
-${sp.equippedLootWeapon.durability}/${sp.equippedLootWeapon.maxDurability}
-</span>
-
-${sp.equippedLootWeapon.ammoType &&
-sp.equippedLootWeapon.ammoType!=="melee"
-? `
-<br>
-<span class="muted">
-🔫 Ammo:
-${G.ammo[sp.equippedLootWeapon.ammoType] || 0}
-</span>
-`
-:""}
-
+<span class="muted">Damage: ${sp.equippedLootWeapon.val}</span>
+${sp.equippedLootWeapon.maxDurability!==undefined
+? `<br><span class="muted">🔧 Durability: ${sp.equippedLootWeapon.durability}/${sp.equippedLootWeapon.maxDurability}</span>`
+: ""}
+${sp.equippedLootWeapon.ammoType && sp.equippedLootWeapon.ammoType!=="melee"
+? `<br><span class="muted">🔫 Ammo: ${G.ammo[sp.equippedLootWeapon.ammoType] || 0}</span>`
+: ""}
 <br><br>
-
 <button onclick="switchToSignatureWeapon(${index})">
 ⚔️ Use Signature Weapon
 </button>
+</div>
 `
-: `
-<span class="good">⚔️ Signature Weapon Equipped</span>
-`}
-<br><br>
+: '<div class="good survivor-equipped-label">⚔️ Signature Weapon Equipped</div>'}
 
-<b>🔥 WEAPON ABILITY</b><br>
-${sp.weaponAbility}
-
-<br><br>
-
-<b>✨ CHARACTER ABILITY</b><br>
-${sp.ability}
-<br><br>
 ${index===G.active &&
 !combat &&
 sp.lifeRestoreReady &&
 (sp.rarity==="Legendary" || sp.rarity==="G.O.A.T")
 ? `
-<div style="margin-top:10px;">
-  <b>💖 LIFE RESTORE READY</b><br>
-
-  ${G.ps.map((target,targetIndex)=>{
-
-    if(
-      targetIndex===index ||
-      target.dead ||
-      target.rarity==="G.O.A.T" ||
-      target.lives>=target.maxLives
-    ){
-      return "";
-    }
-
-    return "<button onclick='restoreLives(" + targetIndex + ")'>Restore " + target.name + " (+2 Lives)</button>";
-
-  }).join("")}
-
+<div class="survivor-live-box">
+<b>💖 LIFE RESTORE READY</b><br>
+${G.ps.map((target,targetIndex)=>{
+  if(
+    targetIndex===index ||
+    target.dead ||
+    target.rarity==="G.O.A.T" ||
+    target.lives>=target.maxLives
+  ){
+    return "";
+  }
+  return "<button onclick='restoreLives(" + targetIndex + ")'>Restore " + target.name + " (+2 Lives)</button>";
+}).join("")}
 </div>
-<br>
 `
-: ""
-}
+: ""}
+
+<div class="survivor-live-box">
 <b>⚡ SPECIAL ABILITY</b><br>
 <div class="special-bar">
  <div class="special-fill" style="width:${sp.specialCharge}%"></div>
@@ -339,10 +283,12 @@ sp.lifeRestoreReady &&
 </div>
 
 </div>
+</div>
 
 `;
 
 }).join("");
+
 document.getElementById("inventory").innerHTML=
 
 p.items.map((i,idx)=>
