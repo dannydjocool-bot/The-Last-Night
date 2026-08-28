@@ -584,7 +584,7 @@ function endNight(){
 
     if(p.dead)return;
 
-    p.actions=25;
+    p.actions=15;
     p.restsThisNight=0;
     p.freeInvestigateUsed=false;
   });
