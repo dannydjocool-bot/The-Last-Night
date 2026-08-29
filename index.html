@@ -1327,7 +1327,7 @@ function applyPreferences(){
 }
 
 function audioEnabled(){return localStorage.getItem("theLastNightSetting_audio")==="true";}
-function audioLevel(channel,fallback){const value=Number(localStorage.getItem("theLastNightAudio_"+channel));return Number.isFinite(value)&&value>=0?value:fallback;}
+function audioLevel(channel,fallback){const raw=localStorage.getItem("theLastNightAudio_"+channel);if(raw===null)return fallback;const value=Number(raw);return Number.isFinite(value)&&value>=0?value:fallback;}
 function audioSlider(channel,label,fallback){const value=audioLevel(channel,fallback);return `<div class="setting-row audio-setting"><div><label for="audio_${channel}">${label}</label><small>${channel==="music"?"Low cinematic drone beneath exploration.":channel==="ambience"?"Wind, room tone, and Blackwood's environmental hum.":"Attacks, impacts, warnings, and transitions."}</small></div><input id="audio_${channel}" type="range" min="0" max="100" value="${value}" oninput="setAudioLevel('${channel}',this.value)"><span id="audio_${channel}_value" class="audio-value">${value}%</span></div>`;}
 let horrorAudio=null;
 function ensureHorrorAudio(){

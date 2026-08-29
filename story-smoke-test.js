@@ -93,6 +93,7 @@ assert(run(`let combinedUnlocks=readLocationCodexUnlocks();combinedUnlocks.has('
 assert(html.includes("🗺️ Locations")&&html.includes("Blackwood Location Records"),"The Main Menu Locations codex is missing");
 assert(!html.includes("alert("),"A native browser alert remains instead of the themed warning system");
 assert(run(`let settings=settingsHtml();settings.includes('Atmospheric Audio')&&settings.includes('audio_music')&&settings.includes('audio_ambience')&&settings.includes('audio_effects')`),"Separate atmospheric audio controls are missing");
+assert(run(`localStorage.removeItem('theLastNightAudio_music');localStorage.removeItem('theLastNightAudio_ambience');localStorage.removeItem('theLastNightAudio_effects');audioLevel('music',20)===20&&audioLevel('ambience',35)===35&&audioLevel('effects',55)===55`),"Fresh browsers did not receive audible default volume levels");
 assert(html.includes('id="nightTransition"')&&html.includes('id="combatIntro"')&&html.includes('id="combatFxLayer"'),"The cinematic night or combat presentation layers are missing");
 assert(run(`typeof showNightTransition==='function'&&typeof showCombatIntro==='function'&&typeof combatFx==='function'&&typeof horrorTone==='function'`),"An immersion presentation controller is missing");
 run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
