@@ -73,9 +73,18 @@ assert(run(`G.ps[0].transformed&&G.ps[0].name==="The Eclipse Beast"&&G.ps[0].max
 run(`toggleTransformation(0);`);
 assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"&&G.ps[0].maxHp===50&&G.ps[0].weaponDamage===8`),"The Moonbound could not freely revert");
 
+assert(run(`S.filter(s=>s.recruitOnly).length===7`),"The seven flashlight-only survivors are missing");
+assert(run(`Array.from({length:30},()=>drawSurvivors(5)).flat().every(s=>!s.recruitOnly)`),"A flashlight-only recruit appeared in a starting draw");
+assert(run(`['Pistol','Shotgun','MP5','AK-47','Hunting Knife','Fire Axe'].every(name=>ITEM_META[name].image==='weapon-items.png'&&ITEM_META[name].spritePosition)`),"Weapon inventory artwork is not mapped");
+run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
+assert(run(`G.ps.length===2&&G.ps[1].name==='The Paramedic'&&G.ps[1].hp===Math.ceil(G.ps[1].maxHp*.3)`),"Wounded flashlight recruit did not join at 30% HP");
+assert(run(`!availableFlashlightRecruits().some(s=>s.name==='The Paramedic')`),"An active recruit remained eligible as a duplicate");
+run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];let oldRandom=Math.random;Math.random=()=>.5;resolveEnragedFlashlightEncounter();Math.random=oldRandom;`);
+assert(run(`G.creatures.length===2&&G.creatures.every(c=>c.enraged&&c.firstStrike&&c.hp===Math.ceil(CRE.find(x=>x.name===c.name).hp*1.2)&&c.atk===Math.ceil(CRE.find(x=>x.name===c.name).atk*1.3))`),"Flashlight creatures were not created with enraged stats and first strike");
+
 run(`G=${base};G.ps=[{name:"A",dead:false,hp:10,maxHp:25,actions:2,rarity:"Common"},{name:"B",dead:false,hp:12,maxHp:30,actions:4,rarity:"Uncommon"},{name:"C",dead:false,hp:20,maxHp:35,actions:8,rarity:"Rare"}];postCombatRewardOpen=true;render=()=>{};claimCombatReward("heal");`);
 assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor injury recovery was not applied to the full party");
 run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
 assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
 
-console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced combat/night AP, post-combat party rewards, counterattacks, travel locks, and completed saves.");
+console.log("Story smoke test passed: story, saves, combat locks, three-roll setup, transformations, 30-slot Main Pack, weapon art, flashlight recruits, and enraged encounters.");
