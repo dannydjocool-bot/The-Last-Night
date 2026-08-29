@@ -8,7 +8,7 @@ function node(){
   return {
     style:{},innerHTML:"",textContent:"",value:"",disabled:false,offsetWidth:220,offsetHeight:180,
     classList:{add(){},remove(){},toggle(){},contains(){return false;}},
-    addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},
+    addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},appendChild(){},remove(){},
     getBoundingClientRect(){return {left:0,top:0,width:220,height:180};}
   };
 }
@@ -92,6 +92,9 @@ run(`G=${base};G.flashlightUsedLocations=new Set(['gas']);localStorage.setItem('
 assert(run(`let combinedUnlocks=readLocationCodexUnlocks();combinedUnlocks.has('motel')&&combinedUnlocks.has('gas')&&combinedUnlocks.has('station')`),"Location Codex did not combine permanent, active-run, and saved-run discoveries");
 assert(html.includes("🗺️ Locations")&&html.includes("Blackwood Location Records"),"The Main Menu Locations codex is missing");
 assert(!html.includes("alert("),"A native browser alert remains instead of the themed warning system");
+assert(run(`let settings=settingsHtml();settings.includes('Atmospheric Audio')&&settings.includes('audio_music')&&settings.includes('audio_ambience')&&settings.includes('audio_effects')`),"Separate atmospheric audio controls are missing");
+assert(html.includes('id="nightTransition"')&&html.includes('id="combatIntro"')&&html.includes('id="combatFxLayer"'),"The cinematic night or combat presentation layers are missing");
+assert(run(`typeof showNightTransition==='function'&&typeof showCombatIntro==='function'&&typeof combatFx==='function'&&typeof horrorTone==='function'`),"An immersion presentation controller is missing");
 run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
 assert(run(`G.ps.length===2&&G.ps[1].name==='The Paramedic'&&G.ps[1].hp===Math.ceil(G.ps[1].maxHp*.3)`),"Wounded flashlight recruit did not join at 30% HP");
 assert(run(`!availableFlashlightRecruits().some(s=>s.name==='The Paramedic')`),"An active recruit remained eligible as a duplicate");

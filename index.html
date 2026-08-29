@@ -337,6 +337,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 }
 
 .location-codex-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 16px;padding:13px 15px;border-left:3px solid #8c454f;background:#101214;color:#b9bec3}.location-codex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.location-codex-card{overflow:hidden;border:1px solid #3d4247;border-radius:12px;background:#101214}.location-codex-art{height:150px;background-repeat:no-repeat;box-shadow:inset 0 -55px 60px rgba(0,0,0,.55)}.location-codex-info{padding:12px}.location-codex-info h3{margin:2px 0 7px;font-family:Georgia,serif;color:#e4c9cc}.location-codex-info p{margin:5px 0;color:#adb2b7;font-size:12px;line-height:1.45}.location-codex-status{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fd18f}.location-codex-card.locked{border-color:#292c2f}.location-codex-card.locked .location-codex-art{filter:grayscale(1) brightness(.18) blur(3px)}.location-codex-card.locked .location-codex-info h3{color:#777b7f}.location-codex-card.locked .location-codex-status{color:#777b7f}.location-codex-card.locked .location-codex-info p{color:#676b6f}@media(max-width:1050px){.location-codex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.location-codex-grid{grid-template-columns:1fr}.location-codex-summary{align-items:flex-start;flex-direction:column}}
+.audio-setting input[type="range"]{width:min(260px,45vw);accent-color:#b94c57}.audio-value{min-width:40px;color:#d6aeb2;font-size:11px;text-align:right}.night-transition{position:fixed;inset:0;z-index:19000;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 42%,rgba(114,24,38,.24),transparent 42%),#020304;transition:opacity .35s}.night-transition.open{opacity:1}.night-transition-card{text-align:center;transform:scale(.9);transition:transform .5s}.night-transition.open .night-transition-card{transform:scale(1)}.night-transition-kicker{color:#bd5a65;font-size:10px;font-weight:900;letter-spacing:5px}.night-transition h2{margin:10px 0;font-family:Georgia,serif;font-size:clamp(52px,12vw,120px);letter-spacing:7px}.night-transition p{color:#adb2b7;letter-spacing:2px}.combat-intro{position:fixed;inset:0;z-index:18500;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(115,21,34,.32),rgba(0,0,0,.94) 68%);transition:opacity .2s}.combat-intro.open{opacity:1}.combat-intro-card{position:relative;width:min(340px,72vw);aspect-ratio:2/3;overflow:hidden;border:1px solid #9b4651;border-radius:18px;box-shadow:0 0 80px rgba(193,51,66,.35);transform:scale(.65) rotate(-3deg);transition:transform .45s}.combat-intro.open .combat-intro-card{transform:scale(1) rotate(0)}.combat-intro-card img{width:100%;height:100%;object-fit:cover}.combat-intro-card:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#050607)}.combat-intro-copy{position:absolute;z-index:2;inset:auto 18px 18px;text-align:center}.combat-intro-copy span{display:block;color:#da6671;font-size:9px;font-weight:900;letter-spacing:4px}.combat-intro-copy strong{display:block;margin-top:7px;font-family:Georgia,serif;font-size:27px;letter-spacing:2px}.combat-fx-layer{position:fixed;inset:0;z-index:18000;pointer-events:none;overflow:hidden}.combat-float{position:absolute;left:50%;top:42%;padding:8px 13px;border-radius:9px;background:rgba(5,6,7,.88);color:#fff;font-size:clamp(24px,5vw,48px);font-weight:900;text-shadow:0 0 18px currentColor;animation:combatFloat .85s ease-out forwards}.combat-float.enemy{color:#ff6673}.combat-float.heavy{color:#ffc65e}.combat-float.miss{color:#b2b7bc}.combat-counter-warning{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:12px 18px;border:1px solid #b94a55;border-radius:10px;background:rgba(40,10,15,.94);color:#ffd9dc;font-weight:900;letter-spacing:2px;animation:counterPulse .8s ease both}.combat-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,244,211,.48),transparent 34%);animation:flashOut .28s ease-out forwards}body.combat-impact #game{animation:gameShake .28s linear}body.reduce-motion .night-transition,body.reduce-motion .night-transition-card,body.reduce-motion .combat-intro,body.reduce-motion .combat-intro-card{transition:none}body.reduce-motion .combat-float,body.reduce-motion .combat-counter-warning,body.reduce-motion #game{animation:none!important}@keyframes combatFloat{0%{transform:translate(-50%,20px);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-75px);opacity:0}}@keyframes counterPulse{0%{opacity:0;transform:translateX(-50%) scale(.8)}45%{opacity:1;transform:translateX(-50%) scale(1.05)}100%{opacity:0;transform:translateX(-50%) scale(1)}}@keyframes flashOut{to{opacity:0}}@keyframes gameShake{0%,100%{transform:none}25%{transform:translate(-5px,2px)}50%{transform:translate(5px,-2px)}75%{transform:translate(-3px,1px)}}
 </style>
 </head>
 <body class="menu-mode">
@@ -465,6 +466,9 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <div class="ending-actions"><button onclick="endingToMenu()">Main Menu</button><button onclick="endingNewRun()">Begin New Descent</button></div>
   </section>
 </div>
+<div id="nightTransition" class="night-transition" aria-hidden="true"><div class="night-transition-card"><div class="night-transition-kicker">BLACKWOOD COUNTY</div><h2 id="nightTransitionTitle">NIGHT 2</h2><p id="nightTransitionCopy">The roads grow quieter.</p></div></div>
+<div id="combatIntro" class="combat-intro" aria-hidden="true"><article class="combat-intro-card"><img id="combatIntroImage" alt=""><div class="combat-intro-copy"><span>HOSTILE CONTACT</span><strong id="combatIntroName"></strong></div></article></div>
+<div id="combatFxLayer" class="combat-fx-layer" aria-live="polite"></div>
 
 <div id="game" class="grid" style="display:none">
 
@@ -1188,6 +1192,10 @@ function settingsHtml(){
     <div class="setting-row"><div><label for="settingLargeText">Larger Text</label><small>Increase interface text for easier reading.</small></div><input id="settingLargeText" type="checkbox" ${document.body.classList.contains("large-text")?"checked":""} onchange="setPreference('largeText',this.checked)"></div>
     <div class="setting-row"><div><label for="settingContrast">Enhanced Contrast</label><small>Strengthen the difference between panels, text, and controls.</small></div><input id="settingContrast" type="checkbox" ${document.body.classList.contains("high-contrast")?"checked":""} onchange="setPreference('highContrast',this.checked)"></div>
     <div class="setting-row"><div><label for="settingMotion">Reduce Motion</label><small>Disable pulsing, hover movement, and animated transitions.</small></div><input id="settingMotion" type="checkbox" ${document.body.classList.contains("reduce-motion")?"checked":""} onchange="setPreference('reduceMotion',this.checked)"></div>
+    <div class="setting-row"><div><label for="settingAudio">Atmospheric Audio</label><small>Enable procedural horror ambience, low music, and combat sound effects. Audio begins only after you enable it.</small></div><input id="settingAudio" type="checkbox" ${audioEnabled()?"checked":""} onchange="setAudioEnabled(this.checked)"></div>
+    ${audioSlider("music","Music",20)}
+    ${audioSlider("ambience","Ambience",35)}
+    ${audioSlider("effects","Combat Effects",55)}
   </div><p class="menu-section-copy" style="margin-top:16px">Settings are saved automatically in this browser.</p>`;
 }
 
@@ -1317,6 +1325,43 @@ function applyPreferences(){
   document.body.classList.toggle("high-contrast",localStorage.getItem("theLastNightSetting_highContrast")==="true");
   document.body.classList.toggle("reduce-motion",localStorage.getItem("theLastNightSetting_reduceMotion")==="true");
 }
+
+function audioEnabled(){return localStorage.getItem("theLastNightSetting_audio")==="true";}
+function audioLevel(channel,fallback){const value=Number(localStorage.getItem("theLastNightAudio_"+channel));return Number.isFinite(value)&&value>=0?value:fallback;}
+function audioSlider(channel,label,fallback){const value=audioLevel(channel,fallback);return `<div class="setting-row audio-setting"><div><label for="audio_${channel}">${label}</label><small>${channel==="music"?"Low cinematic drone beneath exploration.":channel==="ambience"?"Wind, room tone, and Blackwood's environmental hum.":"Attacks, impacts, warnings, and transitions."}</small></div><input id="audio_${channel}" type="range" min="0" max="100" value="${value}" oninput="setAudioLevel('${channel}',this.value)"><span id="audio_${channel}_value" class="audio-value">${value}%</span></div>`;}
+let horrorAudio=null;
+function ensureHorrorAudio(){
+  if(!audioEnabled())return null;
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtor)return null;
+  if(!horrorAudio){
+    const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
+    master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
+    const drone=ctx.createOscillator(),droneFilter=ctx.createBiquadFilter();drone.type="sine";drone.frequency.value=42;droneFilter.type="lowpass";droneFilter.frequency.value=130;drone.connect(droneFilter);droneFilter.connect(music);drone.start();
+    const wind=ctx.createOscillator(),windFilter=ctx.createBiquadFilter();wind.type="triangle";wind.frequency.value=71;windFilter.type="lowpass";windFilter.frequency.value=95;wind.connect(windFilter);windFilter.connect(ambience);wind.start();
+    horrorAudio={ctx,master,music,ambience,effects,drone,wind};
+  }
+  if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
+  updateAudioMix();
+  return horrorAudio;
+}
+function updateAudioMix(){if(!horrorAudio)return;const now=horrorAudio.ctx.currentTime;horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.55:0,now,.08);horrorAudio.music.gain.setTargetAtTime(audioLevel("music",20)/100*.11,now,.08);horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",35)/100*.08,now,.08);horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);}
+function setAudioEnabled(value){localStorage.setItem("theLastNightSetting_audio",String(value));if(value)ensureHorrorAudio();else updateAudioMix();showToast(value?"Atmospheric audio enabled":"Atmospheric audio muted");}
+function setAudioLevel(channel,value){localStorage.setItem("theLastNightAudio_"+channel,String(value));const label=document.getElementById("audio_"+channel+"_value");if(label)label.textContent=value+"%";updateAudioMix();}
+function horrorTone(kind="hit"){
+  const audio=ensureHorrorAudio();if(!audio)return;
+  const ctx=audio.ctx,osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+  const tones={hit:[95,48,.18],enemy:[58,31,.32],warning:[180,92,.28],special:[320,70,.5],night:[110,42,.75],miss:[150,120,.12]};const tone=tones[kind]||tones.hit;
+  osc.type=kind==="special"?"sawtooth":"triangle";osc.frequency.setValueAtTime(tone[0],now);osc.frequency.exponentialRampToValueAtTime(Math.max(20,tone[1]),now+tone[2]);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.2,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+tone[2]);osc.connect(gain);gain.connect(audio.effects);osc.start(now);osc.stop(now+tone[2]+.03);
+}
+function combatFx(type,value){
+  const layer=document.getElementById("combatFxLayer");if(!layer)return;
+  if(type==="flash"){const flash=document.createElement("div");flash.className="combat-flash";layer.appendChild(flash);setTimeout(()=>flash.remove(),350);horrorTone("hit");return;}
+  if(type==="counter"){const warning=document.createElement("div");warning.className="combat-counter-warning";warning.textContent="⚠ COUNTERATTACK INCOMING";layer.appendChild(warning);setTimeout(()=>warning.remove(),900);horrorTone("warning");return;}
+  const floater=document.createElement("div");floater.className=`combat-float ${type}`;floater.textContent=type==="miss"?"MISS":`${type==="enemy"?"−":""}${value}`;layer.appendChild(floater);setTimeout(()=>floater.remove(),900);if(type==="enemy"){document.body.classList.add("combat-impact");setTimeout(()=>document.body.classList.remove("combat-impact"),320);horrorTone("enemy");}else horrorTone(type==="miss"?"miss":"hit");
+}
+function showCombatIntro(c){const overlay=document.getElementById("combatIntro");if(!overlay||!c)return;document.getElementById("combatIntroImage").src=c.image;document.getElementById("combatIntroImage").alt=c.name;document.getElementById("combatIntroName").textContent=c.name;overlay.classList.add("open");horrorTone("warning");setTimeout(()=>overlay.classList.remove("open"),1200);}
+function showNightTransition(night){const overlay=document.getElementById("nightTransition");if(!overlay)return;const p=G&&G.ps[G.active],loc=p&&LM[p.loc]?LM[p.loc][1]:"Blackwood";const lines=["The roads grow quieter.","Something watches from beyond the light.","The investigation continues at "+loc+".","Dawn feels farther away than before."];document.getElementById("nightTransitionTitle").textContent="NIGHT "+night;document.getElementById("nightTransitionCopy").textContent=lines[(night-1)%lines.length];overlay.classList.add("open");horrorTone("night");setTimeout(()=>overlay.classList.remove("open"),1500);}
 
 function showToast(message){
   const toast=document.getElementById("toast");
@@ -2411,7 +2456,7 @@ function registerCombatAttack(){
   if(!combat)return;
   combat.provoked=true;
   combat.attacksSinceCounter=(combat.attacksSinceCounter||0)+1;
-  if(combat.attacksSinceCounter<2)return;
+  if(combat.attacksSinceCounter<2){combatFx("counter");return;}
   combat.attacksSinceCounter=0;
   log(`⚠️ ${combat.name} seizes an opening and counterattacks!`,"bad");
   creatureAttack(combat);
@@ -2434,6 +2479,7 @@ combat=G.creatures.find(c=>String(c.id)===String(id));
 if(combat){
   let p=G.ps[G.active];
   log(`Combat begins against ${combat.name}.`,"bad");
+  showCombatIntro(combat);
   p.combatActions=combatActionCount(p)+(p.originalName==="The Signalman"?1:0);
   combat.attacksSinceCounter=0;
   if(combat.firstStrike){
@@ -2515,6 +2561,7 @@ log(`Attack roll: ${r}`);
 
 if(r<=3){
 log("Your attack misses.","bad");
+combatFx("miss");
 }
 else{
 
@@ -2624,6 +2671,7 @@ if(
   );
 }
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
+combatFx("flash");combatFx("heavy",dmg);
 if(p.originalName==="The Moonbound"){
   const healing=p.transformed?(r===6?4:2):(r===6?2:0);
   if(healing){const old=p.hp;p.hp=Math.min(p.maxHp,p.hp+healing);log(`🌙 ${p.name} drains ${p.hp-old} HP from the strike.`,"good");}
@@ -3069,6 +3117,7 @@ if(c.name==="The Wendigo"){
   damage=counterattackDamage(c,damage);
 
   const hit=damageSurvivor(p,damage);
+  combatFx("enemy",hit.hpDamage+hit.armorDamage);
 
   log(
     `👹 COUNTER-ATTACK! ${c.name} hits ${p.name}: ${hit.armorDamage} Armor and ${hit.hpDamage} HP damage!`,
@@ -3327,6 +3376,8 @@ function canEndNight(){
     `🌙 NIGHT ${G.night} BEGINS! Action Points, Rest chances, and FREE Investigates have been refreshed.`,
     "good"
   );
+
+  showNightTransition(G.night);
 
   render();
 }
@@ -4193,6 +4244,7 @@ combat.hp<=combat.maxHp*0.50 &&
   );
 }
   log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
+  horrorTone("special");combatFx("flash");combatFx("heavy",dmg);
   if(p.originalName==="The Moonbound"){
     const healing=p.transformed?4:2,old=p.hp;
     p.hp=Math.min(p.maxHp,p.hp+healing);
