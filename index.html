@@ -72,6 +72,8 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:#090909;color:#eee;font-family:Arial,sans-serif}
+.game-library{position:fixed;inset:0;z-index:20000;overflow:auto;background:radial-gradient(circle at 72% 28%,rgba(143,31,43,.3),transparent 34%),linear-gradient(145deg,#050607,#111317 58%,#070809);color:#f5f5f5}
+.game-library[hidden]{display:none}.library-shell{width:min(1240px,calc(100% - 40px));margin:auto;padding:28px 0 54px}.library-nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:4px 0 28px}.library-brand{display:flex;align-items:center;gap:12px;font-family:Georgia,serif;font-size:18px;font-weight:800;letter-spacing:2px}.library-brand img{width:38px;height:38px}.library-nav span:last-child{color:#aab0b5;font-size:12px;letter-spacing:1.5px;text-transform:uppercase}.library-hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);min-height:620px;overflow:hidden;border:1px solid #45494e;border-radius:24px;background:#0d0f11;box-shadow:0 35px 100px rgba(0,0,0,.65)}.library-copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:clamp(34px,6vw,78px)}.library-eyebrow{color:#e36b75;font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.library-copy h1{max-width:650px;margin:14px 0 17px;font-family:Georgia,serif;font-size:clamp(50px,7vw,94px);line-height:.88;letter-spacing:4px}.library-copy p{max-width:590px;margin:0;color:#bdc2c7;font-size:16px;line-height:1.75}.library-tags{display:flex;flex-wrap:wrap;gap:8px;margin:23px 0}.library-tags span{padding:7px 10px;border:1px solid #4a4e53;border-radius:99px;background:#17191c;color:#d7dade;font-size:11px}.library-buttons{display:flex;flex-wrap:wrap;gap:10px}.library-play{margin:0;padding:14px 24px;border-color:#c2525d;background:linear-gradient(#a63c48,#721f29);font-size:15px;font-weight:900;box-shadow:0 10px 28px rgba(155,42,53,.3)}.library-details{margin:0;padding:14px 20px;background:#1b1e21}.library-art{position:relative;min-height:500px;background:linear-gradient(90deg,#0d0f11 0%,transparent 30%),linear-gradient(0deg,rgba(5,6,7,.96),transparent 45%),url('rootofblackwood.png') center/cover}.library-art:after{content:"PLAYABLE NOW";position:absolute;right:24px;top:24px;padding:8px 11px;border:1px solid rgba(255,255,255,.35);border-radius:99px;background:rgba(5,7,8,.75);font-size:10px;font-weight:900;letter-spacing:2px;backdrop-filter:blur(8px)}.library-foot{display:flex;justify-content:space-between;gap:20px;padding:22px 4px 0;color:#777e84;font-size:11px}.library-foot strong{color:#b8bdc2}
 header{padding:16px 20px;background:#111;border-bottom:1px solid #333;position:sticky;top:0;z-index:5}
 h1{margin:0;font-size:24px;letter-spacing:2px}
 button{background:#252525;color:#fff;border:1px solid #555;border-radius:8px;padding:10px 12px;margin:4px;cursor:pointer}
@@ -311,6 +313,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   .survivor-counts{grid-template-columns:repeat(3,1fr)}
   .guide-grid,.codex-grid{grid-template-columns:1fr}.menu-art-card{width:120px}.menu-art-card:nth-child(1){transform:translateX(-240%) rotate(-10deg)}.menu-art-card:nth-child(2){transform:translateX(-175%) rotate(-6deg)}.menu-art-card:nth-child(3){transform:translateX(-110%) rotate(-2deg)}.menu-art-card:nth-child(4){transform:translateX(-45%) rotate(2deg)}.menu-art-card:nth-child(5){transform:translateX(20%) rotate(6deg)}.menu-art-card:nth-child(6){transform:translateX(85%) rotate(10deg)}
 }
+@media(max-width:820px){.library-shell{width:min(100% - 24px,1240px);padding-top:16px}.library-nav span:last-child{display:none}.library-hero{grid-template-columns:1fr}.library-copy{order:2;padding:32px 25px 38px}.library-art{order:1;min-height:310px;background-position:center 25%}.library-copy h1{font-size:clamp(43px,13vw,70px)}.library-foot{flex-direction:column}}
 @media(max-width:500px){
   .survivor-counts{grid-template-columns:repeat(2,1fr)}
   .save-slot{grid-template-columns:1fr}
@@ -323,12 +326,35 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 </head>
 <body class="menu-mode">
 
+<main id="gameLibrary" class="game-library" aria-label="Game library">
+  <div class="library-shell">
+    <nav class="library-nav" aria-label="Website header">
+      <div class="library-brand"><img src="favicon.svg" alt="">MIDNIGHT GAME LIBRARY</div>
+      <span>Original browser games</span>
+    </nav>
+    <article class="library-hero">
+      <section class="library-copy">
+        <div class="library-eyebrow">Featured Game · Horror Card Adventure</div>
+        <h1>THE LAST NIGHT</h1>
+        <p>Enter Blackwood County, build a survivor party, uncover the buried case, and outlast the creatures hunting beyond the road.</p>
+        <div class="library-tags"><span>Single Player</span><span>Strategy</span><span>Story Campaign</span><span>3 Save Slots</span><span>Play in Browser</span></div>
+        <div class="library-buttons">
+          <button class="library-play" onclick="enterGameSite()">▶ Play The Last Night</button>
+          <button class="library-details" onclick="enterGameSite('info')">Explore Characters</button>
+        </div>
+      </section>
+      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"></div>
+    </article>
+    <footer class="library-foot"><span><strong>1 game available</strong> · More titles can be added here later.</span><span>No download required · Progress saves in your browser</span></footer>
+  </div>
+</main>
+
 <header>
 <h1>THE LAST NIGHT</h1>
 <div class="muted">Horror Card Game</div>
 </header>
 
-<div class="wrap">
+<div id="gameSite" class="wrap" aria-hidden="true">
 <div id="extraPocketsPanel" class="extra-pockets-panel">
  <h3 id="extraPocketsHandle">🎒 EXTRA POCKETS</h3>
 <button id="resetExtraPocketsPosition" type="button">
@@ -4107,6 +4133,16 @@ function closeEndingToMenu(){
   document.getElementById("setup").style.display="block";
   document.body.classList.add("menu-mode");
   renderMenuArtStrip();updateSaveSlots();
+}
+
+function enterGameSite(panel){
+  const library=document.getElementById("gameLibrary");
+  library.hidden=true;
+  library.setAttribute("aria-hidden","true");
+  document.getElementById("gameSite").removeAttribute("aria-hidden");
+  document.body.style.overflow="";
+  document.getElementById("setup").scrollIntoView({block:"start"});
+  if(panel)setTimeout(function(){openMenuPanel(panel);},80);
 }
 
 function endingToMenu(){closeEndingToMenu();}
