@@ -292,6 +292,7 @@ body{
 .menu-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.84);backdrop-filter:blur(8px)}
 .menu-overlay.open{display:flex}.menu-dialog{width:min(1120px,100%);max-height:92dvh;overflow:auto;border:1px solid #555b60;border-radius:16px;background:linear-gradient(145deg,#191b1e,#0b0c0e);box-shadow:0 30px 100px #000;padding:24px}.menu-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;position:sticky;top:-24px;z-index:4;padding:16px 0;background:#151719}.menu-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.menu-dialog-close{font-size:20px;margin:0}.guide-grid,.codex-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.guide-card,.codex-card{border:1px solid #373b40;border-radius:12px;background:#111315;padding:15px}.guide-card h3,.codex-card h3{margin:0 0 7px;color:#e5c7ca}.guide-card p,.guide-card li,.codex-card p{color:#b8bdc2;font-size:13px;line-height:1.55}.guide-card ul{margin:8px 0 0;padding-left:20px}.codex-tabs{position:sticky;top:52px;z-index:3;display:flex;gap:8px;margin:4px 0 16px;padding:9px;background:#151719}.codex-card{display:grid;grid-template-columns:115px 1fr;gap:14px}.codex-card img{width:115px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;border:1px solid #565b60}.codex-availability{display:inline-block;color:#8fd18f;font-size:10px;font-weight:800;letter-spacing:1px}.codex-stats{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.codex-stats span{font-size:11px;padding:4px 7px;border-radius:12px;background:#24272a}.settings-list{display:grid;gap:10px}.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px;border:1px solid #373b40;border-radius:10px;background:#111315}.setting-row label{font-weight:bold}.setting-row small{display:block;color:#949aa0;margin-top:3px}.setting-row input{width:20px;height:20px}.toast{position:fixed;left:50%;bottom:24px;z-index:12000;transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 18px;border:1px solid #76545a;border-radius:10px;background:#171214;color:#f1dadd;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
 .warning-overlay{position:fixed;inset:0;z-index:15000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,3,4,.88);backdrop-filter:blur(10px)}.warning-overlay.open{display:flex}.warning-dialog{position:relative;width:min(480px,100%);overflow:hidden;border:1px solid #714148;border-radius:16px;background:linear-gradient(150deg,#221518,#0d0e10 58%);box-shadow:0 30px 100px #000,0 0 50px rgba(155,43,55,.17);padding:28px}.warning-dialog:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c04b57,transparent)}.warning-icon{display:grid;place-items:center;width:52px;height:52px;margin-bottom:17px;border:1px solid #814b52;border-radius:50%;background:#2b171b;font-size:23px}.warning-dialog h2{margin:0 0 9px;font-family:Georgia,serif;font-size:25px;letter-spacing:1px}.warning-dialog p{margin:0;color:#b9bdc1;line-height:1.65}.warning-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:25px}.warning-actions button{margin:0}.warning-cancel{background:#17191b}.warning-confirm{border-color:#984751;background:linear-gradient(#7b3039,#541e25);font-weight:800}.warning-confirm.danger{border-color:#c44d59;background:linear-gradient(#922e39,#641b24)}
+.combat-reward-overlay{position:fixed;inset:0;z-index:16000;display:none;place-items:center;padding:20px;background:radial-gradient(circle at 50% 35%,rgba(137,39,50,.24),transparent 42%),rgba(1,2,3,.94);backdrop-filter:blur(12px)}.combat-reward-overlay.open{display:grid}.combat-reward-card{position:relative;width:min(720px,100%);overflow:hidden;border:1px solid #7f4a52;border-radius:18px;background:linear-gradient(145deg,#211518,#0a0c0e 65%);box-shadow:0 35px 120px #000,0 0 65px rgba(175,48,61,.16);padding:clamp(24px,5vw,44px)}.combat-reward-card:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,transparent,#c94f5b,transparent)}.combat-reward-kicker{color:#d36670;font-size:10px;font-weight:900;letter-spacing:4px}.combat-reward-card h2{margin:10px 0 8px;font-family:Georgia,serif;font-size:clamp(30px,6vw,48px);letter-spacing:2px}.combat-reward-card>p{margin:0;color:#bfc3c7;line-height:1.65}.combat-reward-party{margin:15px 0 20px;color:#e7c9cc;font-size:12px;letter-spacing:1px}.combat-reward-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.combat-reward-choice{min-height:150px;margin:0;padding:20px;border:1px solid #5d4247;border-radius:13px;background:linear-gradient(150deg,#21181a,#111315);text-align:left}.combat-reward-choice:hover{border-color:#c45a65;transform:translateY(-2px)}.combat-reward-choice b{display:block;margin-bottom:8px;color:#fff;font-family:Georgia,serif;font-size:20px}.combat-reward-choice span{display:block;color:#b9bdc1;font-size:13px;line-height:1.55}.combat-reward-choice strong{display:block;margin-top:12px;color:#e18a92;font-size:12px;letter-spacing:.5px}
 .ending-overlay{position:fixed;inset:0;z-index:14000;display:none;place-items:center;padding:20px;background:radial-gradient(circle at 50% 25%,rgba(137,39,50,.28),transparent 45%),rgba(1,2,3,.94);backdrop-filter:blur(12px)}.ending-overlay.open{display:grid}.ending-card{width:min(720px,100%);border:1px solid #765058;border-radius:20px;background:linear-gradient(150deg,#211619,#0b0c0e 62%);box-shadow:0 35px 120px #000;padding:clamp(28px,6vw,60px);text-align:center}.ending-kicker{color:#d66570;font-size:11px;font-weight:900;letter-spacing:4px}.ending-card h2{margin:12px 0;font-family:Georgia,serif;font-size:clamp(38px,8vw,72px);letter-spacing:4px}.ending-card p{max-width:580px;margin:0 auto;color:#c4c7ca;line-height:1.7}.ending-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:24px 0}.ending-summary div{padding:12px;border:1px solid #3c3f43;border-radius:10px;background:#111315}.ending-summary b{display:block;color:#e8d6d8;font-size:20px}.ending-actions,.ending-save-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.ending-save-actions{margin-bottom:14px}.ending-save-actions span{width:100%;color:#9da2a7;font-size:12px}.ending-defeat .ending-kicker{color:#a5a8ab}.ending-defeat h2{color:#c5c7c9}
 body.large-text{font-size:18px}
 body.high-contrast{background:#000;color:#fff}
@@ -320,6 +321,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   .save-slot-actions{width:100%}
   .save-slot-actions button{flex:1}
   .menu-art-strip{min-height:190px}.menu-art-card{width:100px}.codex-card{grid-template-columns:80px 1fr}.codex-card img{width:80px}.menu-dialog{padding:16px}.menu-dialog-head{top:-16px}
+  .combat-reward-choices{grid-template-columns:1fr}.combat-reward-choice{min-height:0}
 }
 
 </style>
@@ -421,6 +423,18 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <h2 id="warningTitle">Are you sure?</h2>
     <p id="warningMessage"></p>
     <div class="warning-actions"><button id="warningCancel" class="warning-cancel">Cancel</button><button id="warningConfirm" class="warning-confirm">Continue</button></div>
+  </section>
+</div>
+<div id="combatRewardOverlay" class="combat-reward-overlay" role="dialog" aria-modal="true" aria-labelledby="combatRewardTitle" aria-describedby="combatRewardMessage">
+  <section class="combat-reward-card">
+    <div class="combat-reward-kicker">THE SILENCE AFTER</div>
+    <h2 id="combatRewardTitle">Choose What Remains</h2>
+    <p id="combatRewardMessage">The creature is dead, but dawn is still far away. Decide how the survivors use this brief quiet.</p>
+    <div id="combatRewardParty" class="combat-reward-party"></div>
+    <div class="combat-reward-choices">
+      <button class="combat-reward-choice" onclick="claimCombatReward('heal')"><b>🩸 Recover Injuries</b><span>Bind wounds and steady every living survivor.</span><strong id="combatRewardHeal"></strong></button>
+      <button class="combat-reward-choice" onclick="claimCombatReward('actions')"><b>🌙 Gain Action Points</b><span>Regroup and press deeper into Blackwood tonight.</span><strong id="combatRewardActions"></strong></button>
+    </div>
   </section>
 </div>
 <div id="endingOverlay" class="ending-overlay" role="dialog" aria-modal="true" aria-labelledby="endingTitle">
@@ -1011,7 +1025,7 @@ const MENU_GUIDES={
     html:`<div class="guide-grid">
       <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Survivors begin each night with 10–15 Night AP based on rarity.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to move or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
       <article class="guide-card"><h3>Build the Right Team</h3><ul><li>High-HP survivors can protect fragile investigators.</li><li>The Doctor is excellent for conserving healing items.</li><li>The Journalist gains better investigation rewards.</li><li>The Hunter reveals enemy information at combat start.</li><li>Rare survivors are powerful, but every common survivor has a useful role.</li></ul></article>
-      <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions; survivors begin a round with 5–10 Combat AP based on rarity.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Common and Uncommon creatures deal 35% less counterattack damage.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>A creature at your location blocks normal travel until it is defeated.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
+      <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions; survivors begin a round with 5–10 Combat AP based on rarity.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Common and Uncommon creatures deal 35% less counterattack damage.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>A creature at your location blocks normal travel until it is defeated.</li><li>After every victory, choose Recover Injuries or Gain Action Points for every living survivor. Larger parties receive a smaller reward per survivor.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
       <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always shows the next required destination.</li><li>Collect all ten clues in order, then defeat the required story bosses.</li><li>The Warden waits at Prison and The Hollow waits inside The Hollow.</li><li>After both Guardians fall, hunt the Bloodkeeper at Slaughterhouse and the Sentinel at Asylum.</li><li>Assemble all three relics, destroy the Root, then reach the Escape Gate.</li></ul></article>
       <article class="guide-card"><h3>Protect Your Progress</h3><ul><li>Use all three slots for different runs or rotating backups.</li><li>Save before entering a deadly zone or starting a boss fight.</li><li>Overwrite carefully—the three slots are independent.</li><li>Saves live only in this browser and device; clearing site data removes them.</li></ul></article>
@@ -1023,7 +1037,7 @@ const MENU_GUIDES={
       <article class="guide-card"><h3>Menu</h3><ul><li>Choose 1–5 Survivors to begin a new run.</li><li>Load or delete a run from one of the three save slots.</li><li>Press Escape to close any guide or settings window.</li></ul></article>
       <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action. Travel locks while a living creature occupies your location.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions.</li></ul></article>
       <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Use:</b> consume or activate an inventory item.</li><li><b>Equip:</b> move a weapon from Extra Pockets to the active survivor.</li><li>Drag Extra Pockets by its heading on desktop; Reset Position returns it to the corner.</li></ul></article>
-      <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon; every attempt adds counter pressure.</li><li><b>Use Special:</b> spend 3 Combat AP; Specials also count toward retaliation.</li><li><b>Counterattack:</b> the creature strikes automatically after every second attack attempt. Common and Uncommon damage is reduced by 35%.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> resolves any pending creature counterattack, then refreshes 5–10 Combat AP based on survivor rarity.</li><li>Exploration controls lock whenever a living creature occupies the current location.</li></ul></article>
+      <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon; every attempt adds counter pressure.</li><li><b>Use Special:</b> spend 3 Combat AP; Specials also count toward retaliation.</li><li><b>Counterattack:</b> the creature strikes automatically after every second attack attempt. Common and Uncommon damage is reduced by 35%.</li><li><b>Victory Reward:</b> choose healing or Night AP for all living survivors. One survivor gains 8 HP or 3 AP; two gain 6 HP or 2 AP each; parties of three to five gain 5–3 HP or 1 AP each.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> resolves any pending creature counterattack, then refreshes 5–10 Combat AP based on survivor rarity.</li><li>Exploration controls lock whenever a living creature occupies the current location.</li></ul></article>
       <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Completed victories and defeats can also be preserved in any slot.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
     </div>`
   }
@@ -1149,6 +1163,40 @@ const EVENTS=[
 
 let G=null;
 let combat=null;
+let postCombatRewardOpen=false;
+
+function postCombatRewardValues(){
+  const living=G?G.ps.filter(p=>!p.dead):[];
+  const count=Math.max(1,living.length);
+  return {living,heal:[0,8,6,5,4,3][Math.min(count,5)],actions:count===1?3:count===2?2:1};
+}
+
+function showPostCombatReward(defeatedName){
+  if(!G||G.outcome)return;
+  const reward=postCombatRewardValues();
+  if(!reward.living.length)return;
+  postCombatRewardOpen=true;
+  document.getElementById("combatRewardTitle").textContent=`${defeatedName} Has Fallen`;
+  document.getElementById("combatRewardParty").textContent=`${reward.living.length} survivor${reward.living.length===1?"":"s"} will receive the chosen reward.`;
+  document.getElementById("combatRewardHeal").textContent=`Restore up to ${reward.heal} HP to each living survivor`;
+  document.getElementById("combatRewardActions").textContent=`Restore up to ${reward.actions} Night AP to each living survivor`;
+  document.getElementById("combatRewardOverlay").classList.add("open");
+}
+
+function claimCombatReward(choice){
+  if(!postCombatRewardOpen||!G)return;
+  const reward=postCombatRewardValues();
+  if(choice==="heal"){
+    reward.living.forEach(p=>p.hp=Math.min(p.maxHp,p.hp+reward.heal));
+    log(`🩸 POST-COMBAT: Every living survivor recovers up to ${reward.heal} HP.`,"good");
+  }else if(choice==="actions"){
+    reward.living.forEach(p=>p.actions=Math.min(nightActionCount(p),p.actions+reward.actions));
+    log(`🌙 POST-COMBAT: Every living survivor regains up to ${reward.actions} Night AP.`,"good");
+  }else return;
+  postCombatRewardOpen=false;
+  document.getElementById("combatRewardOverlay").classList.remove("open");
+  render();
+}
 let currentSaveSlot=null;
 
 const d6=()=>1+Math.floor(Math.random()*6);
@@ -1369,6 +1417,11 @@ render();
 }
 
 async function useAction(cost,fn){
+
+  if(postCombatRewardOpen){
+    log("Choose a post-combat recovery before continuing.","bad");
+    return false;
+  }
 
   let p=G.ps[G.active];
 
@@ -2348,20 +2401,15 @@ if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
     // Wake up knocked-out survivors after battle
     s.knockedOut=false;
 
-    // If below 15% HP, recover to 75%
-    if(s.hp < s.maxHp*0.15){
-        s.hp=Math.ceil(s.maxHp*0.75);
-
-        log(
-            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
-            "good"
-        );
-    }
+    // Stabilize knocked-out survivors; recovery is chosen after combat.
+    if(s.hp<=0)s.hp=1;
 });
   G.ps.forEach(s=>{
   s.combatActions=0;
 });
+const defeatedName=combat.name;
 combat=null;
+showPostCombatReward(defeatedName);
 return;
 }
 }
@@ -3819,20 +3867,15 @@ G.creatures=G.creatures.filter(c=>c!==combat);
     // Wake up knocked-out survivors after battle
     s.knockedOut=false;
 
-    // If below 15% HP, recover to 75%
-    if(s.hp < s.maxHp*0.15){
-        s.hp=Math.ceil(s.maxHp*0.75);
-
-        log(
-            `❤️ ${s.name} feels better after resting and recovers to 75% HP.`,
-            "good"
-        );
-    }
+    // Stabilize knocked-out survivors; recovery is chosen after combat.
+    if(s.hp<=0)s.hp=1;
 });
 G.ps.forEach(s=>{
   s.combatActions=0;
 });
+const defeatedName=combat.name;
 combat=null;
+showPostCombatReward(defeatedName);
   }
 
   registerCombatAttack();
