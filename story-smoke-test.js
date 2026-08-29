@@ -53,5 +53,10 @@ assert(run(`combat.testCounters===0&&combat.attacksSinceCounter===1`),"Creature 
 run(`registerCombatAttack();`);
 assert(run(`combat.testCounters===1&&combat.attacksSinceCounter===0`),"Creature did not counter after the second attack");
 
-console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, counterattacks, and completed saves.");
+assert(run(`combatActionCount({rarity:"Common"})===5&&combatActionCount({rarity:"G.O.A.T"})===10`),"Combat AP was not reduced by 5 across rarities");
+assert(run(`counterattackDamage({rarity:"Common"},4)===3&&counterattackDamage({rarity:"Rare"},4)===4`),"Low-rarity counterattack damage was not reduced by 35%");
+run(`G=${base};G.ps[0].actions=5;G.creatures=[{name:"Roadblock",loc:"motel",hp:5}];combat=null;render=()=>{};move("gas");`);
+assert(run(`G.ps[0].loc==="motel"&&G.ps[0].actions===5`),"A living creature did not block location travel");
+
+console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced counterattacks/AP, travel locks, and completed saves.");
 
