@@ -1009,7 +1009,7 @@ const MENU_GUIDES={
   tips:{
     title:"Tips & Tricks",
     html:`<div class="guide-grid">
-      <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to retreat or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
+      <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Survivors begin each night with 10–15 Night AP based on rarity.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to move or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
       <article class="guide-card"><h3>Build the Right Team</h3><ul><li>High-HP survivors can protect fragile investigators.</li><li>The Doctor is excellent for conserving healing items.</li><li>The Journalist gains better investigation rewards.</li><li>The Hunter reveals enemy information at combat start.</li><li>Rare survivors are powerful, but every common survivor has a useful role.</li></ul></article>
       <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions; survivors begin a round with 5–10 Combat AP based on rarity.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Common and Uncommon creatures deal 35% less counterattack damage.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>A creature at your location blocks normal travel until it is defeated.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
@@ -1049,7 +1049,7 @@ function settingsHtml(){
 
 const LIBRARY_FEATURES={
   single:{title:"Single-Player Investigation",html:'<div class="guide-card"><h3>Your Case, Your Survivors</h3><p>The Last Night is a complete single-player experience. Choose a party of 1–5 survivors, control each investigator, and carry one persistent run through Blackwood.</p><button onclick="closeMenuPanel();enterGameSite()">Continue to Game Menu</button></div>'},
-  strategy:{title:"Survival Strategy",html:'<div class="guide-card"><h3>Every Action Matters</h3><p>Explore connected locations, manage supplies, and survive forced encounters. Combat AP starts at 5 for Common survivors and rises by rarity. Creatures retaliate after every two attack attempts; Common and Uncommon counterattacks deal 35% less damage.</p><button onclick="closeMenuPanel();enterGameSite(\'tips\')">Open Full Tips &amp; Tricks</button></div>'},
+  strategy:{title:"Survival Strategy",html:'<div class="guide-card"><h3>Every Action Matters</h3><p>Explore connected locations, manage supplies, and survive forced encounters. Night AP starts at 10 and Combat AP starts at 5, with both rising by survivor rarity. Creatures retaliate after every two attack attempts; Common and Uncommon counterattacks deal 35% less damage.</p><button onclick="closeMenuPanel();enterGameSite(\'tips\')">Open Full Tips &amp; Tricks</button></div>'},
   story:{title:"Blackwood Story Campaign",html:'<div class="guide-card"><h3>Break the Cycle</h3><p>Follow ten investigation objectives, defeat the relic guardians, destroy the Root of Blackwood, and reach the Escape Gate. Runs have no night limit.</p><button onclick="closeMenuPanel();enterGameSite()">Begin the Investigation</button></div>'},
   saves:{title:"Three Independent Save Slots",html:'<div class="guide-card"><h3>Preserve Three Separate Runs</h3><p>Each local slot stores its own party, night, inventory, discoveries, combat state, and story progress in this browser.</p><button onclick="closeMenuPanel();enterGameSite()">View Save Slots</button></div>'}
 };
@@ -1268,7 +1268,7 @@ handcuffedTurns:0,
 weak:false,
 fear:0,
 loc:"motel",
-actions:25,
+actions:nightActionCount(s),
 combatActions:0,
 restsThisNight:0,
   freeInvestigateUsed:false,
@@ -1966,8 +1966,7 @@ log(
   "bad"
 );
 }
-function combatActionCount(p){
-
+function rarityActionBonus(p){
   const bonus={
     "Common":0,
     "Uncommon":1,
@@ -1977,7 +1976,16 @@ function combatActionCount(p){
     "G.O.A.T":5
   };
 
-  return 5+(bonus[p.rarity]||0);
+  return bonus[p.rarity]||0;
+}
+
+function nightActionCount(p){
+  return 10+rarityActionBonus(p);
+}
+
+function combatActionCount(p){
+
+  return 5+rarityActionBonus(p);
 }
 
 
@@ -2827,7 +2835,7 @@ function canEndNight(){
 
     if(p.dead)return;
 
-    p.actions=25;
+    p.actions=nightActionCount(p);
     p.restsThisNight=0;
     p.freeInvestigateUsed=false;
   });
@@ -3051,7 +3059,7 @@ if(p.items && p.items.length>0){
     log(`🎒 ${p.name} lost ${lostItem.name} while escaping back to the motel.`, "bad");
 }
         // Reset actions
-        p.actions=25;
+        p.actions=nightActionCount(p);
       p.combatActions=0;
     });
 
