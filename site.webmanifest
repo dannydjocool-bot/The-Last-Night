@@ -1,0 +1,19 @@
+{
+  "name": "The Last Night — Horror Card Game",
+  "short_name": "The Last Night",
+  "description": "A browser-based horror card game set in Blackwood County.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050607",
+  "theme_color": "#0b0c0e",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
