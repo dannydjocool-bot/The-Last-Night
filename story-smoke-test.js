@@ -58,6 +58,20 @@ assert(run(`nightActionCount({rarity:"Common"})===10&&nightActionCount({rarity:"
 assert(run(`counterattackDamage({rarity:"Common"},4)===3&&counterattackDamage({rarity:"Rare"},4)===4`),"Low-rarity counterattack damage was not reduced by 35%");
 run(`G=${base};G.ps[0].actions=5;G.creatures=[{name:"Roadblock",loc:"motel",hp:5}];combat=null;render=()=>{};move("gas");`);
 assert(run(`G.ps[0].loc==="motel"&&G.ps[0].actions===5`),"A living creature did not block location travel");
+assert(run(`hostileAtCurrentLocation(G.ps[0])===true&&canEndNight()===false`),"An unresolved creature did not lock non-combat night actions");
+
+run(`G=${base};G.singlePlayer=true;G.ps=[{name:"Bearer",dead:false,hp:50,maxHp:50,baseMaxHp:50,shield:100,maxShield:100,knowledgeOfWisdom:true,actions:3,rarity:"Common",restsThisNight:0,maxSan:5,san:5,fear:0,items:[]}];`);
+assert(run(`JSON.stringify(damageSurvivor(G.ps[0],35))===JSON.stringify({armorDamage:35,hpDamage:0})&&G.ps[0].shield===65&&G.ps[0].hp===50`),"Knowledge Armor did not absorb damage before HP");
+run(`G.ps[0].shield=20;render=()=>{};recover();`);
+assert(run(`G.ps[0].shield===100`),"Knowledge Armor did not regenerate when its bearer Rested");
+assert(run(`ITEMS.every(i=>i[0]!=="Armor Plate")&&SINGLE_PLAYER_ITEMS.some(i=>i[0]==="Armor Plate")`),"Armor Plate was not restricted to Single Player loot");
+assert(run(`S.filter(s=>s.isNew&&s.transform).length===2&&S.some(s=>s.name==="The Moonbound")&&S.some(s=>s.name==="The Ashen Saint")`),"The two transforming G.O.A.T survivors are missing");
+run(`singleSetup={partySize:1,pool:drawSurvivors(5),selected:["x"],wisdom:"x",rollsUsed:1,maxRolls:3};renderSinglePlayerSetup=()=>{};rerollSingleCandidates();rerollSingleCandidates();rerollSingleCandidates();`);
+assert(run(`singleSetup.rollsUsed===3&&singleSetup.pool.length===5&&singleSetup.selected.length===0&&singleSetup.wisdom===null`),"Single Player survivor rolls did not stop at three");
+run(`let s=S.find(x=>x.name==="The Moonbound");G=${base};G.ps=[{name:s.name,originalName:s.name,image:s.image,normalImage:s.image,maxHp:s.hp,normalMaxHp:s.hp,baseMaxHp:s.hp,hp:s.hp,weapon:s.weapon,normalWeapon:s.weapon,weaponDamage:s.damage,normalWeaponDamage:s.damage,baseWeaponDamage:s.damage,weaponAbility:s.weaponAbility,normalWeaponAbility:s.weaponAbility,ability:s.ability,normalAbility:s.ability,transform:s.transform,transformKey:s.transformKey,transformed:false,maxShield:0,normalMaxShield:0,shield:0,dead:false}];render=()=>{};combat=null;toggleTransformation(0);`);
+assert(run(`G.ps[0].transformed&&G.ps[0].name==="The Eclipse Beast"&&G.ps[0].maxHp===70&&G.ps[0].weaponDamage===13`),"The Moonbound transformation did not apply its improved form stats");
+run(`toggleTransformation(0);`);
+assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"&&G.ps[0].maxHp===50&&G.ps[0].weaponDamage===8`),"The Moonbound could not freely revert");
 
 run(`G=${base};G.ps=[{name:"A",dead:false,hp:10,maxHp:25,actions:2,rarity:"Common"},{name:"B",dead:false,hp:12,maxHp:30,actions:4,rarity:"Uncommon"},{name:"C",dead:false,hp:20,maxHp:35,actions:8,rarity:"Rare"}];postCombatRewardOpen=true;render=()=>{};claimCombatReward("heal");`);
 assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor injury recovery was not applied to the full party");
@@ -65,4 +79,3 @@ run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
 assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
 
 console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced combat/night AP, post-combat party rewards, counterattacks, travel locks, and completed saves.");
-
