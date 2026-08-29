@@ -76,6 +76,13 @@ assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"&&G.ps[0].maxHp=
 assert(run(`S.filter(s=>s.recruitOnly).length===7`),"The seven flashlight-only survivors are missing");
 assert(run(`Array.from({length:30},()=>drawSurvivors(5)).flat().every(s=>!s.recruitOnly)`),"A flashlight-only recruit appeared in a starting draw");
 assert(run(`['Pistol','Shotgun','MP5','AK-47','Hunting Knife','Fire Axe'].every(name=>ITEM_META[name].image==='weapon-items.png'&&ITEM_META[name].spritePosition)`),"Weapon inventory artwork is not mapped");
+assert(run(`[...ITEMS,...SINGLE_PLAYER_ITEMS].every(raw=>{let item=objItem(raw);return item.image&&item.spritePosition&&item.spriteSize&&ITEM_META[item.name].description})`),"Every obtainable item must have artwork and an Item Codex description");
+assert(fs.existsSync("item-atlas.png")&&fs.existsSync("weapon-items.png"),"An inventory art atlas is missing");
+assert(!html.includes("The party's shared Night Pack. Weapons, tools, medicine, and supplies stored here are available to every survivor."),"The removed Main Pack note is still displayed");
+assert(html.includes("🎒 Obtainable Items")&&html.includes("Blackwood Obtainable Item Codex"),"The Obtainable Items menu codex is missing");
+assert(run(`L.length===36&&L.every(entry=>LOCATION_AREAS[entry[0]]&&LOCATION_AREAS[entry[0]].length===2)&&new Set(L.map(entry=>locationArt(entry[0]).image+'|'+locationArt(entry[0]).position)).size===36`),"Every location needs distinct art and two atmospheric Flashlight choices");
+assert(fs.existsSync("locations-normal.png")&&fs.existsSync("locations-danger.png")&&fs.existsSync("locations-deadly.png"),"A location artwork atlas is missing");
+assert(run(`let flashlight=objItem(ITEMS.find(i=>i[0]==='Flashlight'));flashlight.maxDurability===undefined&&flashlight.durability===undefined`),"The permanent Flashlight still has breakable durability");
 run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
 assert(run(`G.ps.length===2&&G.ps[1].name==='The Paramedic'&&G.ps[1].hp===Math.ceil(G.ps[1].maxHp*.3)`),"Wounded flashlight recruit did not join at 30% HP");
 assert(run(`!availableFlashlightRecruits().some(s=>s.name==='The Paramedic')`),"An active recruit remained eligible as a duplicate");
@@ -87,4 +94,4 @@ assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor 
 run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
 assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
 
-console.log("Story smoke test passed: story, saves, combat locks, three-roll setup, transformations, 30-slot Main Pack, weapon art, flashlight recruits, and enraged encounters.");
+console.log("Story smoke test passed: story, saves, combat locks, three-roll setup, transformations, 30-slot Main Pack, complete item art and codex, flashlight recruits, and enraged encounters.");
