@@ -336,6 +336,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   .new-goat-grid{grid-template-columns:1fr}.flip-card{min-height:390px}
 }
 
+.location-codex-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 16px;padding:13px 15px;border-left:3px solid #8c454f;background:#101214;color:#b9bec3}.location-codex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.location-codex-card{overflow:hidden;border:1px solid #3d4247;border-radius:12px;background:#101214}.location-codex-art{height:150px;background-repeat:no-repeat;box-shadow:inset 0 -55px 60px rgba(0,0,0,.55)}.location-codex-info{padding:12px}.location-codex-info h3{margin:2px 0 7px;font-family:Georgia,serif;color:#e4c9cc}.location-codex-info p{margin:5px 0;color:#adb2b7;font-size:12px;line-height:1.45}.location-codex-status{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fd18f}.location-codex-card.locked{border-color:#292c2f}.location-codex-card.locked .location-codex-art{filter:grayscale(1) brightness(.18) blur(3px)}.location-codex-card.locked .location-codex-info h3{color:#777b7f}.location-codex-card.locked .location-codex-status{color:#777b7f}.location-codex-card.locked .location-codex-info p{color:#676b6f}@media(max-width:1050px){.location-codex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.location-codex-grid{grid-template-columns:1fr}.location-codex-summary{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body class="menu-mode">
@@ -398,6 +399,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <button onclick="openMenuPanel('controls')">🎮 Controls</button>
     <button onclick="openMenuPanel('info')">📖 Survivor &amp; Creature Info</button>
     <button onclick="openMenuPanel('items')">🎒 Obtainable Items</button>
+    <button onclick="openMenuPanel('locations')">🗺️ Locations</button>
     <button onclick="openMenuPanel('settings')">⚙️ Settings</button>
   </nav>
   <div class="menu-content">
@@ -581,6 +583,37 @@ function locationArt(loc){
   return {image:LOCATION_ATLASES[Math.floor(index/12)],position:`${["0%","33.333%","66.667%","100%"][col]} ${["0%","50%","100%"][row]}`,size:"400% 300%"};
 }
 function locationArtStyle(loc){const art=locationArt(loc);return `background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}`;}
+const LOCATION_CODEX_KEY="theLastNightUnlockedLocations";
+function readLocationCodexUnlocks(){
+  const unlocked=new Set();
+  try{JSON.parse(localStorage.getItem(LOCATION_CODEX_KEY)||"[]").forEach(loc=>unlocked.add(loc));}catch(error){console.warn("Unable to read location codex progress",error);}
+  if(G&&G.flashlightUsedLocations)Array.from(G.flashlightUsedLocations).forEach(loc=>unlocked.add(loc));
+  for(let slot=1;slot<=3;slot++){
+    const payload=readSaveSlot(slot);
+    if(payload&&payload.G&&payload.G.flashlightUsedLocations)Array.from(payload.G.flashlightUsedLocations).forEach(loc=>unlocked.add(loc));
+  }
+  return unlocked;
+}
+function unlockLocationCodex(loc){
+  const unlocked=readLocationCodexUnlocks();
+  unlocked.add(loc);
+  localStorage.setItem(LOCATION_CODEX_KEY,JSON.stringify(Array.from(unlocked)));
+}
+function locationDangerLabel(loc){
+  if(NORMAL_ZONES.includes(loc))return "🟢 NORMAL";
+  if(DANGER_ZONES.includes(loc))return "🟡 DANGER";
+  if(VERY_RISKY_ZONES.includes(loc))return "🟠 VERY RISKY";
+  if(VERY_DEADLY_ZONES.includes(loc))return "💀 VERY DEADLY";
+  return "☠️ FINAL DESCENT";
+}
+function showLocationCodex(){
+  const unlocked=readLocationCodexUnlocks();
+  const cards=L.map(entry=>{
+    const loc=entry[0],name=entry[1],known=unlocked.has(loc),art=locationArt(loc);
+    return `<article class="location-codex-card ${known?'unlocked':'locked'}"><div class="location-codex-art" role="img" aria-label="${known?name:'Locked location'}" style="background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}"></div><div class="location-codex-info"><span class="location-codex-status">${known?'FLASHLIGHT RECORD UNLOCKED':'🔒 LOCATION UNKNOWN'}</span><h3>${known?name:'Unknown Location'}</h3>${known?`<p><b>${locationDangerLabel(loc)}</b></p><p>${LOCATION_AREAS[loc][0]}</p><p>${LOCATION_AREAS[loc][1]}</p>`:'<p>Visit this place and complete a Flashlight sweep to reveal its case-file artwork and information.</p>'}</div></article>`;
+  }).join("");
+  document.getElementById("menuDialogContent").innerHTML=`<div class="location-codex-summary"><span>Locations are permanently recorded after you visit them and complete a Flashlight sweep.</span><strong>${unlocked.size} / ${L.length} UNLOCKED</strong></div><div class="location-codex-grid">${cards}</div>`;
+}
 // ===============================
 // ZONE DANGER LEVELS
 // ===============================
@@ -1208,6 +1241,9 @@ function openMenuPanel(type){
     document.getElementById("menuDialogTitle").textContent="Blackwood Obtainable Item Codex";
     content.innerHTML='<p class="menu-section-copy">Every weapon, supply, tool, medical item, ammunition type, and special Single Player item currently obtainable in the game.</p><div id="codexContent"></div>';
     showItemCodex();
+  }else if(type==="locations"){
+    document.getElementById("menuDialogTitle").textContent="Blackwood Location Records";
+    showLocationCodex();
   }else if(type==="settings"){
     document.getElementById("menuDialogTitle").textContent="Settings";
     content.innerHTML=settingsHtml();
@@ -1977,6 +2013,7 @@ function resolveFlashlightChoice(choice,itemIndex,fromPack){
   const item=fromPack?G.extraPockets[itemIndex]:p.items[itemIndex];
   if(!item||item.name!=="Flashlight")return;
   G.flashlightUsedLocations.add(p.loc);
+  unlockLocationCodex(p.loc);
   if(Math.random()<0.5)resolveEnragedFlashlightEncounter();
   else resolveFlashlightRecruit();
   render();
