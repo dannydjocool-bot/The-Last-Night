@@ -577,6 +577,44 @@ const LOCATION_AREAS={
   slaughterhouse:["Illuminate the hanging meat chamber","Search behind the butcher tables"],prison:["Sweep the ruined cell block","Check the open isolation cell"],asylum:["Illuminate the abandoned patient ward","Search beyond the restraint room"],laboratory:["Sweep the specimen tanks","Check the bloodstained control station"],
   ritual:["Illuminate the extinguished ritual circle","Search behind the black stone altar"],hollow:["Sweep the impossible edge of the void","Illuminate the path between floating ruins"],root:["Search beneath the burning ancient roots","Illuminate the pulsing heart chamber"],gate:["Sweep the chained escape gate","Search the dead forest boundary"]
 };
+const LOCATION_DESCRIPTIONS={
+  motel:"The investigation begins inside a rain-soaked roadside motel. Its broken rooms provide an early foothold, but disturbed doors and abandoned belongings suggest the occupants vanished suddenly.",
+  gas:"A powerless service station surrounded by silent pumps and stalled vehicles. The exposed forecourt offers little cover, while the collapsed shop may still conceal supplies or movement.",
+  store:"Blackwood's looted general store is lined with overturned shelves and a sealed stockroom. Useful provisions may remain among the debris, but narrow aisles make ambushes difficult to escape.",
+  station:"The abandoned police station contains evidence corridors, holding cells, and the investigation's first major lead. Old reports reveal how Blackwood's disappearances began.",
+  library:"Dusty archives preserve decades of missing-person reports and suppressed town history. Fallen shelves create blind corners around records needed to understand Blackwood's repeating cycle.",
+  apartments:"A dark residential block of chained doors, flooded halls, and abandoned family rooms. Supplies may remain upstairs, though every stairwell funnels survivors into close quarters.",
+  firestation:"An empty engine bay and deserted sleeping quarters mark the town's failed emergency response. Heavy tools and medical supplies may survive inside the shadowed station.",
+  cemetery:"Freshly disturbed earth surrounds old graves and a ruined mausoleum. The cemetery links Blackwood's recent disappearances to generations of buried secrets.",
+  chapel:"Blood stains the altar of a chapel left open to the storm. Father Elias's confession waits among the broken pews, warning that Blackwood's creatures are keeping people trapped.",
+  monastery:"Moonlight cuts through the collapsed cloister of an older religious order. Stone passages and forgotten writings hint that others once tried—and failed—to contain the darkness.",
+  cabins:"Scattered hunting cabins stand empty beneath the trees. Their porches and cramped interiors can hide survival gear, wounded strangers, or predators waiting for a light.",
+  forest:"Dense woodland surrounds Blackwood and marks the first dangerous stretch of the investigation. Muddy trails shift between the trees, making navigation and creature detection unreliable.",
+  huntercamp:"A torn shelter and cold fire pit suggest the hunters left in a hurry. Traps, ammunition, and field supplies may remain, but the camp attracts territorial threats.",
+  junkyard:"Crushed vehicles form metal corridors beneath a hanging scrap crane. Valuable parts are scattered throughout the yard, where noise travels farther than survivors expect.",
+  farm:"Dead corn rows surround a leaning barn and abandoned farmhouse. Open ground exposes the party during travel, while the barn's darkness can conceal both supplies and creatures.",
+  sawmill:"Wet timber, rusted blades, and unstable machinery fill the old mill. Its elevated deck offers visibility, but every movement echoes across the surrounding forest.",
+  hospital:"The abandoned ward contains medicine, sealed operating rooms, and evidence of patients moved after midnight. Tight clinical corridors make encounters especially difficult to avoid.",
+  school:"Flooded classrooms and a locked gym hold remnants of Blackwood's evacuation. Children's records reveal who disappeared, while long hallways leave survivors exposed.",
+  sewers:"Flooded brick tunnels run beneath the county. The sewers offer hidden routes and industrial clues, but darkness, contaminated water, and narrow gates restrict escape.",
+  tunnel:"A red-lit maintenance passage connects the buried parts of town. Utility pipes create hiding places on both sides, and sound carries through the tunnel before danger becomes visible.",
+  bridge:"The road has collapsed into the river, leaving fractured pavement and an exposed understructure. Crossing the area risks isolation, but it opens the route toward Blackwood's deeper zones.",
+  subway:"A derailed train rests beside a collapsed underground platform. Emergency equipment and passenger remains provide clues, while blocked sightlines favor stalking creatures.",
+  house:"An old Victorian home watches the road through dark upper windows. Its rooms connect to a hidden basement, and the family records inside expose another piece of the town's ritual history.",
+  hotel:"A ruined lobby and abandoned guest floors preserve evidence from Blackwood's final populated nights. Reception records may help the investigation, but the building has too many entrances to secure.",
+  factory:"Flooded machinery and overhead gantries fill the industrial complex. The factory connects several dangerous routes and contains evidence of material secretly moved beneath the town.",
+  mines:"Abandoned tracks descend through unstable timber supports. Valuable equipment and buried records lie below, where darkness and narrow shafts make retreat costly.",
+  massgrave:"An open excavation filled with abandoned tools exposes Blackwood's hidden dead. The site provides critical evidence but draws powerful creatures from surrounding deadly zones.",
+  basement:"A damp storage level beneath the Old House leads toward the ritual network. Confined rooms and a single staircase make this a dangerous place to become trapped.",
+  slaughterhouse:"Hanging chains and butcher tables conceal the Bloodkeeper's lair. This deadly story location tests preparation, ammunition, and the party's ability to survive sustained counterattacks.",
+  prison:"Ruined cell blocks surround the Warden's territory. Isolation cells contain a required story confrontation and evidence of prisoners used in Blackwood's experiments.",
+  asylum:"Abandoned patient wards and restraint rooms lead to the Blackwood Sentinel. Records here connect the town's disappearances to organized attempts at controlling the Root.",
+  laboratory:"Specimen tanks and bloodstained control stations reveal the machinery behind Blackwood's rituals. High-value evidence comes with deadly encounters and few safe exits.",
+  ritual:"An extinguished circle surrounds a black stone altar at the center of the county's occult network. The party must arrive prepared for story progression and relentless resistance.",
+  hollow:"Reality breaks around floating ruins and an impossible void. The Hollow guards a required relic, while distorted paths make ordinary expectations unreliable.",
+  root:"Burning ancient roots surround Blackwood's pulsing heart. This is the final creature stronghold and the decisive battle required before the survivors can escape.",
+  gate:"The chained county boundary is the investigation's final destination. It only becomes salvation after the Root is destroyed and the survivors carry Blackwood's truth beyond the road."
+};
 function locationArt(loc){
   const index=Math.max(0,L.findIndex(entry=>entry[0]===loc));
   const local=index%12,col=local%4,row=Math.floor(local/4);
@@ -585,7 +623,7 @@ function locationArt(loc){
 function locationArtStyle(loc){const art=locationArt(loc);return `background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}`;}
 const LOCATION_CODEX_KEY="theLastNightUnlockedLocations";
 function readLocationCodexUnlocks(){
-  const unlocked=new Set();
+  const unlocked=new Set(["motel"]);
   try{JSON.parse(localStorage.getItem(LOCATION_CODEX_KEY)||"[]").forEach(loc=>unlocked.add(loc));}catch(error){console.warn("Unable to read location codex progress",error);}
   if(G&&G.flashlightUsedLocations)Array.from(G.flashlightUsedLocations).forEach(loc=>unlocked.add(loc));
   for(let slot=1;slot<=3;slot++){
@@ -610,9 +648,9 @@ function showLocationCodex(){
   const unlocked=readLocationCodexUnlocks();
   const cards=L.map(entry=>{
     const loc=entry[0],name=entry[1],known=unlocked.has(loc),art=locationArt(loc);
-    return `<article class="location-codex-card ${known?'unlocked':'locked'}"><div class="location-codex-art" role="img" aria-label="${known?name:'Locked location'}" style="background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}"></div><div class="location-codex-info"><span class="location-codex-status">${known?'FLASHLIGHT RECORD UNLOCKED':'🔒 LOCATION UNKNOWN'}</span><h3>${known?name:'Unknown Location'}</h3>${known?`<p><b>${locationDangerLabel(loc)}</b></p><p>${LOCATION_AREAS[loc][0]}</p><p>${LOCATION_AREAS[loc][1]}</p>`:'<p>Visit this place and complete a Flashlight sweep to reveal its case-file artwork and information.</p>'}</div></article>`;
+    return `<article class="location-codex-card ${known?'unlocked':'locked'}"><div class="location-codex-art" role="img" aria-label="${known?name:'Locked location'}" style="background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}"></div><div class="location-codex-info"><span class="location-codex-status">${known?(loc==='motel'?'STARTING LOCATION':'FLASHLIGHT RECORD UNLOCKED'):'🔒 LOCATION UNKNOWN'}</span><h3>${known?name:'Unknown Location'}</h3>${known?`<p><b>${locationDangerLabel(loc)}</b></p><p>${LOCATION_DESCRIPTIONS[loc]}</p><p><b>Flashlight areas:</b> ${LOCATION_AREAS[loc][0]} · ${LOCATION_AREAS[loc][1]}</p><p><b>Connected routes:</b> ${entry[2].map(id=>LM[id][1]).join(', ')}</p>`:'<p>This case file is sealed. Visit the location and complete its Flashlight sweep to reveal the artwork, danger level, routes, and full field description.</p>'}</div></article>`;
   }).join("");
-  document.getElementById("menuDialogContent").innerHTML=`<div class="location-codex-summary"><span>Locations are permanently recorded after you visit them and complete a Flashlight sweep.</span><strong>${unlocked.size} / ${L.length} UNLOCKED</strong></div><div class="location-codex-grid">${cards}</div>`;
+  document.getElementById("menuDialogContent").innerHTML=`<div class="location-codex-summary"><span>Riverside Motel is known from the start. Every other location is permanently recorded after you visit it and complete a Flashlight sweep.</span><strong>${unlocked.size} / ${L.length} UNLOCKED</strong></div><div class="location-codex-grid">${cards}</div>`;
 }
 // ===============================
 // ZONE DANGER LEVELS
@@ -4680,7 +4718,7 @@ function readSaveSlot(slot){
 
 async function saveGameToSlot(slot){
   if(!G){
-    alert("Start or load a game before saving.");
+    showToast("Start or load a game before saving");
     return;
   }
   const existing=readSaveSlot(slot);
@@ -4691,14 +4729,14 @@ async function saveGameToSlot(slot){
     showToast("Game saved to Slot "+slot);
   }catch(error){
     console.error("Unable to save game",error);
-    alert("This browser could not save the game. Storage may be full or disabled.");
+    await showWarning({title:"Save Could Not Be Written",message:"This browser could not preserve the run. Browser storage may be full or disabled.",confirmLabel:"Understood",icon:"💾",danger:true});
   }
 }
 
 function loadGameFromSlot(slot){
   const payload=readSaveSlot(slot);
   if(!payload || !payload.G){
-    alert("Save Slot "+slot+" is empty.");
+    showToast("Save Slot "+slot+" is empty");
     return;
   }
   G=payload.G;

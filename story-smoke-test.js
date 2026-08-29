@@ -85,9 +85,13 @@ assert(fs.existsSync("locations-normal.png")&&fs.existsSync("locations-danger.pn
 assert(run(`let flashlight=objItem(ITEMS.find(i=>i[0]==='Flashlight'));flashlight.maxDurability===undefined&&flashlight.durability===undefined`),"The permanent Flashlight still has breakable durability");
 run(`localStorage.removeItem(LOCATION_CODEX_KEY);G=${base};G.flashlightUsedLocations=new Set();unlockLocationCodex('motel');`);
 assert(run(`readLocationCodexUnlocks().has('motel')&&JSON.parse(localStorage.getItem(LOCATION_CODEX_KEY)).includes('motel')`),"A completed Flashlight sweep did not persist its Location Codex unlock");
-run(`G.flashlightUsedLocations=new Set(['gas']);localStorage.setItem('theLastNightSaveSlot1',JSON.stringify({G:{flashlightUsedLocations:new Set(['station'])}},saveReplacer));`);
-assert(run(`let unlocked=readLocationCodexUnlocks();unlocked.has('motel')&&unlocked.has('gas')&&unlocked.has('station')`),"Location Codex did not combine permanent, active-run, and saved-run discoveries");
+run(`localStorage.removeItem(LOCATION_CODEX_KEY);G=null;`);
+assert(run(`let unlocked=readLocationCodexUnlocks();unlocked.size===1&&unlocked.has('motel')`),"Riverside Motel was not the only default Location Codex unlock");
+assert(run(`L.every(entry=>LOCATION_DESCRIPTIONS[entry[0]]&&LOCATION_DESCRIPTIONS[entry[0]].length>80)`),"Every unlocked location needs a full field description");
+run(`G=${base};G.flashlightUsedLocations=new Set(['gas']);localStorage.setItem('theLastNightSaveSlot1',JSON.stringify({G:{flashlightUsedLocations:new Set(['station'])}},saveReplacer));`);
+assert(run(`let combinedUnlocks=readLocationCodexUnlocks();combinedUnlocks.has('motel')&&combinedUnlocks.has('gas')&&combinedUnlocks.has('station')`),"Location Codex did not combine permanent, active-run, and saved-run discoveries");
 assert(html.includes("🗺️ Locations")&&html.includes("Blackwood Location Records"),"The Main Menu Locations codex is missing");
+assert(!html.includes("alert("),"A native browser alert remains instead of the themed warning system");
 run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
 assert(run(`G.ps.length===2&&G.ps[1].name==='The Paramedic'&&G.ps[1].hp===Math.ceil(G.ps[1].maxHp*.3)`),"Wounded flashlight recruit did not join at 30% HP");
 assert(run(`!availableFlashlightRecruits().some(s=>s.name==='The Paramedic')`),"An active recruit remained eligible as a duplicate");
