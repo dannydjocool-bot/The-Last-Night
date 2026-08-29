@@ -380,6 +380,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p>
   </section>
   <nav class="menu-actions" aria-label="Game information">
+    <button onclick="showGameLibrary()">← Game Library</button>
     <button onclick="openMenuPanel('tips')">💡 Tips &amp; Tricks</button>
     <button onclick="openMenuPanel('controls')">🎮 Controls</button>
     <button onclick="openMenuPanel('info')">📖 Survivor &amp; Creature Info</button>
@@ -1068,6 +1069,10 @@ function closeMenuPanel(event){
   if(event && event.target!==document.getElementById("menuOverlay"))return;
   document.getElementById("menuOverlay").classList.remove("open");
   document.body.style.overflow="";
+  if(returnToLibraryAfterPanel){
+    returnToLibraryAfterPanel=false;
+    showGameLibrary();
+  }
 }
 
 function setPreference(key,value){
@@ -4135,6 +4140,18 @@ function closeEndingToMenu(){
   renderMenuArtStrip();updateSaveSlots();
 }
 
+let returnToLibraryAfterPanel=false;
+
+function showGameLibrary(){
+  document.getElementById("menuOverlay").classList.remove("open");
+  const library=document.getElementById("gameLibrary");
+  library.hidden=false;
+  library.removeAttribute("aria-hidden");
+  document.getElementById("gameSite").setAttribute("aria-hidden","true");
+  document.body.style.overflow="";
+  library.scrollTop=0;
+}
+
 function enterGameSite(panel){
   const library=document.getElementById("gameLibrary");
   library.hidden=true;
@@ -4142,6 +4159,7 @@ function enterGameSite(panel){
   document.getElementById("gameSite").removeAttribute("aria-hidden");
   document.body.style.overflow="";
   document.getElementById("setup").scrollIntoView({block:"start"});
+  returnToLibraryAfterPanel=Boolean(panel);
   if(panel)setTimeout(function(){openMenuPanel(panel);},80);
 }
 
