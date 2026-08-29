@@ -59,5 +59,10 @@ assert(run(`counterattackDamage({rarity:"Common"},4)===3&&counterattackDamage({r
 run(`G=${base};G.ps[0].actions=5;G.creatures=[{name:"Roadblock",loc:"motel",hp:5}];combat=null;render=()=>{};move("gas");`);
 assert(run(`G.ps[0].loc==="motel"&&G.ps[0].actions===5`),"A living creature did not block location travel");
 
-console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced combat/night AP, counterattacks, travel locks, and completed saves.");
+run(`G=${base};G.ps=[{name:"A",dead:false,hp:10,maxHp:25,actions:2,rarity:"Common"},{name:"B",dead:false,hp:12,maxHp:30,actions:4,rarity:"Uncommon"},{name:"C",dead:false,hp:20,maxHp:35,actions:8,rarity:"Rare"}];postCombatRewardOpen=true;render=()=>{};claimCombatReward("heal");`);
+assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor injury recovery was not applied to the full party");
+run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
+assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
+
+console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced combat/night AP, post-combat party rewards, counterattacks, travel locks, and completed saves.");
 
