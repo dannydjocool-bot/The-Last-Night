@@ -58,6 +58,13 @@ assert(run(`nightActionCount({rarity:"Common"})===10&&nightActionCount({rarity:"
 assert(run(`counterattackDamage({rarity:"Common"},4)===3&&counterattackDamage({rarity:"Rare"},4)===4`),"Low-rarity counterattack damage was not reduced by 35%");
 run(`G=${base};G.ps[0].actions=5;G.creatures=[{name:"Roadblock",loc:"motel",hp:5}];combat=null;render=()=>{};move("gas");`);
 assert(run(`G.ps[0].loc==="motel"&&G.ps[0].actions===5`),"A living creature did not block location travel");
+assert(run(`hostileAtCurrentLocation(G.ps[0])===true&&canEndNight()===false`),"An unresolved creature did not lock non-combat night actions");
+
+run(`G=${base};G.singlePlayer=true;G.ps=[{name:"Bearer",dead:false,hp:50,maxHp:50,baseMaxHp:50,shield:100,maxShield:100,knowledgeOfWisdom:true,actions:3,rarity:"Common",restsThisNight:0,maxSan:5,san:5,fear:0,items:[]}];`);
+assert(run(`JSON.stringify(damageSurvivor(G.ps[0],35))===JSON.stringify({armorDamage:35,hpDamage:0})&&G.ps[0].shield===65&&G.ps[0].hp===50`),"Knowledge Armor did not absorb damage before HP");
+run(`G.ps[0].shield=20;render=()=>{};recover();`);
+assert(run(`G.ps[0].shield===100`),"Knowledge Armor did not regenerate when its bearer Rested");
+assert(run(`ITEMS.every(i=>i[0]!=="Armor Plate")&&SINGLE_PLAYER_ITEMS.some(i=>i[0]==="Armor Plate")`),"Armor Plate was not restricted to Single Player loot");
 
 run(`G=${base};G.ps=[{name:"A",dead:false,hp:10,maxHp:25,actions:2,rarity:"Common"},{name:"B",dead:false,hp:12,maxHp:30,actions:4,rarity:"Uncommon"},{name:"C",dead:false,hp:20,maxHp:35,actions:8,rarity:"Rare"}];postCombatRewardOpen=true;render=()=>{};claimCombatReward("heal");`);
 assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor injury recovery was not applied to the full party");
