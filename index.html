@@ -20,15 +20,15 @@
   position:fixed;
   left:12px;
   top:90px;
-  width:220px;
+  width:250px;
   max-height:calc(100vh - 110px);
   overflow-y:auto;
-  background:#111;
-  border:1px solid #444;
-  border-radius:10px;
+  background:radial-gradient(circle at 15% 0,rgba(142,38,46,.22),transparent 38%),linear-gradient(#121416,#090a0b);
+  border:1px solid #6c3138;
+  border-radius:14px;
   padding:10px;
   z-index:40;
-  box-shadow:0 8px 30px rgba(0,0,0,.55);
+  box-shadow:0 8px 34px rgba(0,0,0,.72),inset 0 0 28px rgba(92,17,25,.12);
 }
 
 #extraPocketsHandle{
@@ -60,6 +60,8 @@
   line-height:1.6;
 }
 
+.new-survivor-showcase{margin-bottom:18px;padding:18px;border:1px solid #385664;border-radius:16px;background:radial-gradient(circle at 50% 0,rgba(63,128,150,.14),transparent 55%),#0d0f11}.new-survivor-showcase h2{margin:0 0 5px;text-align:center;font-family:Georgia,serif;letter-spacing:2px}.new-survivor-showcase>p{text-align:center;color:#aeb3b8;font-size:11px}.recruit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.recruit-card{position:relative;min-height:185px;overflow:hidden;border:1px solid #3e5964;border-radius:11px;background:#111;padding:0;margin:0}.recruit-card img{width:100%;height:185px;object-fit:cover}.recruit-card:after{content:"";position:absolute;inset:38% 0 0;background:linear-gradient(transparent,#060708)}.recruit-card-info{position:absolute;z-index:2;inset:auto 8px 8px;text-align:left}.recruit-card-info b{display:block;font-family:Georgia,serif;font-size:15px}.recruit-card-info small{display:block;color:#9fd0d9;font-size:9px;margin-top:3px}.recruit-detail{display:grid;grid-template-columns:170px 1fr;gap:18px}.recruit-detail img{width:100%;max-height:330px;object-fit:cover;border-radius:12px;border:1px solid #5b7780}.flashlight-overlay{position:fixed;inset:0;z-index:18000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(8px)}.flashlight-overlay.open{display:flex}.flashlight-dialog{width:min(960px,96vw);max-height:92vh;overflow:auto;padding:22px;border:1px solid #6e3b42;border-radius:18px;background:radial-gradient(circle at 50% 0,rgba(160,35,48,.18),transparent 38%),#0b0d0f;box-shadow:0 24px 80px #000}.flashlight-dialog h2{margin:0;font-family:Georgia,serif;letter-spacing:2px}.flashlight-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.flashlight-choice{overflow:hidden;padding:0;background:#111;border:1px solid #50545a;text-align:left}.flashlight-scene-art{display:block;width:100%;height:230px;background-repeat:no-repeat;box-shadow:inset 0 -40px 55px rgba(0,0,0,.45)}.flashlight-scene-art.alternate{filter:brightness(.78) contrast(1.15);background-size:410% 308%!important}.flashlight-choice span{display:block;padding:12px;font-weight:800;line-height:1.4}.flashlight-result{text-align:center}.flashlight-result img{width:min(330px,70vw);max-height:48vh;object-fit:cover;border-radius:13px}.flashlight-result-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}.enraged{color:#ff6978;font-weight:900}.recruit-only-badge{display:inline-block;padding:5px 8px;border-radius:99px;background:#28576a;color:#d9f6ff;font-size:9px;font-weight:900;letter-spacing:1px}
+
 @media(max-width:850px){
 
   .extra-pockets-panel{
@@ -68,6 +70,8 @@
     max-height:none;
     margin-bottom:12px;
   }
+
+  .recruit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flashlight-choices{grid-template-columns:1fr}.recruit-detail{grid-template-columns:1fr}.map{grid-template-columns:repeat(2,minmax(120px,1fr))}
 
 }
 *{box-sizing:border-box}
@@ -82,8 +86,10 @@ button:disabled{opacity:.35}
 .grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}
 .panel{background:#121212;border:1px solid #303030;border-radius:10px;padding:12px}
 .wide{grid-column:1/-1}
-.map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.loc{min-height:72px;background:#181818;border:1px solid #444;border-radius:7px;padding:7px;font-size:12px}
+.map{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px}
+.loc{min-height:150px;overflow:hidden;background:#181818;border:1px solid #444;border-radius:9px;padding:0;font-size:12px;box-shadow:0 7px 20px rgba(0,0,0,.28)}
+.loc-art{height:72px;background-repeat:no-repeat;position:relative}.loc-art:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#181818)}
+.loc-info{padding:7px}.loc-info b{display:block;min-height:29px;line-height:1.05}.loc button{margin-top:6px;width:100%}
 .loc.current{outline:2px solid white}
 .loc.locked{opacity:.4}
 .card{background:#171717;border:1px solid #444;border-radius:8px;padding:9px;margin:6px 0}
@@ -310,12 +316,14 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 .combat-locked{opacity:.45;cursor:not-allowed!important}.combat-notice{margin-top:10px;padding:9px;border-left:3px solid #b84b55;background:#1b1113;color:#e2b9bd;font-size:12px}
 @media(min-width:1051px) and (max-width:1600px){body:not(.menu-mode) .wrap{max-width:none;margin-left:240px;margin-right:12px}}
 @media(max-width:1050px){
-  #extraPocketsPanel{display:none}
+  #extraPocketsPanel{position:static;width:auto;max-height:520px;margin:0 14px 12px}
   .menu-hero{padding:30px 24px 24px}
   .menu-content{grid-template-columns:1fr;padding:16px}
   .survivor-counts{grid-template-columns:repeat(3,1fr)}
   .guide-grid,.codex-grid{grid-template-columns:1fr}.menu-art-card{width:120px}.menu-art-card:nth-child(1){transform:translateX(-240%) rotate(-10deg)}.menu-art-card:nth-child(2){transform:translateX(-175%) rotate(-6deg)}.menu-art-card:nth-child(3){transform:translateX(-110%) rotate(-2deg)}.menu-art-card:nth-child(4){transform:translateX(-45%) rotate(2deg)}.menu-art-card:nth-child(5){transform:translateX(20%) rotate(6deg)}.menu-art-card:nth-child(6){transform:translateX(85%) rotate(10deg)}
 }
+
+.main-pack-title{margin:2px 0 8px;font-family:Georgia,serif;letter-spacing:2px;color:#f2e7dd}.item-art{width:100%;height:104px;margin-bottom:7px;border-radius:7px;background-repeat:no-repeat;box-shadow:inset 0 0 18px #000}.personal-item{display:grid;grid-template-columns:72px 1fr;gap:9px;align-items:center}.personal-item .item-art{height:64px;margin:0}.item-codex-art{width:115px;aspect-ratio:1/1;height:auto;margin:0;border:1px solid #565b60}.item-codex-card{grid-template-columns:115px 1fr}.item-type-badge{display:inline-block;color:#9fd0d9;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
 @media(max-width:820px){.library-shell{width:min(100% - 24px,1240px);padding-top:16px}.library-nav span:last-child{display:none}.library-hero{grid-template-columns:1fr}.library-copy{order:2;padding:32px 25px 38px}.library-art{order:1;min-height:310px;background-position:center 25%}.library-copy h1{font-size:clamp(43px,13vw,70px)}.library-foot{flex-direction:column}}
 @media(max-width:500px){
   .survivor-counts{grid-template-columns:repeat(2,1fr)}
@@ -328,6 +336,8 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   .new-goat-grid{grid-template-columns:1fr}.flip-card{min-height:390px}
 }
 
+.location-codex-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 16px;padding:13px 15px;border-left:3px solid #8c454f;background:#101214;color:#b9bec3}.location-codex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.location-codex-card{overflow:hidden;border:1px solid #3d4247;border-radius:12px;background:#101214}.location-codex-art{height:150px;background-repeat:no-repeat;box-shadow:inset 0 -55px 60px rgba(0,0,0,.55)}.location-codex-info{padding:12px}.location-codex-info h3{margin:2px 0 7px;font-family:Georgia,serif;color:#e4c9cc}.location-codex-info p{margin:5px 0;color:#adb2b7;font-size:12px;line-height:1.45}.location-codex-status{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fd18f}.location-codex-card.locked{border-color:#292c2f}.location-codex-card.locked .location-codex-art{filter:grayscale(1) brightness(.18) blur(3px)}.location-codex-card.locked .location-codex-info h3{color:#777b7f}.location-codex-card.locked .location-codex-status{color:#777b7f}.location-codex-card.locked .location-codex-info p{color:#676b6f}@media(max-width:1050px){.location-codex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.location-codex-grid{grid-template-columns:1fr}.location-codex-summary{align-items:flex-start;flex-direction:column}}
+.audio-setting input[type="range"]{width:min(260px,45vw);accent-color:#b94c57}.audio-value{min-width:40px;color:#d6aeb2;font-size:11px;text-align:right}.night-transition{position:fixed;inset:0;z-index:19000;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 42%,rgba(114,24,38,.24),transparent 42%),#020304;transition:opacity .35s}.night-transition.open{opacity:1}.night-transition-card{text-align:center;transform:scale(.9);transition:transform .5s}.night-transition.open .night-transition-card{transform:scale(1)}.night-transition-kicker{color:#bd5a65;font-size:10px;font-weight:900;letter-spacing:5px}.night-transition h2{margin:10px 0;font-family:Georgia,serif;font-size:clamp(52px,12vw,120px);letter-spacing:7px}.night-transition p{color:#adb2b7;letter-spacing:2px}.combat-intro{position:fixed;inset:0;z-index:18500;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(115,21,34,.32),rgba(0,0,0,.94) 68%);transition:opacity .2s}.combat-intro.open{opacity:1}.combat-intro-card{position:relative;width:min(340px,72vw);aspect-ratio:2/3;overflow:hidden;border:1px solid #9b4651;border-radius:18px;box-shadow:0 0 80px rgba(193,51,66,.35);transform:scale(.65) rotate(-3deg);transition:transform .45s}.combat-intro.open .combat-intro-card{transform:scale(1) rotate(0)}.combat-intro-card img{width:100%;height:100%;object-fit:cover}.combat-intro-card:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#050607)}.combat-intro-copy{position:absolute;z-index:2;inset:auto 18px 18px;text-align:center}.combat-intro-copy span{display:block;color:#da6671;font-size:9px;font-weight:900;letter-spacing:4px}.combat-intro-copy strong{display:block;margin-top:7px;font-family:Georgia,serif;font-size:27px;letter-spacing:2px}.combat-fx-layer{position:fixed;inset:0;z-index:18000;pointer-events:none;overflow:hidden}.combat-float{position:absolute;left:50%;top:42%;padding:8px 13px;border-radius:9px;background:rgba(5,6,7,.88);color:#fff;font-size:clamp(24px,5vw,48px);font-weight:900;text-shadow:0 0 18px currentColor;animation:combatFloat .85s ease-out forwards}.combat-float.enemy{color:#ff6673}.combat-float.heavy{color:#ffc65e}.combat-float.miss{color:#b2b7bc}.combat-counter-warning{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:12px 18px;border:1px solid #b94a55;border-radius:10px;background:rgba(40,10,15,.94);color:#ffd9dc;font-weight:900;letter-spacing:2px;animation:counterPulse .8s ease both}.combat-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,244,211,.48),transparent 34%);animation:flashOut .28s ease-out forwards}body.combat-impact #game{animation:gameShake .28s linear}body.reduce-motion .night-transition,body.reduce-motion .night-transition-card,body.reduce-motion .combat-intro,body.reduce-motion .combat-intro-card{transition:none}body.reduce-motion .combat-float,body.reduce-motion .combat-counter-warning,body.reduce-motion #game{animation:none!important}@keyframes combatFloat{0%{transform:translate(-50%,20px);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-75px);opacity:0}}@keyframes counterPulse{0%{opacity:0;transform:translateX(-50%) scale(.8)}45%{opacity:1;transform:translateX(-50%) scale(1.05)}100%{opacity:0;transform:translateX(-50%) scale(1)}}@keyframes flashOut{to{opacity:0}}@keyframes gameShake{0%,100%{transform:none}25%{transform:translate(-5px,2px)}50%{transform:translate(5px,-2px)}75%{transform:translate(-3px,1px)}}
 </style>
 </head>
 <body class="menu-mode">
@@ -362,14 +372,13 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 
 <div id="gameSite" class="wrap" aria-hidden="true">
 <div id="extraPocketsPanel" class="extra-pockets-panel">
- <h3 id="extraPocketsHandle">🎒 EXTRA POCKETS</h3>
+ <h3 id="extraPocketsHandle" class="main-pack-title">🎒 MAIN PACK</h3>
 <button id="resetExtraPocketsPosition" type="button">
   ↩ RESET POSITION
 </button>
   <div id="extraPocketsCount" class="muted">
-    0 / 10 Slots
+    0 / 30 Slots
   </div>
-
   <div id="extraPockets"></div>
 
   <hr>
@@ -390,6 +399,8 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <button onclick="openMenuPanel('tips')">💡 Tips &amp; Tricks</button>
     <button onclick="openMenuPanel('controls')">🎮 Controls</button>
     <button onclick="openMenuPanel('info')">📖 Survivor &amp; Creature Info</button>
+    <button onclick="openMenuPanel('items')">🎒 Obtainable Items</button>
+    <button onclick="openMenuPanel('locations')">🗺️ Locations</button>
     <button onclick="openMenuPanel('settings')">⚙️ Settings</button>
   </nav>
   <div class="menu-content">
@@ -410,6 +421,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
       <div id="saveSlots" class="save-slots"></div>
     </section>
     <section id="newGoatShowcase" class="new-goat-showcase" aria-label="New transforming G.O.A.T survivors"></section>
+    <section id="newSurvivorShowcase" class="new-survivor-showcase" aria-label="Seven new recruit-only survivors"></section>
     <section id="menuArtStrip" class="menu-art-strip" aria-label="Six randomized survivor and creature cards"></section>
     <div class="menu-tip">Tip: saves live in this browser on this device. Use the in-game save bar whenever you want to preserve a run.</div>
   </div>
@@ -423,6 +435,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="transformationOverlay" class="transform-overlay" aria-hidden="true"><img id="transformationImage" alt="Transformation artwork"><strong id="transformationName"></strong></div>
+<div id="flashlightOverlay" class="flashlight-overlay" role="dialog" aria-modal="true" aria-labelledby="flashlightTitle"><section id="flashlightDialog" class="flashlight-dialog"></section></div>
 <div id="warningOverlay" class="warning-overlay" role="alertdialog" aria-modal="true" aria-labelledby="warningTitle" aria-describedby="warningMessage">
   <section class="warning-dialog">
     <div id="warningIcon" class="warning-icon">⚠️</div>
@@ -453,6 +466,9 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
     <div class="ending-actions"><button onclick="endingToMenu()">Main Menu</button><button onclick="endingNewRun()">Begin New Descent</button></div>
   </section>
 </div>
+<div id="nightTransition" class="night-transition" aria-hidden="true"><div class="night-transition-card"><div class="night-transition-kicker">BLACKWOOD COUNTY</div><h2 id="nightTransitionTitle">NIGHT 2</h2><p id="nightTransitionCopy">The roads grow quieter.</p></div></div>
+<div id="combatIntro" class="combat-intro" aria-hidden="true"><article class="combat-intro-card"><img id="combatIntroImage" alt=""><div class="combat-intro-copy"><span>HOSTILE CONTACT</span><strong id="combatIntroName"></strong></div></article></div>
+<div id="combatFxLayer" class="combat-fx-layer" aria-live="polite"></div>
 
 <div id="game" class="grid" style="display:none">
 
@@ -553,6 +569,93 @@ const L=[
 ["gate","The Escape Gate",["root"]]
 ];
 const LM=Object.fromEntries(L.map(x=>[x[0],x]));
+const LOCATION_ATLASES=["locations-normal.png","locations-danger.png","locations-deadly.png"];
+const LOCATION_AREAS={
+  motel:["Check the shattered window of Room 7","Sweep beneath the rain-soaked balcony"],gas:["Illuminate the silent fuel pumps","Search behind the collapsed service counter"],store:["Scan the looted grocery aisles","Check the locked stockroom door"],station:["Light the evidence corridor","Search the abandoned holding cells"],
+  library:["Sweep the newspaper archives","Look behind the fallen history shelves"],apartments:["Check the stairwell landing","Illuminate the chained apartment door"],firestation:["Search the empty engine bay","Sweep the firefighter sleeping quarters"],cemetery:["Light the freshly disturbed graves","Search behind the ruined mausoleum"],
+  chapel:["Illuminate the bloodstained altar","Search beneath the broken pews"],monastery:["Sweep the moonlit cloister","Check the collapsed stone chapel"],cabins:["Light the nearest cabin porch","Search between the abandoned cabins"],forest:["Follow the muddy trail into the trees","Sweep the beam across the tangled undergrowth"],
+  huntercamp:["Search the cold campfire","Illuminate the torn hunting shelter"],junkyard:["Sweep between the crushed vehicles","Check beneath the hanging scrap crane"],farm:["Light the dead corn rows","Search the leaning barn entrance"],sawmill:["Illuminate the wet timber deck","Sweep beneath the rusted saw rig"],
+  hospital:["Search the abandoned ward","Illuminate the sealed operating room"],school:["Sweep the flooded classroom hall","Check behind the gymnasium doors"],sewers:["Light the flooded brick passage","Search beside the corroded drainage gate"],tunnel:["Sweep the utility pipes ahead","Check the red-lit maintenance door"],
+  bridge:["Illuminate the broken roadway","Search beneath the shattered guardrail"],subway:["Sweep the collapsed platform","Check inside the derailed train"],house:["Light the Victorian front porch","Search the dark upstairs windows"],hotel:["Illuminate the ruined lobby","Sweep behind the reception counter"],
+  factory:["Search the flooded machine floor","Illuminate the overhead gantry"],mines:["Sweep the abandoned mine tracks","Check the timbered shaft entrance"],massgrave:["Illuminate the open excavation","Search beside the abandoned digging tools"],basement:["Sweep the damp storage room","Check beneath the wooden staircase"],
+  slaughterhouse:["Illuminate the hanging meat chamber","Search behind the butcher tables"],prison:["Sweep the ruined cell block","Check the open isolation cell"],asylum:["Illuminate the abandoned patient ward","Search beyond the restraint room"],laboratory:["Sweep the specimen tanks","Check the bloodstained control station"],
+  ritual:["Illuminate the extinguished ritual circle","Search behind the black stone altar"],hollow:["Sweep the impossible edge of the void","Illuminate the path between floating ruins"],root:["Search beneath the burning ancient roots","Illuminate the pulsing heart chamber"],gate:["Sweep the chained escape gate","Search the dead forest boundary"]
+};
+const LOCATION_DESCRIPTIONS={
+  motel:"The investigation begins inside a rain-soaked roadside motel. Its broken rooms provide an early foothold, but disturbed doors and abandoned belongings suggest the occupants vanished suddenly.",
+  gas:"A powerless service station surrounded by silent pumps and stalled vehicles. The exposed forecourt offers little cover, while the collapsed shop may still conceal supplies or movement.",
+  store:"Blackwood's looted general store is lined with overturned shelves and a sealed stockroom. Useful provisions may remain among the debris, but narrow aisles make ambushes difficult to escape.",
+  station:"The abandoned police station contains evidence corridors, holding cells, and the investigation's first major lead. Old reports reveal how Blackwood's disappearances began.",
+  library:"Dusty archives preserve decades of missing-person reports and suppressed town history. Fallen shelves create blind corners around records needed to understand Blackwood's repeating cycle.",
+  apartments:"A dark residential block of chained doors, flooded halls, and abandoned family rooms. Supplies may remain upstairs, though every stairwell funnels survivors into close quarters.",
+  firestation:"An empty engine bay and deserted sleeping quarters mark the town's failed emergency response. Heavy tools and medical supplies may survive inside the shadowed station.",
+  cemetery:"Freshly disturbed earth surrounds old graves and a ruined mausoleum. The cemetery links Blackwood's recent disappearances to generations of buried secrets.",
+  chapel:"Blood stains the altar of a chapel left open to the storm. Father Elias's confession waits among the broken pews, warning that Blackwood's creatures are keeping people trapped.",
+  monastery:"Moonlight cuts through the collapsed cloister of an older religious order. Stone passages and forgotten writings hint that others once tried—and failed—to contain the darkness.",
+  cabins:"Scattered hunting cabins stand empty beneath the trees. Their porches and cramped interiors can hide survival gear, wounded strangers, or predators waiting for a light.",
+  forest:"Dense woodland surrounds Blackwood and marks the first dangerous stretch of the investigation. Muddy trails shift between the trees, making navigation and creature detection unreliable.",
+  huntercamp:"A torn shelter and cold fire pit suggest the hunters left in a hurry. Traps, ammunition, and field supplies may remain, but the camp attracts territorial threats.",
+  junkyard:"Crushed vehicles form metal corridors beneath a hanging scrap crane. Valuable parts are scattered throughout the yard, where noise travels farther than survivors expect.",
+  farm:"Dead corn rows surround a leaning barn and abandoned farmhouse. Open ground exposes the party during travel, while the barn's darkness can conceal both supplies and creatures.",
+  sawmill:"Wet timber, rusted blades, and unstable machinery fill the old mill. Its elevated deck offers visibility, but every movement echoes across the surrounding forest.",
+  hospital:"The abandoned ward contains medicine, sealed operating rooms, and evidence of patients moved after midnight. Tight clinical corridors make encounters especially difficult to avoid.",
+  school:"Flooded classrooms and a locked gym hold remnants of Blackwood's evacuation. Children's records reveal who disappeared, while long hallways leave survivors exposed.",
+  sewers:"Flooded brick tunnels run beneath the county. The sewers offer hidden routes and industrial clues, but darkness, contaminated water, and narrow gates restrict escape.",
+  tunnel:"A red-lit maintenance passage connects the buried parts of town. Utility pipes create hiding places on both sides, and sound carries through the tunnel before danger becomes visible.",
+  bridge:"The road has collapsed into the river, leaving fractured pavement and an exposed understructure. Crossing the area risks isolation, but it opens the route toward Blackwood's deeper zones.",
+  subway:"A derailed train rests beside a collapsed underground platform. Emergency equipment and passenger remains provide clues, while blocked sightlines favor stalking creatures.",
+  house:"An old Victorian home watches the road through dark upper windows. Its rooms connect to a hidden basement, and the family records inside expose another piece of the town's ritual history.",
+  hotel:"A ruined lobby and abandoned guest floors preserve evidence from Blackwood's final populated nights. Reception records may help the investigation, but the building has too many entrances to secure.",
+  factory:"Flooded machinery and overhead gantries fill the industrial complex. The factory connects several dangerous routes and contains evidence of material secretly moved beneath the town.",
+  mines:"Abandoned tracks descend through unstable timber supports. Valuable equipment and buried records lie below, where darkness and narrow shafts make retreat costly.",
+  massgrave:"An open excavation filled with abandoned tools exposes Blackwood's hidden dead. The site provides critical evidence but draws powerful creatures from surrounding deadly zones.",
+  basement:"A damp storage level beneath the Old House leads toward the ritual network. Confined rooms and a single staircase make this a dangerous place to become trapped.",
+  slaughterhouse:"Hanging chains and butcher tables conceal the Bloodkeeper's lair. This deadly story location tests preparation, ammunition, and the party's ability to survive sustained counterattacks.",
+  prison:"Ruined cell blocks surround the Warden's territory. Isolation cells contain a required story confrontation and evidence of prisoners used in Blackwood's experiments.",
+  asylum:"Abandoned patient wards and restraint rooms lead to the Blackwood Sentinel. Records here connect the town's disappearances to organized attempts at controlling the Root.",
+  laboratory:"Specimen tanks and bloodstained control stations reveal the machinery behind Blackwood's rituals. High-value evidence comes with deadly encounters and few safe exits.",
+  ritual:"An extinguished circle surrounds a black stone altar at the center of the county's occult network. The party must arrive prepared for story progression and relentless resistance.",
+  hollow:"Reality breaks around floating ruins and an impossible void. The Hollow guards a required relic, while distorted paths make ordinary expectations unreliable.",
+  root:"Burning ancient roots surround Blackwood's pulsing heart. This is the final creature stronghold and the decisive battle required before the survivors can escape.",
+  gate:"The chained county boundary is the investigation's final destination. It only becomes salvation after the Root is destroyed and the survivors carry Blackwood's truth beyond the road."
+};
+function locationArt(loc){
+  const index=Math.max(0,L.findIndex(entry=>entry[0]===loc));
+  const local=index%12,col=local%4,row=Math.floor(local/4);
+  return {image:LOCATION_ATLASES[Math.floor(index/12)],position:`${["0%","33.333%","66.667%","100%"][col]} ${["0%","50%","100%"][row]}`,size:"400% 300%"};
+}
+function locationArtStyle(loc){const art=locationArt(loc);return `background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}`;}
+const LOCATION_CODEX_KEY="theLastNightUnlockedLocations";
+function readLocationCodexUnlocks(){
+  const unlocked=new Set(["motel"]);
+  try{JSON.parse(localStorage.getItem(LOCATION_CODEX_KEY)||"[]").forEach(loc=>unlocked.add(loc));}catch(error){console.warn("Unable to read location codex progress",error);}
+  if(G&&G.flashlightUsedLocations)Array.from(G.flashlightUsedLocations).forEach(loc=>unlocked.add(loc));
+  for(let slot=1;slot<=3;slot++){
+    const payload=readSaveSlot(slot);
+    if(payload&&payload.G&&payload.G.flashlightUsedLocations)Array.from(payload.G.flashlightUsedLocations).forEach(loc=>unlocked.add(loc));
+  }
+  return unlocked;
+}
+function unlockLocationCodex(loc){
+  const unlocked=readLocationCodexUnlocks();
+  unlocked.add(loc);
+  localStorage.setItem(LOCATION_CODEX_KEY,JSON.stringify(Array.from(unlocked)));
+}
+function locationDangerLabel(loc){
+  if(NORMAL_ZONES.includes(loc))return "🟢 NORMAL";
+  if(DANGER_ZONES.includes(loc))return "🟡 DANGER";
+  if(VERY_RISKY_ZONES.includes(loc))return "🟠 VERY RISKY";
+  if(VERY_DEADLY_ZONES.includes(loc))return "💀 VERY DEADLY";
+  return "☠️ FINAL DESCENT";
+}
+function showLocationCodex(){
+  const unlocked=readLocationCodexUnlocks();
+  const cards=L.map(entry=>{
+    const loc=entry[0],name=entry[1],known=unlocked.has(loc),art=locationArt(loc);
+    return `<article class="location-codex-card ${known?'unlocked':'locked'}"><div class="location-codex-art" role="img" aria-label="${known?name:'Locked location'}" style="background-image:url('${art.image}');background-size:${art.size};background-position:${art.position}"></div><div class="location-codex-info"><span class="location-codex-status">${known?(loc==='motel'?'STARTING LOCATION':'FLASHLIGHT RECORD UNLOCKED'):'🔒 LOCATION UNKNOWN'}</span><h3>${known?name:'Unknown Location'}</h3>${known?`<p><b>${locationDangerLabel(loc)}</b></p><p>${LOCATION_DESCRIPTIONS[loc]}</p><p><b>Flashlight areas:</b> ${LOCATION_AREAS[loc][0]} · ${LOCATION_AREAS[loc][1]}</p><p><b>Connected routes:</b> ${entry[2].map(id=>LM[id][1]).join(', ')}</p>`:'<p>This case file is sealed. Visit the location and complete its Flashlight sweep to reveal the artwork, danger level, routes, and full field description.</p>'}</div></article>`;
+  }).join("");
+  document.getElementById("menuDialogContent").innerHTML=`<div class="location-codex-summary"><span>Riverside Motel is known from the start. Every other location is permanently recorded after you visit it and complete a Flashlight sweep.</span><strong>${unlocked.size} / ${L.length} UNLOCKED</strong></div><div class="location-codex-grid">${cards}</div>`;
+}
 // ===============================
 // ZONE DANGER LEVELS
 // ===============================
@@ -693,11 +796,18 @@ const S=[
 {name:"The Chosen",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
 {name:"The Reaper",hp:50,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."},
 {name:"The Moonbound",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"moonbound.png",weapon:"Crescent Blades",damage:8,weaponAbility:"Mooncut — Critical hits restore 2 HP.",ability:"Lunar Curse — Freely transform into The Eclipse Beast during testing.",isNew:true,transformKey:"moonbound",transform:{name:"The Eclipse Beast",image:"eclipsebeast.png",hpBonus:20,damageBonus:5,combatActionBonus:3,weapon:"Spectral Crescent Claws",weaponAbility:"Eclipse Rend — Attacks restore 2 HP; critical hits restore 4 HP.",ability:"Predator Beyond Night — +20 Max HP, +5 Damage, +3 Combat AP, and attacks drain life."}},
-{name:"The Ashen Saint",hp:50,san:10,rarity:"G.O.A.T",weight:0.5,image:"ashensaint.png",weapon:"Cinder Spear",damage:8,weaponAbility:"Guardian's Brand — Successful attacks reduce the creature's next strike by 2.",ability:"Martyr Flame — Freely transform into The Burning Seraph during testing.",isNew:true,transformKey:"ashen",transform:{name:"The Burning Seraph",image:"burningseraph.png",hpBonus:30,damageBonus:4,combatActionBonus:2,shieldBonus:50,weapon:"Inferno Lance",weaponAbility:"Judgment Flame — Successful attacks reduce the creature's next strike by 4.",ability:"Six-Winged Aegis — +30 Max HP, +4 Damage, +2 Combat AP, 50 Armor, and 30% party damage reduction."}}
+{name:"The Ashen Saint",hp:50,san:10,rarity:"G.O.A.T",weight:0.5,image:"ashensaint.png",weapon:"Cinder Spear",damage:8,weaponAbility:"Guardian's Brand — Successful attacks reduce the creature's next strike by 2.",ability:"Martyr Flame — Freely transform into The Burning Seraph during testing.",isNew:true,transformKey:"ashen",transform:{name:"The Burning Seraph",image:"burningseraph.png",hpBonus:30,damageBonus:4,combatActionBonus:2,shieldBonus:50,weapon:"Inferno Lance",weaponAbility:"Judgment Flame — Successful attacks reduce the creature's next strike by 4.",ability:"Six-Winged Aegis — +30 Max HP, +4 Damage, +2 Combat AP, 50 Armor, and 30% party damage reduction."}},
+{name:"The Paramedic",hp:30,san:8,rarity:"Uncommon",weight:0,image:"paramedic.png",weapon:"Rescue Shears",damage:3,weaponAbility:"Trauma Cut — Critical hits restore 2 HP to the most wounded survivor.",ability:"Triage — Rest restores 2 additional HP to the party's most wounded survivor.",recruitOnly:true,isNewRecruit:true},
+{name:"The Locksmith",hp:25,san:8,rarity:"Common",weight:0,image:"locksmith.png",weapon:"Steel Pry Bar",damage:3,weaponAbility:"Forced Entry — The first successful hit each combat deals +2 damage.",ability:"Skeleton Key — Rusty Keys reveal one additional connected location.",recruitOnly:true,isNewRecruit:true},
+{name:"The Firefighter",hp:35,san:7,rarity:"Rare",weight:0,image:"firefighter.png",weapon:"Halligan Bar",damage:6,weaponAbility:"Rescue Swing — At full HP, successful attacks deal +2 damage.",ability:"Fireguard — Takes 2 less damage from every creature attack.",recruitOnly:true,isNewRecruit:true},
+{name:"The Botanist",hp:30,san:9,rarity:"Uncommon",weight:0,image:"botanist.png",weapon:"Pruning Blade",damage:3,weaponAbility:"Toxic Sap — Critical hits weaken the creature's next attack by 2.",ability:"Field Remedy — Healing items restore 2 additional HP.",recruitOnly:true,isNewRecruit:true},
+{name:"The Ranger",hp:35,san:7,rarity:"Rare",weight:0,image:"ranger.png",weapon:"Compact Recurve Bow",damage:6,weaponAbility:"Marked Trail — First attack each combat has +2 damage.",ability:"Trail Sense — Arriving at a location reveals whether a creature is waiting there.",recruitOnly:true,isNewRecruit:true},
+{name:"The Signalman",hp:40,san:9,rarity:"Epic",weight:0,image:"signalman.png",weapon:"Arc Baton",damage:6,weaponAbility:"Signal Shock — Critical hits stun the creature's next counterattack.",ability:"Dead Air — Starts combat with +1 Combat AP and reveals enemy stats.",recruitOnly:true,isNewRecruit:true},
+{name:"The Undertaker",hp:45,san:9,rarity:"Legendary",weight:0,image:"undertaker.png",weapon:"Grave Spade",damage:7,weaponAbility:"Last Rites — Deals +3 damage while below 50% HP.",ability:"Grave Fury — The first lethal blow each combat triggers Legendary Berserk instead of a knockout.",recruitOnly:true,isNewRecruit:true}
 ];
 
 function drawSurvivors(amount){
-let pool=[...S];
+let pool=S.filter(s=>!s.recruitOnly);
 let chosen=[];
 
 while(chosen.length<amount && pool.length){
@@ -721,7 +831,7 @@ return chosen;
 }
 
 const ITEMS=[
-["Flashlight","tool",0,"tool",5],
+["Flashlight","tool",0,"tool"],
 ["First Aid Kit","heal",4],
 ["Healing Potion","healweak",5],
 ["Pistol","weapon",5,"pistol",5],
@@ -746,80 +856,54 @@ const ITEMS=[
 
 const SINGLE_PLAYER_ITEMS=[["Armor Plate","armor",100]];
 
-const ITEM_META={ 
-
-  "Pistol":{
-    rarity:"Rare",
-    image:"pistol.png"
-  },
-
-  "Shotgun":{
-    rarity:"Legendary",
-    image:"shotgun.png"
-  },
-
-  "MP5":{
-    rarity:"Epic",
-    image:"mp5.png"
-  },
-
-  "AK-47":{
-    rarity:"Epic",
-    image:"ak47.png"
-  },
-
-  "Hunting Knife":{
-    rarity:"Common",
-    image:"huntingknife.png"
-  },
-
-  "Fire Axe":{
-    rarity:"Rare",
-    image:"fireaxe.png"
-  },
-
-  "Repair Kit":{
-    rarity:"Uncommon",
-    image:"repairkit.png"
-  },
-
-  "Flashlight":{
-    rarity:"Common",
-    image:"flashlight.png"
-  },
-
-  "Camera":{
-    rarity:"Common",
-    image:"camera.png"
-  },
-
-  "First Aid Kit":{
-    rarity:"Uncommon",
-    image:"firstaid.png"
-  },
-"Healing Potion":{
-  rarity:"Rare",
-  image:"healingpotion.png"
-},
-  "Rusty Key":{
-    rarity:"Uncommon",
-    image:"rustykey.png"
-  },
-
-  "Calmative":{
-    rarity:"Uncommon",
-    image:"calmative.png"
-  },
-
-  "Emergency Rations":{
-    rarity:"Common",
-    image:"rations.png"
-  },
-  "Armor Plate":{
-    rarity:"Rare",
-    image:null
-  }
+const ITEM_META={
+  "Pistol":{rarity:"Rare",description:"A reliable sidearm. Uses Pistol Ammo and deals 5 damage.",image:"weapon-items.png",spritePosition:"0% 0%",spriteSize:"300% 200%"},
+  "Shotgun":{rarity:"Legendary",description:"A devastating close-range weapon. Uses Shotgun Ammo and deals 8 damage.",image:"weapon-items.png",spritePosition:"50% 0%",spriteSize:"300% 200%"},
+  "MP5":{rarity:"Epic",description:"A compact automatic weapon. Uses SMG Ammo and deals 7 damage.",image:"weapon-items.png",spritePosition:"100% 0%",spriteSize:"300% 200%"},
+  "AK-47":{rarity:"Epic",description:"A powerful assault rifle. Uses Rifle Ammo and deals 10 damage.",image:"weapon-items.png",spritePosition:"0% 100%",spriteSize:"300% 200%"},
+  "Hunting Knife":{rarity:"Common",description:"A durable silent melee weapon that deals 2 damage and needs no ammunition.",image:"weapon-items.png",spritePosition:"50% 100%",spriteSize:"300% 200%"},
+  "Fire Axe":{rarity:"Rare",description:"A heavy melee weapon that deals 6 damage and needs no ammunition.",image:"weapon-items.png",spritePosition:"100% 100%",spriteSize:"300% 200%"},
+  "Flashlight":{rarity:"Common",description:"A permanent exploration tool that never breaks. Use it once per location to reveal a wounded survivor—or awaken two enraged creatures.",image:"item-atlas.png",spritePosition:"0% 0%",spriteSize:"400% 400%"},
+  "First Aid Kit":{rarity:"Uncommon",description:"Restores 4 HP to the survivor who uses it.",image:"item-atlas.png",spritePosition:"33.333% 0%",spriteSize:"400% 400%"},
+  "Healing Potion":{rarity:"Rare",description:"A concentrated emergency treatment that restores 5 HP.",image:"item-atlas.png",spritePosition:"66.667% 0%",spriteSize:"400% 400%"},
+  "Pistol Ammo":{rarity:"Common",description:"Adds 12 Pistol rounds to the party ammunition supply.",image:"item-atlas.png",spritePosition:"100% 0%",spriteSize:"400% 400%"},
+  "Shotgun Ammo":{rarity:"Uncommon",description:"Adds 6 Shotgun shells to the party ammunition supply.",image:"item-atlas.png",spritePosition:"0% 33.333%",spriteSize:"400% 400%"},
+  "SMG Ammo":{rarity:"Uncommon",description:"Adds 20 SMG rounds to the party ammunition supply.",image:"item-atlas.png",spritePosition:"33.333% 33.333%",spriteSize:"400% 400%"},
+  "Rifle Ammo":{rarity:"Rare",description:"Adds 12 Rifle rounds to the party ammunition supply.",image:"item-atlas.png",spritePosition:"66.667% 33.333%",spriteSize:"400% 400%"},
+  "Repair Kit":{rarity:"Uncommon",description:"Restores durability to a damaged weapon.",image:"item-atlas.png",spritePosition:"100% 33.333%",spriteSize:"400% 400%"},
+  "Rusty Key":{rarity:"Uncommon",description:"Unlocks hidden routes and reveals connected locations.",image:"item-atlas.png",spritePosition:"0% 66.667%",spriteSize:"400% 400%"},
+  "Camera":{rarity:"Common",description:"A field camera used to document evidence and support investigation events.",image:"item-atlas.png",spritePosition:"33.333% 66.667%",spriteSize:"400% 400%"},
+  "Calmative":{rarity:"Uncommon",description:"Restores 3 Sanity to a shaken survivor.",image:"item-atlas.png",spritePosition:"66.667% 66.667%",spriteSize:"400% 400%"},
+  "Emergency Rations":{rarity:"Common",description:"Reduces Fear by 2 and helps a survivor steady themselves.",image:"item-atlas.png",spritePosition:"100% 66.667%",spriteSize:"400% 400%"},
+  "Armor Plate":{rarity:"Rare",description:"Single Player only. Fully restores the Knowledge Bearer's regenerating Armor.",image:"item-atlas.png",spritePosition:"0% 100%",spriteSize:"400% 400%"}
 };
+
+function itemArtMarkup(item,extraClass=""){
+  if(item.spritePosition&&item.image){
+    return `<div class="item-art ${extraClass}" role="img" aria-label="${item.name}" style="background-image:url('${item.image}');background-size:${item.spriteSize||'300% 200%'};background-position:${item.spritePosition}"></div>`;
+  }
+  return item.image?`<img class="extra-pocket-img ${extraClass}" src="${item.image}" alt="${item.name}">`:"";
+}
+
+function refreshItemMeta(item){
+  const meta=item&&ITEM_META[item.name];
+  if(!meta)return item;
+  item.rarity=meta.rarity;
+  item.image=meta.image;
+  item.spritePosition=meta.spritePosition||null;
+  item.spriteSize=meta.spriteSize||null;
+  item.description=meta.description||"";
+  return item;
+}
+
+function showItemCodex(){
+  const obtainable=[...ITEMS,...SINGLE_PLAYER_ITEMS].map(objItem);
+  const typeNames={tool:"Tool",heal:"Medical",healweak:"Medical",weapon:"Weapon",ammo:"Ammunition",repair:"Utility",key:"Key Item",san:"Medical",fear:"Supply",armor:"Single Player Item"};
+  document.getElementById("codexContent").innerHTML=`<div class="codex-grid">${obtainable.map(item=>{
+    const meta=ITEM_META[item.name]||{};
+    return `<article class="codex-card item-codex-card">${itemArtMarkup(item,"item-codex-art")}<div><span class="item-type-badge">${typeNames[item.type]||item.type}</span><h3>${item.name}</h3><div class="codex-stats"><span>${item.rarity}</span>${item.type==="weapon"?`<span>⚔️ ${item.val} Damage</span>`:""}${item.maxDurability?`<span>🛠️ ${item.maxDurability} Durability</span>`:""}</div><p>${meta.description||"An obtainable survival item found while exploring Blackwood."}</p></div></article>`;
+  }).join("")}</div>`;
+}
   
 const CRE=[
 
@@ -1032,6 +1116,7 @@ function renderMenuArtStrip(){
     `<article class="menu-art-card" title="${entry.name}"><img src="${entry.image}" alt="${entry.name} card artwork"><div class="menu-art-name">${entry.name}<span class="menu-art-type">${entry.cardType}</span></div></article>`
   ).join("");
   renderNewGoatShowcase();
+  renderNewSurvivorShowcase();
 }
 
 function renderNewGoatShowcase(){
@@ -1052,6 +1137,22 @@ function renderNewGoatShowcase(){
 
 function flipGoatCard(card){card.classList.toggle("flipped");}
 
+function renderNewSurvivorShowcase(){
+  const showcase=document.getElementById("newSurvivorShowcase");
+  if(!showcase)return;
+  const recruits=S.filter(s=>s.recruitOnly);
+  showcase.innerHTML=`<h2>NEW SURVIVORS</h2><p>Seven flashlight-exclusive recruits. Click a card for coded rarity, stats, weapon, and ability information.</p><div class="recruit-grid">${recruits.map((s,i)=>`<button class="recruit-card" onclick="openRecruitDetail(${i})"><img src="${s.image}" alt="${s.name}"><span class="new-badge">NEW</span><span class="recruit-card-info"><b>${s.name}</b><small>${s.rarity} · ❤️ ${s.hp} · 🧠 ${s.san} · ⚔️ ${s.damage}</small></span></button>`).join("")}</div>`;
+}
+
+function openRecruitDetail(index){
+  const s=S.filter(x=>x.recruitOnly)[index];
+  if(!s)return;
+  document.getElementById("menuDialogTitle").textContent=s.name;
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail"><img src="${s.image}" alt="${s.name}"><div><span class="recruit-only-badge">FLASHLIGHT RECRUIT ONLY</span><h2>${s.name}</h2><div class="codex-stats"><span>${s.rarity}</span><span>❤️ ${s.hp}</span><span>🧠 ${s.san}</span><span>⚔️ ${s.damage}</span></div><p><b>${s.weapon}</b> — ${s.weaponAbility}</p><p><b>Ability:</b> ${s.ability}</p><p class="muted">Cannot appear in starting draws. Find this survivor while using a Flashlight at a location. They join at 30% HP and cannot duplicate an active party member.</p></div></div>`;
+  document.getElementById("menuOverlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+
 const MENU_GUIDES={
   tips:{
     title:"Tips & Tricks",
@@ -1069,7 +1170,7 @@ const MENU_GUIDES={
     html:`<div class="guide-grid">
       <article class="guide-card"><h3>Menu</h3><ul><li>Choose 1–5 Survivors to begin a new run.</li><li>Load or delete a run from one of the three save slots.</li><li>Press Escape to close any guide or settings window.</li></ul></article>
       <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action.</li><li>A living creature at your location immediately locks Move, Search, Investigate, Rest, and End Night—even before you press Fight.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions and no creature controls the location.</li></ul></article>
-      <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Transform/Revert:</b> The Moonbound and The Ashen Saint currently shift forms freely with no cost, cooldown, or location restriction for testing.</li><li><b>Use:</b> consume or activate an inventory item.</li><li><b>Equip:</b> move a weapon from Extra Pockets to the active survivor.</li><li>Drag Extra Pockets by its heading on desktop; Reset Position returns it to the corner.</li></ul></article>
+      <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Transform/Revert:</b> The Moonbound and The Ashen Saint currently shift forms freely with no cost, cooldown, or location restriction for testing.</li><li><b>Main Pack:</b> the party shares 30 general slots for weapons, tools, medicine, and supplies.</li><li><b>Flashlight:</b> this permanent tool never breaks. Use it once per location to choose one of two location-specific illustrated areas. It may reveal a wounded recruit or awaken two enraged creatures.</li><li><b>Equip:</b> move a weapon from the Main Pack to the active survivor.</li></ul></article>
       <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon; every attempt adds counter pressure.</li><li><b>Use Special:</b> spend 3 Combat AP; Specials also count toward retaliation.</li><li><b>Counterattack:</b> the creature strikes automatically after every second attack attempt. Common and Uncommon damage is reduced by 35%.</li><li><b>Victory Reward:</b> choose healing or Night AP for all living survivors. One survivor gains 8 HP or 3 AP; two gain 6 HP or 2 AP each; parties of three to five gain 5–3 HP or 1 AP each.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> resolves any pending creature counterattack, then refreshes 5–10 Combat AP based on survivor rarity.</li><li>Exploration controls lock whenever a living creature occupies the current location.</li></ul></article>
       <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Completed victories and defeats can also be preserved in any slot.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
     </div>`
@@ -1077,7 +1178,7 @@ const MENU_GUIDES={
 };
 
 function codexCards(list,type){
-  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew?'NEW · ':''}${type==="survivors"?"AVAILABLE SURVIVOR":"KNOWN THREAT"}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
+  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit?'NEW · ':''}${type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):"KNOWN THREAT"}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
 }
 
 function showCodex(type){
@@ -1091,6 +1192,10 @@ function settingsHtml(){
     <div class="setting-row"><div><label for="settingLargeText">Larger Text</label><small>Increase interface text for easier reading.</small></div><input id="settingLargeText" type="checkbox" ${document.body.classList.contains("large-text")?"checked":""} onchange="setPreference('largeText',this.checked)"></div>
     <div class="setting-row"><div><label for="settingContrast">Enhanced Contrast</label><small>Strengthen the difference between panels, text, and controls.</small></div><input id="settingContrast" type="checkbox" ${document.body.classList.contains("high-contrast")?"checked":""} onchange="setPreference('highContrast',this.checked)"></div>
     <div class="setting-row"><div><label for="settingMotion">Reduce Motion</label><small>Disable pulsing, hover movement, and animated transitions.</small></div><input id="settingMotion" type="checkbox" ${document.body.classList.contains("reduce-motion")?"checked":""} onchange="setPreference('reduceMotion',this.checked)"></div>
+    <div class="setting-row"><div><label for="settingAudio">Atmospheric Audio</label><small>Enable procedural horror ambience, low music, and combat sound effects. Audio begins only after you enable it.</small></div><input id="settingAudio" type="checkbox" ${audioEnabled()?"checked":""} onchange="setAudioEnabled(this.checked)"></div>
+    ${audioSlider("music","Music",20)}
+    ${audioSlider("ambience","Ambience",35)}
+    ${audioSlider("effects","Combat Effects",55)}
   </div><p class="menu-section-copy" style="margin-top:16px">Settings are saved automatically in this browser.</p>`;
 }
 
@@ -1178,6 +1283,13 @@ function openMenuPanel(type){
     document.getElementById("menuDialogTitle").textContent="Blackwood Survivor & Creature Codex";
     content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+CRE.length+')</button></div><div id="codexContent"></div>';
     showCodex("survivors");
+  }else if(type==="items"){
+    document.getElementById("menuDialogTitle").textContent="Blackwood Obtainable Item Codex";
+    content.innerHTML='<p class="menu-section-copy">Every weapon, supply, tool, medical item, ammunition type, and special Single Player item currently obtainable in the game.</p><div id="codexContent"></div>';
+    showItemCodex();
+  }else if(type==="locations"){
+    document.getElementById("menuDialogTitle").textContent="Blackwood Location Records";
+    showLocationCodex();
   }else if(type==="settings"){
     document.getElementById("menuDialogTitle").textContent="Settings";
     content.innerHTML=settingsHtml();
@@ -1213,6 +1325,43 @@ function applyPreferences(){
   document.body.classList.toggle("high-contrast",localStorage.getItem("theLastNightSetting_highContrast")==="true");
   document.body.classList.toggle("reduce-motion",localStorage.getItem("theLastNightSetting_reduceMotion")==="true");
 }
+
+function audioEnabled(){return localStorage.getItem("theLastNightSetting_audio")==="true";}
+function audioLevel(channel,fallback){const raw=localStorage.getItem("theLastNightAudio_"+channel);if(raw===null)return fallback;const value=Number(raw);return Number.isFinite(value)&&value>=0?value:fallback;}
+function audioSlider(channel,label,fallback){const value=audioLevel(channel,fallback);return `<div class="setting-row audio-setting"><div><label for="audio_${channel}">${label}</label><small>${channel==="music"?"Low cinematic drone beneath exploration.":channel==="ambience"?"Wind, room tone, and Blackwood's environmental hum.":"Attacks, impacts, warnings, and transitions."}</small></div><input id="audio_${channel}" type="range" min="0" max="100" value="${value}" oninput="setAudioLevel('${channel}',this.value)"><span id="audio_${channel}_value" class="audio-value">${value}%</span></div>`;}
+let horrorAudio=null;
+function ensureHorrorAudio(){
+  if(!audioEnabled())return null;
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtor)return null;
+  if(!horrorAudio){
+    const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
+    master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
+    const drone=ctx.createOscillator(),droneFilter=ctx.createBiquadFilter();drone.type="sine";drone.frequency.value=42;droneFilter.type="lowpass";droneFilter.frequency.value=130;drone.connect(droneFilter);droneFilter.connect(music);drone.start();
+    const wind=ctx.createOscillator(),windFilter=ctx.createBiquadFilter();wind.type="triangle";wind.frequency.value=71;windFilter.type="lowpass";windFilter.frequency.value=95;wind.connect(windFilter);windFilter.connect(ambience);wind.start();
+    horrorAudio={ctx,master,music,ambience,effects,drone,wind};
+  }
+  if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
+  updateAudioMix();
+  return horrorAudio;
+}
+function updateAudioMix(){if(!horrorAudio)return;const now=horrorAudio.ctx.currentTime;horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.55:0,now,.08);horrorAudio.music.gain.setTargetAtTime(audioLevel("music",20)/100*.11,now,.08);horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",35)/100*.08,now,.08);horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);}
+function setAudioEnabled(value){localStorage.setItem("theLastNightSetting_audio",String(value));if(value)ensureHorrorAudio();else updateAudioMix();showToast(value?"Atmospheric audio enabled":"Atmospheric audio muted");}
+function setAudioLevel(channel,value){localStorage.setItem("theLastNightAudio_"+channel,String(value));const label=document.getElementById("audio_"+channel+"_value");if(label)label.textContent=value+"%";updateAudioMix();}
+function horrorTone(kind="hit"){
+  const audio=ensureHorrorAudio();if(!audio)return;
+  const ctx=audio.ctx,osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+  const tones={hit:[95,48,.18],enemy:[58,31,.32],warning:[180,92,.28],special:[320,70,.5],night:[110,42,.75],miss:[150,120,.12]};const tone=tones[kind]||tones.hit;
+  osc.type=kind==="special"?"sawtooth":"triangle";osc.frequency.setValueAtTime(tone[0],now);osc.frequency.exponentialRampToValueAtTime(Math.max(20,tone[1]),now+tone[2]);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.2,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+tone[2]);osc.connect(gain);gain.connect(audio.effects);osc.start(now);osc.stop(now+tone[2]+.03);
+}
+function combatFx(type,value){
+  const layer=document.getElementById("combatFxLayer");if(!layer)return;
+  if(type==="flash"){const flash=document.createElement("div");flash.className="combat-flash";layer.appendChild(flash);setTimeout(()=>flash.remove(),350);horrorTone("hit");return;}
+  if(type==="counter"){const warning=document.createElement("div");warning.className="combat-counter-warning";warning.textContent="⚠ COUNTERATTACK INCOMING";layer.appendChild(warning);setTimeout(()=>warning.remove(),900);horrorTone("warning");return;}
+  const floater=document.createElement("div");floater.className=`combat-float ${type}`;floater.textContent=type==="miss"?"MISS":`${type==="enemy"?"−":""}${value}`;layer.appendChild(floater);setTimeout(()=>floater.remove(),900);if(type==="enemy"){document.body.classList.add("combat-impact");setTimeout(()=>document.body.classList.remove("combat-impact"),320);horrorTone("enemy");}else horrorTone(type==="miss"?"miss":"hit");
+}
+function showCombatIntro(c){const overlay=document.getElementById("combatIntro");if(!overlay||!c)return;document.getElementById("combatIntroImage").src=c.image;document.getElementById("combatIntroImage").alt=c.name;document.getElementById("combatIntroName").textContent=c.name;overlay.classList.add("open");horrorTone("warning");setTimeout(()=>overlay.classList.remove("open"),1200);}
+function showNightTransition(night){const overlay=document.getElementById("nightTransition");if(!overlay)return;const p=G&&G.ps[G.active],loc=p&&LM[p.loc]?LM[p.loc][1]:"Blackwood";const lines=["The roads grow quieter.","Something watches from beyond the light.","The investigation continues at "+loc+".","Dawn feels farther away than before."];document.getElementById("nightTransitionTitle").textContent="NIGHT "+night;document.getElementById("nightTransitionCopy").textContent=lines[(night-1)%lines.length];overlay.classList.add("open");horrorTone("night");setTimeout(()=>overlay.classList.remove("open"),1500);}
 
 function showToast(message){
   const toast=document.getElementById("toast");
@@ -1493,7 +1642,7 @@ combatActions:0,
 restsThisNight:0,
   freeInvestigateUsed:false,
 items:[
-{name:"Flashlight",type:"tool",val:0},
+objItem(ITEMS[0]),
 objItem(rnd(ITEMS.slice(1)))
 ]
 });});
@@ -1517,7 +1666,8 @@ outcome:null,
 completedAt:null,
 creatures:[],
   extraPockets:[],
-extraPocketMax:10,
+extraPocketMax:30,
+flashlightUsedLocations:new Set(),
   ammo:{
   pistol:0,
   shotgun:0,
@@ -1561,6 +1711,9 @@ let meta=ITEM_META[item.name];
 if(meta){
   item.rarity=meta.rarity;
   item.image=meta.image;
+  item.spritePosition=meta.spritePosition||null;
+  item.spriteSize=meta.spriteSize||null;
+  item.description=meta.description||"";
 }
 else{
   item.rarity="Common";
@@ -1761,6 +1914,10 @@ G.discovered.add(id);
 LM[id][2].forEach(x=>G.discovered.add(x));
 
 log(`The party moves to ${LM[id][1]}.`);
+if(G.ps.some(s=>!s.dead&&s.originalName==="The Ranger")){
+  const waiting=G.creatures.some(c=>c.loc===id&&c.hp>0);
+  log(`🏹 Trail Sense: ${waiting?"A creature is waiting here.":"No creature is currently visible here."}`,waiting?"bad":"good");
+}
 if(id==="gate"&&G.rootDefeated){
   completeRun("victory");
   return;
@@ -1849,13 +2006,13 @@ if(p.items.length<4){
   return;
 }
 
-// PERSONAL INVENTORY FULL → EXTRA POCKETS
+// PERSONAL INVENTORY FULL → MAIN PACK
 if(G.extraPockets.length<G.extraPocketMax){
 
   G.extraPockets.push(i);
 
   log(
-    `🎒 Personal inventory full — <b>${i.name}</b> was stored in Extra Pockets (${G.extraPockets.length}/${G.extraPocketMax}).`,
+    `🎒 Personal inventory full — <b>${i.name}</b> was stored in the Main Pack (${G.extraPockets.length}/${G.extraPocketMax}).`,
     "good"
   );
 
@@ -1864,7 +2021,7 @@ if(G.extraPockets.length<G.extraPocketMax){
 
 // BOTH INVENTORIES FULL
 log(
-  `❌ Inventory and Extra Pockets are full. ${i.name} was left behind.`,
+  `❌ Personal inventory and the Main Pack are full. ${i.name} was left behind.`,
   "bad"
 );
 
@@ -1915,6 +2072,73 @@ log(
   gainClue();
   render();
 }
+function flashlightSceneFor(loc){
+  return {art:locationArt(loc),areas:LOCATION_AREAS[loc]||[`Illuminate the nearest dark passage`,`Sweep the far edge of ${LM[loc][1]}`]};
+}
+
+function useFlashlight(itemIndex,fromPack=false){
+  const p=G.ps[G.active];
+  if(combat||hostileAtCurrentLocation(p)){log("🔦 The Flashlight cannot be used while a creature controls this location.","bad");render();return;}
+  if(!G.flashlightUsedLocations)G.flashlightUsedLocations=new Set();
+  if(G.flashlightUsedLocations.has(p.loc)){log(`🔦 ${LM[p.loc][1]} has already been swept with a Flashlight.`,"bad");render();return;}
+  const item=fromPack?G.extraPockets[itemIndex]:p.items[itemIndex];
+  if(!item||item.name!=="Flashlight")return;
+  const scene=flashlightSceneFor(p.loc);
+  const locationName=LM[p.loc][1];
+  document.getElementById("flashlightDialog").innerHTML=`<h2 id="flashlightTitle">🔦 Illuminate ${locationName}</h2><p>The Flashlight never breaks. Choose one area carefully—each location can only be illuminated once.</p><div class="flashlight-choices">${scene.areas.map((area,i)=>`<button class="flashlight-choice" onclick="resolveFlashlightChoice(${i},${itemIndex},${fromPack})"><div class="flashlight-scene-art ${i?'alternate':''}" role="img" aria-label="Dark area of ${locationName}" style="background-image:url('${scene.art.image}');background-size:${scene.art.size};background-position:${scene.art.position}"></div><span>${area}</span></button>`).join("")}</div><button onclick="closeFlashlightOverlay()">Keep the light off</button>`;
+  document.getElementById("flashlightOverlay").classList.add("open");
+}
+
+function closeFlashlightOverlay(){document.getElementById("flashlightOverlay").classList.remove("open");}
+
+function resolveFlashlightChoice(choice,itemIndex,fromPack){
+  const p=G.ps[G.active];
+  const item=fromPack?G.extraPockets[itemIndex]:p.items[itemIndex];
+  if(!item||item.name!=="Flashlight")return;
+  G.flashlightUsedLocations.add(p.loc);
+  unlockLocationCodex(p.loc);
+  if(Math.random()<0.5)resolveEnragedFlashlightEncounter();
+  else resolveFlashlightRecruit();
+  render();
+}
+
+function resolveEnragedFlashlightEncounter(){
+  const p=G.ps[G.active];
+  const pool=CRE.filter(c=>c.weight>0&&!c.bossZone);
+  const awakened=[rnd(pool),rnd(pool)].map((base,i)=>({id:Date.now()+Math.random()+i,name:base.name,hp:Math.ceil(base.hp*1.2),maxHp:Math.ceil(base.hp*1.2),atk:Math.ceil(base.atk*1.3),rarity:base.rarity,image:base.image,ability:base.ability,provoked:true,firstStrike:true,enraged:true,loc:p.loc}));
+  G.creatures.push(...awakened);
+  document.getElementById("flashlightDialog").innerHTML=`<div class="flashlight-result"><h2 class="enraged">THE LIGHT WOKE THEM</h2><img src="${awakened[0].image}" alt="${awakened[0].name}"><p><b>${awakened[0].name}</b> and <b>${awakened[1].name}</b> are enraged: +20% Max HP, +30% Attack, and the first creature engaged attacks immediately.</p><button onclick="closeFlashlightOverlay()">Face the Encounter</button></div>`;
+  log(`🔦 Two enraged creatures awaken at ${LM[p.loc][1]} with +20% HP, +30% Attack, and first strike.`,"bad");
+}
+
+function availableFlashlightRecruits(){
+  const activeNames=new Set(G.ps.map(p=>p.originalName||p.name));
+  return S.filter(s=>s.recruitOnly&&!activeNames.has(s.name));
+}
+
+function recruitState(s){
+  return {name:s.name,originalName:s.name,maxHp:s.hp,hp:Math.max(1,Math.ceil(s.hp*.3)),baseMaxHp:s.hp,normalMaxHp:s.hp,baseWeaponDamage:s.damage,normalWeaponDamage:s.damage,san:s.san,maxSan:s.san,rarity:s.rarity,image:s.image,normalImage:s.image,weapon:s.weapon,normalWeapon:s.weapon,weaponDamage:s.damage,weaponAbility:s.weaponAbility,normalWeaponAbility:s.weaponAbility,ability:s.ability,normalAbility:s.ability,transform:null,transformKey:null,transformed:false,specialCharge:0,specialUses:0,lives:3,maxLives:3,knockedOut:false,dead:false,berserk:false,berserkUsedThisBattle:false,berserkSpecialBoostReady:false,lifeRestoreReady:false,enemyStunned:false,handcuffedTurns:0,weak:false,knowledgeOfWisdom:false,maxShield:0,shield:0,normalMaxShield:0,fear:0,loc:G.ps[G.active].loc,actions:nightActionCount(s),combatActions:0,restsThisNight:0,freeInvestigateUsed:false,items:[]};
+}
+
+function resolveFlashlightRecruit(){
+  const pool=availableFlashlightRecruits();
+  if(!pool.length){resolveEnragedFlashlightEncounter();return;}
+  const s=rnd(pool);G.pendingRecruit=s.name;
+  const replacement=G.ps.length>=5?`<p>Your five-person party is full. Choose one survivor to leave before ${s.name} joins.</p><div class="flashlight-result-actions">${G.ps.map((p,i)=>`<button onclick="acceptFlashlightRecruit(${i})">Replace ${p.name}</button>`).join("")}</div>`:`<button onclick="acceptFlashlightRecruit(-1)">Welcome ${s.name}</button>`;
+  document.getElementById("flashlightDialog").innerHTML=`<div class="flashlight-result"><span class="recruit-only-badge">WOUNDED SURVIVOR FOUND</span><h2>${s.name}</h2><img src="${s.image}" alt="${s.name}"><p>${s.rarity} · ❤️ starts at ${Math.max(1,Math.ceil(s.hp*.3))}/${s.hp} HP · ⚔️ ${s.damage}</p><p>${s.ability}</p>${replacement}<button onclick="declineFlashlightRecruit()">Leave Them Hidden</button></div>`;
+  log(`🔦 ${s.name} is found badly injured at 30% HP and ready to join.`,"good");
+}
+
+function acceptFlashlightRecruit(replaceIndex){
+  const s=S.find(x=>x.name===G.pendingRecruit&&x.recruitOnly);if(!s)return;
+  const recruit=recruitState(s);
+  if(replaceIndex>=0){const departed=G.ps[replaceIndex];G.ps.splice(replaceIndex,1,recruit);G.active=Math.min(G.active,G.ps.length-1);log(`👥 ${departed.name} leaves the party. ${s.name} joins at 30% HP.`,"good");}
+  else {G.ps.push(recruit);log(`👥 ${s.name} joins the party at 30% HP.`,"good");}
+  G.pendingRecruit=null;closeFlashlightOverlay();render();
+}
+
+function declineFlashlightRecruit(){G.pendingRecruit=null;closeFlashlightOverlay();render();}
+
 function gainClue(){
 
   let p=G.ps[G.active];
@@ -2232,7 +2456,7 @@ function registerCombatAttack(){
   if(!combat)return;
   combat.provoked=true;
   combat.attacksSinceCounter=(combat.attacksSinceCounter||0)+1;
-  if(combat.attacksSinceCounter<2)return;
+  if(combat.attacksSinceCounter<2){combatFx("counter");return;}
   combat.attacksSinceCounter=0;
   log(`⚠️ ${combat.name} seizes an opening and counterattacks!`,"bad");
   creatureAttack(combat);
@@ -2254,11 +2478,16 @@ combat=G.creatures.find(c=>String(c.id)===String(id));
 }
 if(combat){
   let p=G.ps[G.active];
-  p.combatActions=combatActionCount(p);
+  log(`Combat begins against ${combat.name}.`,"bad");
+  showCombatIntro(combat);
+  p.combatActions=combatActionCount(p)+(p.originalName==="The Signalman"?1:0);
   combat.attacksSinceCounter=0;
+  if(combat.firstStrike){
+    combat.firstStrike=false;
+    log(`⚡ ${combat.name} was ready and attacks before the survivors can act!`,"bad");
+    creatureAttack(combat);
+  }
 }
-if(combat)
-log(`Combat begins against ${combat.name}.`,"bad");
 
 render();
 }
@@ -2332,10 +2561,19 @@ log(`Attack roll: ${r}`);
 
 if(r<=3){
 log("Your attack misses.","bad");
+combatFx("miss");
 }
 else{
 
 let dmg=w.val+(r===6?3:0);
+if(!usingLootWeapon){
+  if((p.originalName==="The Locksmith"||p.originalName==="The Ranger")&&!combat.recruitFirstHitUsed){dmg+=2;combat.recruitFirstHitUsed=true;log(`🎯 ${p.name}'s opening strike gains +2 damage.`,"good");}
+  if(p.originalName==="The Firefighter"&&p.hp===p.maxHp)dmg+=2;
+  if(p.originalName==="The Undertaker"&&p.hp<p.maxHp*.5)dmg+=3;
+  if(p.originalName==="The Botanist"&&r===6){combat.saintWeakness=Math.max(combat.saintWeakness||0,2);log("🌿 Toxic Sap weakens the creature's next strike by 2.","good");}
+  if(p.originalName==="The Signalman"&&r===6){combat.stunnedNextCounter=true;log("📻 Signal Shock will cancel the creature's next attack.","good");}
+  if(p.originalName==="The Paramedic"&&r===6){const wounded=G.ps.filter(s=>!s.dead&&s.hp<s.maxHp).sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp))[0];if(wounded){const before=wounded.hp;wounded.hp=Math.min(wounded.maxHp,wounded.hp+2);log(`🚑 Trauma Cut restores ${wounded.hp-before} HP to ${wounded.name}.`,"good");}}
+}
   // WEAK STATUS — 30% less attack damage
 if(p.weak){
 
@@ -2433,6 +2671,7 @@ if(
   );
 }
 log(`You hit ${combat.name} with ${w.name} for ${dmg} damage.`,"good");
+combatFx("flash");combatFx("heavy",dmg);
 if(p.originalName==="The Moonbound"){
   const healing=p.transformed?(r===6?4:2):(r===6?2:0);
   if(healing){const old=p.hp;p.hp=Math.min(p.maxHp,p.hp+healing);log(`🌙 ${p.name} drains ${p.hp-old} HP from the strike.`,"good");}
@@ -2663,6 +2902,7 @@ function counterattackDamage(c,damage){
 }
 
 function damageSurvivor(p,damage){
+  if(p.originalName==="The Firefighter")damage=Math.max(0,damage-2);
   let armorDamage=0;
   if(p.shield>0){
     armorDamage=Math.min(p.shield,damage);
@@ -2677,6 +2917,8 @@ function damageSurvivor(p,damage){
 function creatureAttack(c){
 
   let p=G.ps[G.active];
+
+  if(c.stunnedNextCounter){c.stunnedNextCounter=false;log(`⚡ ${c.name}'s attack is canceled by Signal Shock.`,"good");return;}
 
   let damage=c.atk;
 
@@ -2875,6 +3117,7 @@ if(c.name==="The Wendigo"){
   damage=counterattackDamage(c,damage);
 
   const hit=damageSurvivor(p,damage);
+  combatFx("enemy",hit.hpDamage+hit.armorDamage);
 
   log(
     `👹 COUNTER-ATTACK! ${c.name} hits ${p.name}: ${hit.armorDamage} Armor and ${hit.hpDamage} HP damage!`,
@@ -2962,9 +3205,11 @@ if(!it)return;
 
 if(it.type==="heal"){
 
-p.hp=Math.min(p.maxHp,p.hp+it.val);
+const healBonus=p.originalName==="The Botanist"?2:0;
+const oldHp=p.hp;
+p.hp=Math.min(p.maxHp,p.hp+it.val+healBonus);
 
-log(`${p.name} uses ${it.name} and restores ${it.val} Health.`,"good");
+log(`${p.name} uses ${it.name} and restores ${p.hp-oldHp} Health${healBonus?" with Field Remedy":""}.`,"good");
 
 p.items.splice(i,1);
 
@@ -2972,8 +3217,9 @@ p.items.splice(i,1);
 else if(it.type==="healweak"){
 
   let oldHp=p.hp;
+  const healBonus=p.originalName==="The Botanist"?2:0;
 
-  p.hp=Math.min(p.maxHp,p.hp+it.val);
+  p.hp=Math.min(p.maxHp,p.hp+it.val+healBonus);
   p.weak=false;
 
   log(
@@ -3010,6 +3256,10 @@ if(locked){
 G.discovered.add(locked[0]);
 
 log(`The Rusty Key reveals ${locked[1]}.`,"good");
+if(p.originalName==="The Locksmith"){
+  const second=L.find(x=>!G.discovered.has(x[0]));
+  if(second){G.discovered.add(second[0]);log(`🗝️ Skeleton Key also reveals ${second[1]}.`,"good");}
+}
 
 }
 
@@ -3079,6 +3329,10 @@ else if(it.type==="repair"){
   );
 
 }
+else if(it.type==="tool"&&it.name==="Flashlight"){
+  useFlashlight(i,false);
+  return;
+}
 else{
 
   log(`${it.name} has no active effect right now.`);
@@ -3123,6 +3377,8 @@ function canEndNight(){
     "good"
   );
 
+  showNightTransition(G.night);
+
   render();
 }
 function recover(){
@@ -3156,6 +3412,11 @@ function recover(){
   p.hp=Math.min(p.maxHp,p.hp+3);
   p.san=Math.min(p.maxSan,p.san+2);
   p.fear=Math.max(0,p.fear-1);
+  const paramedic=G.ps.find(s=>!s.dead&&s.originalName==="The Paramedic");
+  if(paramedic){
+    const wounded=G.ps.filter(s=>!s.dead&&s.hp<s.maxHp).sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp))[0];
+    if(wounded)wounded.hp=Math.min(wounded.maxHp,wounded.hp+2);
+  }
   let restoredArmor=0;
   if(p.knowledgeOfWisdom){
     restoredArmor=p.maxShield-p.shield;
@@ -3383,7 +3644,7 @@ if(combat){
 function render(){
 updateStoryObjective();
 let p=G.ps[G.active];
-// EXTRA POCKETS UI
+// MAIN PACK UI
 document.getElementById("extraPocketsCount").innerHTML=
 `${G.extraPockets.length} / ${G.extraPocketMax} Slots`;
 
@@ -3413,11 +3674,7 @@ Array.from({length:G.extraPocketMax},(_,index)=>{
     <div class="extra-pocket-slot"
     style="border-color:${rarityColor};">
 
-      ${item.image
-      ? `<img class="extra-pocket-img"
-          src="${item.image}"
-          alt="${item.name}">`
-      : ""}
+      ${itemArtMarkup(item)}
 
       <b>${item.name}</b><br>
 
@@ -3435,12 +3692,6 @@ Array.from({length:G.extraPocketMax},(_,index)=>{
         ? `<br>🔧 Durability:
            ${item.durability}/${item.maxDurability}`
         : ""}
-${item.type==="tool"
-? `
-  <br>🛠️ Uses:
-  ${item.durability}/${item.maxDurability}
-`
-: ""}
         ${item.ammoType && item.ammoType!=="melee"
         ? `<br>🔫 Uses:
            ${item.ammoType.toUpperCase()} Ammo`
@@ -3451,6 +3702,7 @@ ${item.type==="tool"
 </button>
       `
       : ""}
+${item.type==="tool"&&item.maxDurability!==undefined?`<br>🔋 Charges: ${item.durability}/${item.maxDurability}`:""}
 ${item.type!=="weapon"
 ? `
   <br><br>
@@ -3496,7 +3748,8 @@ return`
 <div class="loc
 ${p.loc===x[0]?"current":""}
 ${discovered?"":"locked"}">
-
+<div class="loc-art" role="img" aria-label="${discovered?x[1]:"Unknown Blackwood location"}" style="${locationArtStyle(x[0])}"></div>
+<div class="loc-info">
 <b>${discovered?x[1]:"UNKNOWN"}</b>
 
 ${discovered && zoneLabel
@@ -3510,6 +3763,7 @@ ${p.loc===x[0]?"<div>📍 YOU ARE HERE</div>":""}
 ${discovered&&connected?
 `<button ${travelBlocked?'disabled class="combat-locked" title="Defeat the creature here before moving"':''} onclick="useAction(1,()=>move('${x[0]}'))">Move</button>`:""}
 
+</div>
 </div>`;
 
 }).join("");
@@ -3687,10 +3941,9 @@ document.getElementById("inventory").innerHTML=
 
 p.items.map((i,idx)=>
 
-`<div class="card">
-<b>${i.name}</b><br>
-<span class="muted">${i.type}</span><br>
-<button onclick="useItem(${idx})">Use</button>
+`<div class="card personal-item">
+${itemArtMarkup(i)}
+<div><b>${i.name}</b><br><span class="muted">${i.type}</span><br><button onclick="useItem(${idx})">Use</button></div>
 </div>`
 
 ).join("");
@@ -3991,6 +4244,7 @@ combat.hp<=combat.maxHp*0.50 &&
   );
 }
   log(`⚡ ${p.name} unleashes ${p.ability} for ${dmg} damage!`,"good");
+  horrorTone("special");combatFx("flash");combatFx("heavy",dmg);
   if(p.originalName==="The Moonbound"){
     const healing=p.transformed?4:2,old=p.hp;
     p.hp=Math.min(p.maxHp,p.hp+healing);
@@ -4135,12 +4389,12 @@ function switchToSignatureWeapon(index){
 
   if(!p)return;
 
-  // Return equipped loot weapon to Extra Pockets first
+  // Return equipped loot weapon to the Main Pack first
   if(p.equippedLootWeapon){
 
     if(G.extraPockets.length>=G.extraPocketMax){
       log(
-        `🎒 Extra Pockets are full! Cannot switch to Signature Weapon.`,
+        `🎒 The Main Pack is full! Cannot switch to Signature Weapon.`,
         "bad"
       );
       return;
@@ -4149,7 +4403,7 @@ function switchToSignatureWeapon(index){
     G.extraPockets.push(p.equippedLootWeapon);
 
     log(
-      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      `🎒 ${p.equippedLootWeapon.name} returned to the Main Pack.`,
       "good"
     );
 
@@ -4192,16 +4446,16 @@ function equipExtraPocketWeapon(index){
   // Save the selected weapon
   let selectedWeapon=weapon;
 
-  // Remove selected weapon from Extra Pockets first
+  // Remove selected weapon from the Main Pack first
   G.extraPockets.splice(index,1);
 
-  // Return currently equipped loot weapon to Extra Pockets
+  // Return currently equipped loot weapon to the Main Pack
   if(p.equippedLootWeapon){
 
     G.extraPockets.push(p.equippedLootWeapon);
 
     log(
-      `🎒 ${p.equippedLootWeapon.name} returned to Extra Pockets.`,
+      `🎒 ${p.equippedLootWeapon.name} returned to the Main Pack.`,
       "good"
     );
   }
@@ -4228,11 +4482,12 @@ function useExtraPocketItem(index){
 
   // HEAL ITEM
   if(item.type==="heal"){
-
-    p.hp=Math.min(p.maxHp,p.hp+item.val);
+    const healBonus=p.originalName==="The Botanist"?2:0;
+    const oldHp=p.hp;
+    p.hp=Math.min(p.maxHp,p.hp+item.val+healBonus);
 
     log(
-      `❤️ ${p.name} uses ${item.name} and restores ${item.val} Health.`,
+      `❤️ ${p.name} uses ${item.name} and restores ${p.hp-oldHp} Health${healBonus?" with Field Remedy":""}.`,
       "good"
     );
 
@@ -4278,6 +4533,10 @@ function useExtraPocketItem(index){
         `🗝️ ${item.name} reveals ${locked[1]}.`,
         "good"
       );
+      if(p.originalName==="The Locksmith"){
+        const second=L.find(x=>!G.discovered.has(x[0]));
+        if(second){G.discovered.add(second[0]);log(`🗝️ Skeleton Key also reveals ${second[1]}.`,"good");}
+      }
 
       G.extraPockets.splice(index,1);
     }
@@ -4331,14 +4590,10 @@ function useExtraPocketItem(index){
     );
   }
 
-  // TOOL — not implemented yet
+  // TOOLS
   else if(item.type==="tool"){
-
-    log(
-      `🛠️ ${item.name} does not have an active effect yet.`,
-      "bad"
-    );
-
+    if(item.name==="Flashlight"){useFlashlight(index,true);return;}
+    log(`🛠️ ${item.name} does not have an active effect yet.`,"bad");
     return;
   }
 
@@ -4515,7 +4770,7 @@ function readSaveSlot(slot){
 
 async function saveGameToSlot(slot){
   if(!G){
-    alert("Start or load a game before saving.");
+    showToast("Start or load a game before saving");
     return;
   }
   const existing=readSaveSlot(slot);
@@ -4526,14 +4781,14 @@ async function saveGameToSlot(slot){
     showToast("Game saved to Slot "+slot);
   }catch(error){
     console.error("Unable to save game",error);
-    alert("This browser could not save the game. Storage may be full or disabled.");
+    await showWarning({title:"Save Could Not Be Written",message:"This browser could not preserve the run. Browser storage may be full or disabled.",confirmLabel:"Understood",icon:"💾",danger:true});
   }
 }
 
 function loadGameFromSlot(slot){
   const payload=readSaveSlot(slot);
   if(!payload || !payload.G){
-    alert("Save Slot "+slot+" is empty.");
+    showToast("Save Slot "+slot+" is empty");
     return;
   }
   G=payload.G;
@@ -4541,6 +4796,10 @@ function loadGameFromSlot(slot){
   currentSaveSlot=slot;
   if(!(G.foundClues instanceof Set))G.foundClues=new Set(G.foundClues||[]);
   if(!(G.discovered instanceof Set))G.discovered=new Set(G.discovered||["motel"]);
+  if(!(G.flashlightUsedLocations instanceof Set))G.flashlightUsedLocations=new Set(G.flashlightUsedLocations||[]);
+  G.extraPocketMax=30;
+  G.extraPockets=(G.extraPockets||[]).map(refreshItemMeta);
+  (G.ps||[]).forEach(player=>player.items=(player.items||[]).map(refreshItemMeta));
   document.getElementById("setup").style.display="none";
   document.getElementById("game").style.display="grid";
   document.body.classList.remove("menu-mode");
@@ -4593,7 +4852,7 @@ function updateSaveSlots(){
 
 updateSaveSlots();
 
-// DRAGGABLE EXTRA POCKETS
+// DRAGGABLE MAIN PACK
 const extraPocketsPanel=document.getElementById("extraPocketsPanel");
 const extraPocketsHandle=document.getElementById("extraPocketsHandle");
 const resetExtraPocketsPosition=

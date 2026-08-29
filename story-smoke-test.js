@@ -8,7 +8,7 @@ function node(){
   return {
     style:{},innerHTML:"",textContent:"",value:"",disabled:false,offsetWidth:220,offsetHeight:180,
     classList:{add(){},remove(){},toggle(){},contains(){return false;}},
-    addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},
+    addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},appendChild(){},remove(){},
     getBoundingClientRect(){return {left:0,top:0,width:220,height:180};}
   };
 }
@@ -73,9 +73,38 @@ assert(run(`G.ps[0].transformed&&G.ps[0].name==="The Eclipse Beast"&&G.ps[0].max
 run(`toggleTransformation(0);`);
 assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"&&G.ps[0].maxHp===50&&G.ps[0].weaponDamage===8`),"The Moonbound could not freely revert");
 
+assert(run(`S.filter(s=>s.recruitOnly).length===7`),"The seven flashlight-only survivors are missing");
+assert(run(`Array.from({length:30},()=>drawSurvivors(5)).flat().every(s=>!s.recruitOnly)`),"A flashlight-only recruit appeared in a starting draw");
+assert(run(`['Pistol','Shotgun','MP5','AK-47','Hunting Knife','Fire Axe'].every(name=>ITEM_META[name].image==='weapon-items.png'&&ITEM_META[name].spritePosition)`),"Weapon inventory artwork is not mapped");
+assert(run(`[...ITEMS,...SINGLE_PLAYER_ITEMS].every(raw=>{let item=objItem(raw);return item.image&&item.spritePosition&&item.spriteSize&&ITEM_META[item.name].description})`),"Every obtainable item must have artwork and an Item Codex description");
+assert(fs.existsSync("item-atlas.png")&&fs.existsSync("weapon-items.png"),"An inventory art atlas is missing");
+assert(!html.includes("The party's shared Night Pack. Weapons, tools, medicine, and supplies stored here are available to every survivor."),"The removed Main Pack note is still displayed");
+assert(html.includes("🎒 Obtainable Items")&&html.includes("Blackwood Obtainable Item Codex"),"The Obtainable Items menu codex is missing");
+assert(run(`L.length===36&&L.every(entry=>LOCATION_AREAS[entry[0]]&&LOCATION_AREAS[entry[0]].length===2)&&new Set(L.map(entry=>locationArt(entry[0]).image+'|'+locationArt(entry[0]).position)).size===36`),"Every location needs distinct art and two atmospheric Flashlight choices");
+assert(fs.existsSync("locations-normal.png")&&fs.existsSync("locations-danger.png")&&fs.existsSync("locations-deadly.png"),"A location artwork atlas is missing");
+assert(run(`let flashlight=objItem(ITEMS.find(i=>i[0]==='Flashlight'));flashlight.maxDurability===undefined&&flashlight.durability===undefined`),"The permanent Flashlight still has breakable durability");
+run(`localStorage.removeItem(LOCATION_CODEX_KEY);G=${base};G.flashlightUsedLocations=new Set();unlockLocationCodex('motel');`);
+assert(run(`readLocationCodexUnlocks().has('motel')&&JSON.parse(localStorage.getItem(LOCATION_CODEX_KEY)).includes('motel')`),"A completed Flashlight sweep did not persist its Location Codex unlock");
+run(`localStorage.removeItem(LOCATION_CODEX_KEY);G=null;`);
+assert(run(`let unlocked=readLocationCodexUnlocks();unlocked.size===1&&unlocked.has('motel')`),"Riverside Motel was not the only default Location Codex unlock");
+assert(run(`L.every(entry=>LOCATION_DESCRIPTIONS[entry[0]]&&LOCATION_DESCRIPTIONS[entry[0]].length>80)`),"Every unlocked location needs a full field description");
+run(`G=${base};G.flashlightUsedLocations=new Set(['gas']);localStorage.setItem('theLastNightSaveSlot1',JSON.stringify({G:{flashlightUsedLocations:new Set(['station'])}},saveReplacer));`);
+assert(run(`let combinedUnlocks=readLocationCodexUnlocks();combinedUnlocks.has('motel')&&combinedUnlocks.has('gas')&&combinedUnlocks.has('station')`),"Location Codex did not combine permanent, active-run, and saved-run discoveries");
+assert(html.includes("🗺️ Locations")&&html.includes("Blackwood Location Records"),"The Main Menu Locations codex is missing");
+assert(!html.includes("alert("),"A native browser alert remains instead of the themed warning system");
+assert(run(`let settings=settingsHtml();settings.includes('Atmospheric Audio')&&settings.includes('audio_music')&&settings.includes('audio_ambience')&&settings.includes('audio_effects')`),"Separate atmospheric audio controls are missing");
+assert(run(`localStorage.removeItem('theLastNightAudio_music');localStorage.removeItem('theLastNightAudio_ambience');localStorage.removeItem('theLastNightAudio_effects');audioLevel('music',20)===20&&audioLevel('ambience',35)===35&&audioLevel('effects',55)===55`),"Fresh browsers did not receive audible default volume levels");
+assert(html.includes('id="nightTransition"')&&html.includes('id="combatIntro"')&&html.includes('id="combatFxLayer"'),"The cinematic night or combat presentation layers are missing");
+assert(run(`typeof showNightTransition==='function'&&typeof showCombatIntro==='function'&&typeof combatFx==='function'&&typeof horrorTone==='function'`),"An immersion presentation controller is missing");
+run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];G.pendingRecruit='The Paramedic';render=()=>{};closeFlashlightOverlay=()=>{};acceptFlashlightRecruit(-1);`);
+assert(run(`G.ps.length===2&&G.ps[1].name==='The Paramedic'&&G.ps[1].hp===Math.ceil(G.ps[1].maxHp*.3)`),"Wounded flashlight recruit did not join at 30% HP");
+assert(run(`!availableFlashlightRecruits().some(s=>s.name==='The Paramedic')`),"An active recruit remained eligible as a duplicate");
+run(`G=${base};G.extraPocketMax=30;G.flashlightUsedLocations=new Set();G.ps=[{name:'Tester',originalName:'Tester',dead:false,loc:'motel'}];let oldRandom=Math.random;Math.random=()=>.5;resolveEnragedFlashlightEncounter();Math.random=oldRandom;`);
+assert(run(`G.creatures.length===2&&G.creatures.every(c=>c.enraged&&c.firstStrike&&c.hp===Math.ceil(CRE.find(x=>x.name===c.name).hp*1.2)&&c.atk===Math.ceil(CRE.find(x=>x.name===c.name).atk*1.3))`),"Flashlight creatures were not created with enraged stats and first strike");
+
 run(`G=${base};G.ps=[{name:"A",dead:false,hp:10,maxHp:25,actions:2,rarity:"Common"},{name:"B",dead:false,hp:12,maxHp:30,actions:4,rarity:"Uncommon"},{name:"C",dead:false,hp:20,maxHp:35,actions:8,rarity:"Rare"}];postCombatRewardOpen=true;render=()=>{};claimCombatReward("heal");`);
 assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor injury recovery was not applied to the full party");
 run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
 assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
 
-console.log("Story smoke test passed: bosses, victory, unlimited nights, rarity HP, reduced combat/night AP, post-combat party rewards, counterattacks, travel locks, and completed saves.");
+console.log("Story smoke test passed: story, saves, combat locks, three-roll setup, transformations, 30-slot Main Pack, complete item art and codex, flashlight recruits, and enraged encounters.");
