@@ -19,6 +19,9 @@ jobs:
           ref: dev
           fetch-depth: 0
 
+      - name: Decode and validate final V0.5 artwork
+        run: python3 .github/scripts/v05-decode-final-assets.py
+
       - name: Apply final fusion cutscene update
         run: python3 .github/scripts/v05-root-fusion-finalize.py
 
@@ -35,6 +38,24 @@ jobs:
           Path('/tmp/the-last-night.js').write_text('\n'.join(scripts))
           PY
           node --check /tmp/the-last-night.js
+
+      - name: Verify artwork files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          names=[
+            'thornbound.webp','veinmaw.webp','ashwraith.webp',
+            'root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp'
+          ]
+          for name in names:
+            p=Path(name)
+            if not p.exists(): raise SystemExit(f'Missing asset: {name}')
+            b=p.read_bytes()
+            if len(b)<100 or b[:4]!=b'RIFF' or b[8:12]!=b'WEBP':
+              raise SystemExit(f'Invalid WebP: {name}')
+            print(f'{name}: {len(b)} bytes PASS')
+          print('All seven final V0.5 artwork files passed validation.')
+          PY
 
       - name: Verify fusion progression and responsive cutscene
         run: |
@@ -59,7 +80,10 @@ jobs:
             'Root objective after fusion':'Destroy the Root of Blackwood' in t,
             'mobile rules':'@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
             'panel 1 art':'root-fusion-1.webp' in t,
+            'panel 2 art':'root-fusion-2.webp' in t,
+            'panel 3 art':'root-fusion-3.webp' in t,
             'panel 4 art':'root-fusion-4.webp' in t,
+            'guardian art':'thornbound.webp' in t and 'veinmaw.webp' in t and 'ashwraith.webp' in t,
           }
           failed=[]
           for name,ok in checks.items():
@@ -70,12 +94,12 @@ jobs:
           print('Fusion story, combat, save hooks, desktop and mobile static checks passed.')
           PY
 
-      - name: Commit fusion gameplay
+      - name: Commit final V0.5 artwork and gameplay
         run: |
           git config user.name 'V0.5 Beta Bot'
           git config user.email 'actions@github.com'
-          git add index.html
-          git commit -m 'Finalize Root Gate fusion cutscene and Triune Maw boss' || exit 0
+          git add index.html thornbound.webp veinmaw.webp ashwraith.webp root-fusion-1.webp root-fusion-2.webp root-fusion-3.webp root-fusion-4.webp
+          git commit -m 'Add final Root Gate guardian and fusion artwork' || exit 0
           git push origin dev
 
-# rootstorm finalizer run 3
+# final artwork decoder run
