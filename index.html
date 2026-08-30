@@ -4780,14 +4780,49 @@ function toggleLog(){
 
 
 const SAVE_PREFIX="theLastNightSaveSlot";
-const SAVE_VERSION=2;
+const SAVE_BACKUP_PREFIX="theLastNightPersistentSaveSlot";
+const SAVE_VERSION=3;
+
+function findCompatibleSaveRaw(slot){
+  const preferred=[SAVE_PREFIX+slot,SAVE_BACKUP_PREFIX+slot];
+  for(const key of preferred){
+    const raw=localStorage.getItem(key);
+    if(raw)return raw;
+  }
+  // Recover older save-key names from previous builds without deleting anything.
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i)||"";
+    if(!/(last.?night|night.?of.?the.?dead)/i.test(key))continue;
+    if(!/save/i.test(key))continue;
+    if(!new RegExp(String(slot)+"$").test(key))continue;
+    const raw=localStorage.getItem(key);
+    if(!raw)continue;
+    try{
+      const parsed=JSON.parse(raw,saveReviver);
+      if(parsed&&(parsed.G||parsed.game||parsed.state))return raw;
+    }catch(error){}
+  }
+  return null;
+}
+
+function mirrorExistingSaves(){
+  for(let slot=1;slot<=3;slot++){
+    const raw=findCompatibleSaveRaw(slot);
+    if(!raw)continue;
+    if(!localStorage.getItem(SAVE_PREFIX+slot))localStorage.setItem(SAVE_PREFIX+slot,raw);
+    if(!localStorage.getItem(SAVE_BACKUP_PREFIX+slot))localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);
+  }
+}
+mirrorExistingSaves();
 
 function buildSavePayload(){
   return {version:SAVE_VERSION,savedAt:new Date().toISOString(),outcome:G&&G.outcome||null,G:G,combat:combat};
 }
 
 function persistRunToSlot(slot){
-  localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(buildSavePayload(),saveReplacer));
+  const serialized=JSON.stringify(buildSavePayload(),saveReplacer);
+  localStorage.setItem(SAVE_PREFIX+slot,serialized);
+  localStorage.setItem(SAVE_BACKUP_PREFIX+slot,serialized);
   currentSaveSlot=slot;
   updateSaveSlots();
 }
@@ -4875,8 +4910,13 @@ function saveReviver(key,value){
 
 function readSaveSlot(slot){
   try{
-    const raw=localStorage.getItem(SAVE_PREFIX+slot);
-    return raw?JSON.parse(raw,saveReviver):null;
+    const raw=findCompatibleSaveRaw(slot);
+    if(!raw)return null;
+    const parsed=JSON.parse(raw,saveReviver);
+    // Self-heal/migrate any older save into the current stable keys.
+    localStorage.setItem(SAVE_PREFIX+slot,raw);
+    localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);
+    return parsed;
   }catch(error){
     console.error("Unable to read save slot",slot,error);
     return null;
@@ -4928,6 +4968,7 @@ async function deleteSaveSlot(slot){
   if(!readSaveSlot(slot))return;
   if(!await showWarning({title:"Delete Save Slot "+slot+"?",message:"This saved run will be permanently removed from this browser and cannot be restored.",confirmLabel:"Delete Save",icon:"🗑️",danger:true}))return;
   localStorage.removeItem(SAVE_PREFIX+slot);
+  localStorage.removeItem(SAVE_BACKUP_PREFIX+slot);
   updateSaveSlots();
 }
 
