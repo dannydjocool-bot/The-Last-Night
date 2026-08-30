@@ -1,0 +1,69 @@
+name: V0.5 Root Gate Guardians
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-root-gate-guardians.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Apply Root Gate guardian update
+        run: python3 .github/scripts/v05-root-gate-guardians.py
+
+      - name: Syntax check game JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          scripts=re.findall(r'<script>(.*?)</script>',text,re.S)
+          Path('/tmp/the-last-night.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/the-last-night.js
+
+      - name: Verify Root Gate progression and responsive UI
+        run: |
+          grep -q 'The Thornbound' index.html
+          grep -q 'The Veinmaw' index.html
+          grep -q 'The Ash Wraith' index.html
+          grep -q 'ROOT GATE GUARDIAN' index.html
+          grep -q 'rootGateUnlocked' index.html
+          grep -q 'rootGateMinionsDefeated' index.html
+          grep -q 'spawnRootGateGuardians' index.html
+          grep -q 'NEW ROOT GATE GUARDIANS' index.html
+          grep -q 'nextRootGateGuardian' index.html
+          grep -q 'Gate Guardians' index.html
+          grep -q '@media(max-width:600px)' index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          names=['The Thornbound','The Veinmaw','The Ash Wraith']
+          assert all(n in t for n in names)
+          assert 'G.rootGateUnlocked=true' in t
+          assert 'if(defeated>=3)' in t
+          assert 'relicsComplete&&G.rootGateUnlocked&&!G.rootDefeated' in t
+          assert 'rootGateMinionsDefeated.length>=3||G.rootDefeated' in t
+          assert 'library-previous-update-badge' in t
+          assert 'V-0.5 Beta — New Update' in t
+          print('Static story, save migration, desktop and mobile checks passed.')
+          PY
+
+      - name: Commit V0.5 Root Gate guardians
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Add three Root Gate guardians to V-0.5 Beta' || exit 0
+          git push origin dev
