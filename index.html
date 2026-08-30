@@ -426,6 +426,8 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 
 
 .beta-info-overlay{position:fixed;inset:0;z-index:15500;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);backdrop-filter:blur(9px)}.beta-info-overlay.open{display:grid}.beta-info-card{width:min(560px,100%);border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.beta-info-card h2{margin:0 0 10px;font-family:Georgia,serif;letter-spacing:2px}.beta-info-card p{margin:0;color:#c0c4c8;line-height:1.7}.beta-info-card .beta-thanks{margin-top:14px;color:#e4c4c7}.beta-info-close{margin:20px 0 0}.menu-version{cursor:pointer;transition:border-color .18s,background .18s,transform .18s}.menu-version:hover,.menu-version:focus{border-color:#c45a65;background:rgba(116,39,48,.32);transform:translateY(-1px);outline:none}
+
+.library-update-badge{position:absolute;right:24px;top:66px;z-index:3;margin:0;padding:8px 11px;border:1px solid rgba(227,107,117,.72);border-radius:99px;background:rgba(113,27,38,.82);color:#ffe7e9;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px);box-shadow:0 0 20px rgba(191,58,71,.22)}.library-update-badge:hover{border-color:#f08a94;background:rgba(141,36,48,.94)}.update-info-overlay{position:fixed;inset:0;z-index:15600;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(9px)}.update-info-overlay.open{display:grid}.update-info-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.update-info-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.update-info-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}.update-info-card p{margin:0;color:#c0c4c8;line-height:1.65}.update-info-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}.update-info-list li{margin:7px 0}.update-info-close{margin:20px 0 0}@media(max-width:600px){.library-update-badge{right:14px;top:58px;padding:7px 9px;font-size:9px;letter-spacing:1.4px}.update-info-card{padding:21px}}
 </style>
 </head>
 <body class="menu-mode">
@@ -5048,6 +5050,12 @@ document.addEventListener("mouseup",function(){
   extraPocketsPanel.style.bottom="auto";
 
 });
+
+function openUpdateInfo(){document.getElementById("updateInfoOverlay")?.classList.add("open");document.body.style.overflow="hidden";}
+function closeUpdateInfo(event){if(event&&event.target!==document.getElementById("updateInfoOverlay"))return;document.getElementById("updateInfoOverlay")?.classList.remove("open");document.body.style.overflow="";}
+function installLibraryUpdateBadge(){const art=document.querySelector(".library-art");if(!art||art.querySelector(".library-update-badge"))return;const b=document.createElement("button");b.type="button";b.className="library-update-badge";b.textContent="New Update";b.setAttribute("aria-haspopup","dialog");b.addEventListener("click",openUpdateInfo);art.appendChild(b);}
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",installLibraryUpdateBadge);}else{installLibraryUpdateBadge();}
+
 </script>
 
 
@@ -5085,6 +5093,24 @@ document.addEventListener("mouseup",function(){
   applyPhonePack();
 })();
 </script>
+
+
+<div id="updateInfoOverlay" class="update-info-overlay" role="dialog" aria-modal="true" aria-labelledby="updateInfoTitle" onclick="closeUpdateInfo(event)">
+  <section class="update-info-card" onclick="event.stopPropagation()">
+    <div class="update-info-kicker">Latest Build</div>
+    <h2 id="updateInfoTitle">V-0.4 Beta — New Update</h2>
+    <p>This update focuses on improving the overall experience, especially on phones, while keeping the PC layout intact.</p>
+    <ul class="update-info-list">
+      <li>Improved mobile layout for the Main Pack / Extra Pockets panel.</li>
+      <li>Fixed transforming survivor cards so flipped text no longer overlaps.</li>
+      <li>Improved Obtainable Items Codex spacing and mobile item image fitting.</li>
+      <li>Adjusted main-menu survivor portraits on phones so heads are less likely to be cropped.</li>
+      <li>Added the clickable V-0.4 Beta development message.</li>
+      <li>Additional mobile polish and readability fixes across menus.</li>
+    </ul>
+    <button class="update-info-close" type="button" onclick="closeUpdateInfo()">Close</button>
+  </section>
+</div>
 
 </body>
 </html>
