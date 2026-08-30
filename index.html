@@ -3103,7 +3103,25 @@ if(combat.rootGateGuardian || ROOT_GATE_GUARDIAN_NAMES.includes(combat.name)){
   log(`🗝️ ROOT GATE GUARDIAN FALLEN: ${combat.name}. ${defeated}/3 seals broken.`,"good");
   if(defeated>=3 && !G.rootFusionTriggered){
     log(`🌑 THE THREE GUARDIANS FALL... but the gate does not open. Something is pulling their power together.`,"bad");
+    const fallenGuardian=combat;
+    G.creatures=G.creatures.filter(c=>c!==fallenGuardian);
+    G.ps.forEach(s=>{
+      if(s.dead)return;
+      s.maxHp=s.baseMaxHp;
+      s.weaponDamage=s.baseWeaponDamage;
+      s.hp=Math.min(s.hp,s.maxHp);
+      s.berserk=false;
+      s.berserkUsedThisBattle=false;
+      s.berserkSpecialBoostReady=false;
+      if(s.rarity==="Legendary" || s.rarity==="G.O.A.T")s.lifeRestoreReady=true;
+      s.knockedOut=false;
+      if(s.hp<=0)s.hp=1;
+      s.combatActions=0;
+    });
+    resetCombatTransformations();
+    updateStoryObjective();
     showRootFusionCutscene();
+    return;
   }
   updateStoryObjective();
 }
