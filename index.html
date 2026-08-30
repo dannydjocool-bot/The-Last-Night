@@ -906,8 +906,8 @@ const S=[
 
 {name:"The Chosen",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"chosen.png",weapon:"Blade of Dawn",damage:8,weaponAbility:"Divine Judgment — Once per combat, guaranteed critical hit and stun.",ability:"Second Life — First death returns you at 50% HP with +2 Actions."},
 {name:"The Reaper",hp:50,san:8,rarity:"G.O.A.T",weight:0.5,image:"reaper.png",weapon:"Soul Scythe",damage:8,weaponAbility:"Soul Harvest — Kills restore 1 HP and 1 Sanity.",ability:"Death Sentence — Once per game, remove 50% of a creature's maximum HP."},
-{name:"The Moonbound",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"moonbound.png",weapon:"Crescent Blades",damage:8,weaponAbility:"Mooncut — Critical hits restore 2 HP.",ability:"Lunar Curse — Freely transform into The Eclipse Beast during testing.",isNew:true,transformKey:"moonbound",transform:{name:"The Eclipse Beast",image:"eclipsebeast.png",hpBonus:20,damageBonus:5,combatActionBonus:3,weapon:"Spectral Crescent Claws",weaponAbility:"Eclipse Rend — Attacks restore 2 HP; critical hits restore 4 HP.",ability:"Predator Beyond Night — +20 Max HP, +5 Damage, +3 Combat AP, and attacks drain life."}},
-{name:"The Ashen Saint",hp:50,san:10,rarity:"G.O.A.T",weight:0.5,image:"ashensaint.png",weapon:"Cinder Spear",damage:8,weaponAbility:"Guardian's Brand — Successful attacks reduce the creature's next strike by 2.",ability:"Martyr Flame — Freely transform into The Burning Seraph during testing.",isNew:true,transformKey:"ashen",transform:{name:"The Burning Seraph",image:"burningseraph.png",hpBonus:30,damageBonus:4,combatActionBonus:2,shieldBonus:50,weapon:"Inferno Lance",weaponAbility:"Judgment Flame — Successful attacks reduce the creature's next strike by 4.",ability:"Six-Winged Aegis — +30 Max HP, +4 Damage, +2 Combat AP, 50 Armor, and 30% party damage reduction."}},
+{name:"The Moonbound",hp:50,san:9,rarity:"G.O.A.T",weight:0.5,image:"moonbound.png",weapon:"Crescent Blades",damage:8,weaponAbility:"Mooncut — Critical hits restore 2 HP.",ability:"Lunar Curse — Transform into The Eclipse Beast during combat at 35% HP or lower.",isNew:true,transformKey:"moonbound",transformThreshold:0.35,transform:{name:"The Eclipse Beast",image:"eclipsebeast.png",hpBonus:20,damageBonus:5,combatActionBonus:3,weapon:"Spectral Crescent Claws",weaponAbility:"Eclipse Rend — Attacks restore 2 HP; critical hits restore 4 HP.",ability:"Predator Beyond Night — +20 Max HP, +5 Damage, +3 Combat AP, and attacks drain life."}},
+{name:"The Ashen Saint",hp:50,san:10,rarity:"G.O.A.T",weight:0.5,image:"ashensaint.png",weapon:"Cinder Spear",damage:8,weaponAbility:"Guardian's Brand — Successful attacks reduce the creature's next strike by 2.",ability:"Martyr Flame — Transform into The Burning Seraph during combat at 40% HP or lower.",isNew:true,transformKey:"ashen",transformThreshold:0.40,transform:{name:"The Burning Seraph",image:"burningseraph.png",hpBonus:30,damageBonus:4,combatActionBonus:2,shieldBonus:50,weapon:"Inferno Lance",weaponAbility:"Judgment Flame — Successful attacks reduce the creature's next strike by 4.",ability:"Six-Winged Aegis — +30 Max HP, +4 Damage, +2 Combat AP, 50 Armor, and 30% party damage reduction."}},
 {name:"The Paramedic",hp:30,san:8,rarity:"Uncommon",weight:0,image:"paramedic.png",weapon:"Rescue Shears",damage:3,weaponAbility:"Trauma Cut — Critical hits restore 2 HP to the most wounded survivor.",ability:"Triage — Rest restores 2 additional HP to the party's most wounded survivor.",recruitOnly:true,isNewRecruit:true},
 {name:"The Locksmith",hp:25,san:8,rarity:"Common",weight:0,image:"locksmith.png",weapon:"Steel Pry Bar",damage:3,weaponAbility:"Forced Entry — The first successful hit each combat deals +2 damage.",ability:"Skeleton Key — Rusty Keys reveal one additional connected location.",recruitOnly:true,isNewRecruit:true},
 {name:"The Firefighter",hp:35,san:7,rarity:"Rare",weight:0,image:"firefighter.png",weapon:"Halligan Bar",damage:6,weaponAbility:"Rescue Swing — At full HP, successful attacks deal +2 damage.",ability:"Fireguard — Takes 2 less damage from every creature attack.",recruitOnly:true,isNewRecruit:true},
@@ -1234,7 +1234,7 @@ function renderNewGoatShowcase(){
   const showcase=document.getElementById("newGoatShowcase");
   if(!showcase)return;
   const newcomers=S.filter(s=>s.isNew&&s.transform);
-  showcase.innerHTML=`<div class="new-goat-head"><h2>NEW TRANSFORMING SURVIVORS</h2><p>Click either card to reveal its unrestricted test transformation and improved stats.</p></div><div class="new-goat-grid">${newcomers.map((s,i)=>`<article class="flip-card" tabindex="0" role="button" aria-label="Flip ${s.name} transformation card"><div class="flip-card-inner"><section class="flip-face front"><span class="new-badge">NEW</span><span class="flip-hint">CLICK TO TRANSFORM</span><img src="${s.image}" alt="${s.name}"><div class="flip-info"><b>${s.name}</b><span>G.O.A.T · ❤️ ${s.hp} · ⚔️ ${s.damage}<br>${s.ability}</span></div></section><section class="flip-face back"><span class="new-badge">TRANSFORMED</span><span class="flip-hint">CLICK TO REVERT</span><img src="${s.transform.image}" alt="${s.transform.name}"><div class="flip-info"><b>${s.transform.name}</b><span>❤️ ${s.hp+s.transform.hpBonus} · ⚔️ ${s.damage+s.transform.damageBonus}<br>${s.transform.ability}</span></div></section></div></article>`).join('')}</div>`;
+  showcase.innerHTML=`<div class="new-goat-head"><h2>NEW TRANSFORMING SURVIVORS</h2><p>Click either card to preview its low-health combat transformation and improved stats.</p></div><div class="new-goat-grid">${newcomers.map((s,i)=>`<article class="flip-card" tabindex="0" role="button" aria-label="Flip ${s.name} transformation card"><div class="flip-card-inner"><section class="flip-face front"><span class="new-badge">NEW</span><span class="flip-hint">CLICK TO TRANSFORM</span><img src="${s.image}" alt="${s.name}"><div class="flip-info"><b>${s.name}</b><span>G.O.A.T · ❤️ ${s.hp} · ⚔️ ${s.damage}<br>${s.ability}</span></div></section><section class="flip-face back"><span class="new-badge">TRANSFORMED</span><span class="flip-hint">CLICK TO REVERT</span><img src="${s.transform.image}" alt="${s.transform.name}"><div class="flip-info"><b>${s.transform.name}</b><span>❤️ ${s.hp+s.transform.hpBonus} · ⚔️ ${s.damage+s.transform.damageBonus}<br>${s.transform.ability}</span></div></section></div></article>`).join('')}</div>`;
   showcase.querySelectorAll?.(".flip-card").forEach(card=>{
     card.addEventListener("click",()=>flipGoatCard(card));
     card.addEventListener("keydown",event=>{
@@ -1269,7 +1269,7 @@ const MENU_GUIDES={
     title:"Tips & Tricks",
     html:`<div class="guide-grid">
       <article class="guide-card"><h3>Survive the Early Nights</h3><ul><li>Your run has no night deadline—advance carefully and save often.</li><li>Survivors begin each night with 10–15 Night AP based on rarity.</li><li>Search safer green locations first to build supplies.</li><li>Do not spend every Night Action immediately; keep enough to move or investigate.</li><li>Share useful items by switching survivors outside combat.</li><li>Use Rest before ending a night when health or sanity is low.</li></ul></article>
-      <article class="guide-card"><h3>Build the Right Team</h3><ul><li>Single Player draws five random candidates; choose a party of 1–5 from that draw.</li><li>You may roll a maximum of three five-card survivor draws per setup.</li><li>Nominate one selected survivor for Knowledge of Wisdom: +25 Max HP and 100 regenerating Armor.</li><li>Knowledge Armor absorbs damage before HP and fully regenerates when its bearer Rests or an Armor Plate is used.</li><li>Armor Plates can only be found during a Single Player draw run.</li><li>NEW G.O.A.T survivors The Moonbound and The Ashen Saint can freely transform and revert during this test build.</li></ul></article>
+      <article class="guide-card"><h3>Build the Right Team</h3><ul><li>Single Player draws five random candidates; choose a party of 1–5 from that draw.</li><li>You may roll a maximum of three five-card survivor draws per setup.</li><li>Nominate one selected survivor for Knowledge of Wisdom: +25 Max HP and 100 regenerating Armor.</li><li>Knowledge Armor absorbs damage before HP and fully regenerates when its bearer Rests or an Armor Plate is used.</li><li>Armor Plates can only be found during a Single Player draw run.</li><li>NEW G.O.A.T survivors unlock combat transformations at critical health: The Moonbound at 35% HP and The Ashen Saint at 40% HP.</li></ul></article>
       <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions; survivors begin a round with 5–10 Combat AP based on rarity.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Common and Uncommon creatures deal 35% less counterattack damage.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>A creature at your location blocks normal travel until it is defeated.</li><li>After every victory, choose Recover Injuries or Gain Action Points for every living survivor. Larger parties receive a smaller reward per survivor.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
       <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always shows the next required destination.</li><li>Collect all ten clues in order, then defeat the required story bosses.</li><li>The Warden waits at Prison and The Hollow waits inside The Hollow.</li><li>After both Guardians fall, hunt the Bloodkeeper at Slaughterhouse and the Sentinel at Asylum.</li><li>Assemble all three relics, destroy the Root, then reach the Escape Gate.</li></ul></article>
@@ -1281,7 +1281,7 @@ const MENU_GUIDES={
     html:`<div class="guide-grid">
       <article class="guide-card"><h3>Menu</h3><ul><li>Choose 1–5 Survivors to begin a new run.</li><li>Load or delete a run from one of the three save slots.</li><li>Press Escape to close any guide or settings window.</li></ul></article>
       <article class="guide-card"><h3>Exploration</h3><ul><li><b>Move:</b> travel to a connected revealed location for 1 Night Action.</li><li>A living creature at your location immediately locks Move, Search, Investigate, Rest, and End Night—even before you press Fight.</li><li><b>Search:</b> spend 1 Night Action to find supplies or trigger events.</li><li><b>Investigate:</b> uncover story evidence at important locations.</li><li><b>Rest:</b> recover between encounters, subject to the nightly limit.</li><li><b>End Night:</b> available when all living survivors have spent their actions and no creature controls the location.</li></ul></article>
-      <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Transform/Revert:</b> The Moonbound and The Ashen Saint currently shift forms freely with no cost, cooldown, or location restriction for testing.</li><li><b>Main Pack:</b> the party shares 30 general slots for weapons, tools, medicine, and supplies.</li><li><b>Flashlight:</b> this permanent tool never breaks. Use it once per location to choose one of two location-specific illustrated areas. It may reveal a wounded recruit or awaken two enraged creatures.</li><li><b>Equip:</b> move a weapon from the Main Pack to the active survivor.</li></ul></article>
+      <article class="guide-card"><h3>Party & Inventory</h3><ul><li><b>Select:</b> change the active survivor outside combat.</li><li><b>Transform/Revert:</b> The Moonbound unlocks at 35% HP and The Ashen Saint at 40% HP during combat. Each transformation can trigger only once per encounter.</li><li><b>Main Pack:</b> the party shares 30 general slots for weapons, tools, medicine, and supplies.</li><li><b>Flashlight:</b> this permanent tool never breaks. Use it once per location to choose one of two location-specific illustrated areas. It may reveal a wounded recruit or awaken two enraged creatures.</li><li><b>Equip:</b> move a weapon from the Main Pack to the active survivor.</li></ul></article>
       <article class="guide-card"><h3>Combat</h3><ul><li><b>Attack:</b> spend Combat AP using the equipped weapon; every attempt adds counter pressure.</li><li><b>Use Special:</b> spend 3 Combat AP; Specials also count toward retaliation.</li><li><b>Counterattack:</b> the creature strikes automatically after every second attack attempt. Common and Uncommon damage is reduced by 35%.</li><li><b>Victory Reward:</b> choose healing or Night AP for all living survivors. One survivor gains 8 HP or 3 AP; two gain 6 HP or 2 AP each; parties of three to five gain 5–3 HP or 1 AP each.</li><li><b>Flee:</b> attempt to escape the encounter.</li><li><b>End Turn:</b> resolves any pending creature counterattack, then refreshes 5–10 Combat AP based on survivor rarity.</li><li>Exploration controls lock whenever a living creature occupies the current location.</li></ul></article>
       <article class="guide-card"><h3>Saving</h3><ul><li>Save Slot 1–3 stores the entire current run.</li><li>Completed victories and defeats can also be preserved in any slot.</li><li>Main Menu asks for confirmation before leaving an active game.</li><li>Game Log opens the full event history; the latest result also appears at the top.</li></ul></article>
     </div>`
@@ -1304,8 +1304,8 @@ function settingsHtml(){
     <div class="setting-row"><div><label for="settingContrast">Enhanced Contrast</label><small>Strengthen the difference between panels, text, and controls.</small></div><input id="settingContrast" type="checkbox" ${document.body.classList.contains("high-contrast")?"checked":""} onchange="setPreference('highContrast',this.checked)"></div>
     <div class="setting-row"><div><label for="settingMotion">Reduce Motion</label><small>Disable pulsing, hover movement, and animated transitions.</small></div><input id="settingMotion" type="checkbox" ${document.body.classList.contains("reduce-motion")?"checked":""} onchange="setPreference('reduceMotion',this.checked)"></div>
     <div class="setting-row"><div><label for="settingAudio">Atmospheric Audio</label><small>Enable procedural horror ambience, low music, and combat sound effects. Audio begins only after you enable it.</small></div><input id="settingAudio" type="checkbox" ${audioEnabled()?"checked":""} onchange="setAudioEnabled(this.checked)"></div>
-    ${audioSlider("music","Music",20)}
-    ${audioSlider("ambience","Ambience",35)}
+    ${audioSlider("music","Music",25)}
+    ${audioSlider("ambience","Ambience",30)}
     ${audioSlider("effects","Combat Effects",55)}
   </div><p class="menu-section-copy" style="margin-top:16px">Settings are saved automatically in this browser.</p>`;
 }
@@ -1439,7 +1439,7 @@ function applyPreferences(){
 
 function audioEnabled(){return localStorage.getItem("theLastNightSetting_audio")==="true";}
 function audioLevel(channel,fallback){const raw=localStorage.getItem("theLastNightAudio_"+channel);if(raw===null)return fallback;const value=Number(raw);return Number.isFinite(value)&&value>=0?value:fallback;}
-function audioSlider(channel,label,fallback){const value=audioLevel(channel,fallback);return `<div class="setting-row audio-setting"><div><label for="audio_${channel}">${label}</label><small>${channel==="music"?"Low cinematic drone beneath exploration.":channel==="ambience"?"Wind, room tone, and Blackwood's environmental hum.":"Attacks, impacts, warnings, and transitions."}</small></div><input id="audio_${channel}" type="range" min="0" max="100" value="${value}" oninput="setAudioLevel('${channel}',this.value)"><span id="audio_${channel}_value" class="audio-value">${value}%</span></div>`;}
+function audioSlider(channel,label,fallback){const value=audioLevel(channel,fallback);return `<div class="setting-row audio-setting"><div><label for="audio_${channel}">${label}</label><small>${channel==="music"?"Quiet horror score with sparse musical tension beneath exploration.":channel==="ambience"?"Wind, room tone, and Blackwood's environmental hum.":"Attacks, impacts, warnings, and transitions."}</small></div><input id="audio_${channel}" type="range" min="0" max="100" value="${value}" oninput="setAudioLevel('${channel}',this.value)"><span id="audio_${channel}_value" class="audio-value">${value}%</span></div>`;}
 let horrorAudio=null;
 function ensureHorrorAudio(){
   if(!audioEnabled())return null;
@@ -1449,22 +1449,40 @@ function ensureHorrorAudio(){
     const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
     master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
 
-    // Dark cinematic pad: layered musical intervals instead of a single static tone.
+    // V0.5 horror score: restrained midrange drone with sparse, eerie musical notes.
     const padFilter=ctx.createBiquadFilter();
-    padFilter.type="lowpass";padFilter.frequency.value=420;padFilter.Q.value=.7;padFilter.connect(music);
-    const padNotes=[43.65,65.41,87.31];
+    padFilter.type="lowpass";padFilter.frequency.value=950;padFilter.Q.value=.55;padFilter.connect(music);
+    const padNotes=[110.00,164.81,220.00];
     const padOscillators=padNotes.map((freq,index)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.type=index===0?"sine":"triangle";
+      osc.type=index===0?"triangle":"sine";
       osc.frequency.value=freq;
-      osc.detune.value=index===1?-7:index===2?5:0;
-      gain.gain.value=index===0?.46:index===1?.16:.10;
+      osc.detune.value=index===1?-9:index===2?7:0;
+      gain.gain.value=index===0?.12:index===1?.055:.035;
       osc.connect(gain);gain.connect(padFilter);osc.start();
       return {osc,gain};
     });
     const musicLfo=ctx.createOscillator(),musicLfoGain=ctx.createGain();
-    musicLfo.type="sine";musicLfo.frequency.value=.055;musicLfoGain.gain.value=75;
+    musicLfo.type="sine";musicLfo.frequency.value=.04;musicLfoGain.gain.value=110;
     musicLfo.connect(musicLfoGain);musicLfoGain.connect(padFilter.frequency);musicLfo.start();
+
+    const horrorMotif=[220.00,233.08,174.61,164.81,277.18,220.00,null,146.83];
+    let horrorMotifStep=0;
+    const playHorrorNote=()=>{
+      if(!audioEnabled()||ctx.state!=="running")return;
+      const freq=horrorMotif[horrorMotifStep++%horrorMotif.length];
+      if(!freq)return;
+      const now=ctx.currentTime,osc=ctx.createOscillator(),noteGain=ctx.createGain(),noteFilter=ctx.createBiquadFilter();
+      osc.type="sine";osc.frequency.setValueAtTime(freq,now);
+      osc.detune.setValueAtTime((Math.random()-.5)*10,now);
+      noteFilter.type="bandpass";noteFilter.frequency.value=1100;noteFilter.Q.value=.8;
+      noteGain.gain.setValueAtTime(.0001,now);
+      noteGain.gain.exponentialRampToValueAtTime(.028,now+.12);
+      noteGain.gain.exponentialRampToValueAtTime(.0001,now+2.8);
+      osc.connect(noteFilter);noteFilter.connect(noteGain);noteGain.connect(music);
+      osc.start(now);osc.stop(now+3);
+    };
+    const motifTimer=setInterval(playHorrorNote,4200);
 
     // Wind ambience: filtered, slowly moving noise with a faint distant howl.
     const noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),noiseData=noiseBuffer.getChannelData(0);
@@ -1485,13 +1503,13 @@ function ensureHorrorAudio(){
     howlLfo.type="sine";howlLfo.frequency.value=.07;howlPitch.gain.value=22;
     howlLfo.connect(howlPitch);howlPitch.connect(howl.frequency);howl.connect(howlGain);howlGain.connect(ambience);howl.start();howlLfo.start();
 
-    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};
+    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,motifTimer,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};
   }
   if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
   updateAudioMix();
   return horrorAudio;
 }
-function updateAudioMix(){if(!horrorAudio)return;const now=horrorAudio.ctx.currentTime;horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.55:0,now,.08);horrorAudio.music.gain.setTargetAtTime(audioLevel("music",20)/100*.11,now,.08);horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",35)/100*.08,now,.08);horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);}
+function updateAudioMix(){if(!horrorAudio)return;const now=horrorAudio.ctx.currentTime;horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.55:0,now,.08);horrorAudio.music.gain.setTargetAtTime(audioLevel("music",25)/100*.16,now,.12);horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.07,now,.12);horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);}
 function setAudioEnabled(value){localStorage.setItem("theLastNightSetting_audio",String(value));if(value)ensureHorrorAudio();else updateAudioMix();showToast(value?"Atmospheric audio enabled":"Atmospheric audio muted");}
 function setAudioLevel(channel,value){localStorage.setItem("theLastNightAudio_"+channel,String(value));const label=document.getElementById("audio_"+channel+"_value");if(label)label.textContent=value+"%";updateAudioMix();}
 function horrorTone(kind="hit"){
@@ -1612,11 +1630,56 @@ function showTransformationFlash(p){
   showTransformationFlash.timer=setTimeout(()=>overlay.classList.remove("open"),1150);
 }
 
+function transformationThreshold(p){
+  if(p.transformThreshold)return p.transformThreshold;
+  return p.transformKey==="moonbound"?0.35:p.transformKey==="ashen"?0.40:0.40;
+}
+
+function revertTransformationState(p,announce=false){
+  if(!p||!p.transformed)return;
+  p.transformed=false;
+  p.name=p.originalName;
+  p.image=p.normalImage;
+  p.maxHp=p.normalMaxHp;
+  p.baseMaxHp=p.normalMaxHp;
+  p.hp=Math.min(p.hp,p.maxHp);
+  p.weapon=p.normalWeapon;
+  p.weaponDamage=p.normalWeaponDamage;
+  p.baseWeaponDamage=p.normalWeaponDamage;
+  p.weaponAbility=p.normalWeaponAbility;
+  p.ability=p.normalAbility;
+  p.maxShield=p.normalMaxShield;
+  p.shield=Math.min(p.shield||0,p.maxShield);
+  if(announce)log(`🌘 ${p.originalName} returns to normal form.`,"good");
+}
+
+function resetCombatTransformations(){
+  if(!G)return;
+  G.ps.forEach(p=>{
+    revertTransformationState(p,false);
+    p.transformationUsedThisCombat=false;
+  });
+}
+
 function toggleTransformation(index){
   const p=G&&G.ps[index];
   if(!p||p.dead||!p.transform)return;
   const t=p.transform;
   if(!p.transformed){
+    if(!combat){
+      log(`✨ ${p.originalName}'s transformation can only be activated during combat.`,"bad");
+      return;
+    }
+    const threshold=transformationThreshold(p);
+    if(p.hp>p.normalMaxHp*threshold){
+      log(`✨ ${p.originalName} must fall to ${Math.round(threshold*100)}% HP or lower before transforming.`,"bad");
+      return;
+    }
+    if(p.transformationUsedThisCombat){
+      log(`✨ ${p.originalName} has already transformed during this encounter.`,"bad");
+      return;
+    }
+    p.transformationUsedThisCombat=true;
     p.transformed=true;
     p.name=t.name;
     p.image=t.image;
@@ -1630,23 +1693,10 @@ function toggleTransformation(index){
     p.ability=t.ability;
     p.maxShield=p.normalMaxShield+(t.shieldBonus||0);
     p.shield=Math.min(p.maxShield,(p.shield||0)+(t.shieldBonus||0));
-    if(combat&&index===G.active)p.combatActions+=t.combatActionBonus||0;
-    log(`✨ ${p.originalName} transforms into ${p.name}! Testing mode has no transformation restrictions.`,"good");
+    if(index===G.active)p.combatActions+=t.combatActionBonus||0;
+    log(`✨ ${p.originalName} transforms into ${p.name} at critical health!`,"good");
   }else{
-    p.transformed=false;
-    p.name=p.originalName;
-    p.image=p.normalImage;
-    p.maxHp=p.normalMaxHp;
-    p.baseMaxHp=p.normalMaxHp;
-    p.hp=Math.min(p.hp,p.maxHp);
-    p.weapon=p.normalWeapon;
-    p.weaponDamage=p.normalWeaponDamage;
-    p.baseWeaponDamage=p.normalWeaponDamage;
-    p.weaponAbility=p.normalWeaponAbility;
-    p.ability=p.normalAbility;
-    p.maxShield=p.normalMaxShield;
-    p.shield=Math.min(p.shield||0,p.maxShield);
-    log(`🌘 ${p.originalName} reverts to human form.`,"good");
+    revertTransformationState(p,true);
   }
   showTransformationFlash(p);
   render();
@@ -1767,7 +1817,9 @@ ability:s.ability,
 normalAbility:s.ability,
 transform:s.transform||null,
 transformKey:s.transformKey||null,
+transformThreshold:s.transformThreshold||null,
 transformed:false,
+transformationUsedThisCombat:false,
 specialCharge:s.rarity==="G.O.A.T"?100:0,
 specialUses:0,
   lives:s.rarity==="G.O.A.T"?Infinity:3,
@@ -2619,6 +2671,7 @@ if(combat){
   render();
   return;
 }
+resetCombatTransformations();
 combat=G.creatures.find(c=>String(c.id)===String(id));
   if(
   combat &&
@@ -2630,7 +2683,11 @@ if(combat){
   let p=G.ps[G.active];
   log(`Combat begins against ${combat.name}.`,"bad");
   showCombatIntro(combat);
-  p.combatActions=combatActionCount(p)+(p.originalName==="The Signalman"?1:0);
+  G.ps.forEach(s=>{
+    if(s.dead||s.knockedOut||s.hp<=0){s.combatActions=0;return;}
+    s.combatActions=combatActionCount(s)+(s.originalName==="The Signalman"?1:0);
+    s.transformationUsedThisCombat=false;
+  });
   combat.attacksSinceCounter=0;
   if(combat.firstStrike){
     combat.firstStrike=false;
@@ -2991,6 +3048,7 @@ if(s.rarity==="Legendary" || s.rarity==="G.O.A.T"){
   s.combatActions=0;
 });
 const defeatedName=combat.name;
+resetCombatTransformations();
 combat=null;
 showPostCombatReward(defeatedName);
 return;
@@ -3039,6 +3097,7 @@ log(`The party escapes to ${LM[escapeLoc][1]}.`,"good");
 G.ps.forEach(s=>{
   s.combatActions=0;
 });
+resetCombatTransformations();
 combat=null;
 }
 
@@ -3694,13 +3753,12 @@ function switchCombatSurvivor(){
     let next=(G.active+step)%G.ps.length;
     let survivor=G.ps[next];
 
-    if(!survivor.dead && !survivor.knockedOut && survivor.hp>0){
+    if(!survivor.dead && !survivor.knockedOut && survivor.hp>0 && survivor.combatActions>0){
 
       G.active=next;
-   survivor.combatActions=combatActionCount(survivor);
 
       log(
-        `⚔️ ${survivor.name} steps forward to continue the battle!`,
+        `⚔️ ${survivor.name} steps forward to continue the battle with ${survivor.combatActions} Combat AP!`,
         "good"
       );
 
@@ -3722,6 +3780,7 @@ function partyDefeated(){
     log(`🏚️ The survivors awaken back at the Riverside Motel.`, "good");
 
     // End the current combat
+    resetCombatTransformations();
     combat=null;
 
     // Recover every survivor and return them to the motel
@@ -3768,27 +3827,41 @@ if(p.items && p.items.length>0){
 function selectSurvivor(index){
 
   if(!G)return;
-if(combat){
-  log(
-    `⚔️ You cannot manually switch Survivors during combat.`,
-    "bad"
-  );
-  return;
-}
   let survivor=G.ps[index];
 
-  if(!survivor || survivor.dead){
+  if(!survivor || survivor.dead || survivor.knockedOut || survivor.hp<=0){
     return;
   }
 
-  // Selecting does NOT restore Action Points
+  if(combat){
+    const outgoing=G.ps[G.active];
+    if(index===G.active)return;
+    if(outgoing.combatActions>0){
+      log(`⚔️ ${outgoing.name} must spend all Combat AP before switching.`,"bad");
+      return;
+    }
+    if(survivor.combatActions<=0){
+      log(`⚔️ ${survivor.name} has no Combat AP left this round.`,"bad");
+      return;
+    }
+
+    log(`🔄 ${outgoing.name} attempts to fall back. ${survivor.name} prepares to enter combat.`);
+    if(Math.random()<0.30){
+      log(`⚠️ ${combat.name} lunges at ${outgoing.name} during the swap!`,"bad");
+      creatureAttack(combat);
+      if(!combat)return;
+      if(survivor.dead||survivor.knockedOut||survivor.hp<=0||survivor.combatActions<=0){render();return;}
+    }else{
+      log(`✅ ${outgoing.name} escapes the creature's reach.`,"good");
+    }
+    G.active=index;
+    log(`⚔️ ${survivor.name} takes over with ${survivor.combatActions} Combat AP.`,"good");
+    render();
+    return;
+  }
+
   G.active=index;
-
-  log(
-    `👤 ${survivor.name} is now selected.`,
-    "good"
-  );
-
+  log(`👤 ${survivor.name} is now selected.`,"good");
   render();
 }
 function render(){
@@ -3973,8 +4046,8 @@ ${index===G.active
 :'<div class="muted">Waiting</div>'}
 ${!sp.dead
 ? `
-<button ${combat?'disabled class="combat-locked" title="Survivors cannot be switched manually during combat"':''} onclick="selectSurvivor(${index})">
-  👤 SELECT
+<button ${combat&&!(G.ps[G.active].combatActions<=0&&index!==G.active&&!sp.knockedOut&&sp.hp>0&&sp.combatActions>0)?'disabled class="combat-locked" title="Switching unlocks when the active survivor reaches 0 Combat AP"':''} onclick="selectSurvivor(${index})">
+  ${combat&&index!==G.active?'🔄 SWITCH IN':'👤 SELECT'}
 </button>
 `
 : ""}
@@ -4046,7 +4119,7 @@ ${sp.weaponAbility}
 <b>✨ CHARACTER ABILITY</b><br>
 ${sp.ability}
 <br><br>
-${sp.transform?`<button onclick="toggleTransformation(${index})">${sp.transformed?'🌘 Revert to '+sp.originalName:'✨ Transform into '+sp.transform.name}</button><div class="muted">Testing: unrestricted transformation</div><br>`:''}
+${sp.transform?`<button ${!sp.transformed&&(!combat||sp.transformationUsedThisCombat||sp.hp>sp.normalMaxHp*transformationThreshold(sp))?'disabled class="combat-locked"':''} onclick="toggleTransformation(${index})">${sp.transformed?'🌘 Revert to '+sp.originalName:sp.hp<=sp.normalMaxHp*transformationThreshold(sp)&&combat&&!sp.transformationUsedThisCombat?'✨ TRANSFORMATION READY: '+sp.transform.name:'🔒 Transform at '+Math.round(transformationThreshold(sp)*100)+'% HP'}</button><div class="muted">${sp.transformed?'Transformation active':sp.transformationUsedThisCombat?'Transformation already used this combat':!combat?'Available during combat':`Unlocks at ${Math.round(transformationThreshold(sp)*100)}% HP or lower`}</div><br>`:''}
 ${index===G.active &&
 !combat &&
 sp.lifeRestoreReady &&
@@ -4205,7 +4278,7 @@ document.getElementById("actions").innerHTML=
 
 <button onclick="flee()">Flee</button>
 
-<button onclick="endTurn()">🔄 END TURN</button>`;
+<button ${G.ps.some(s=>!s.dead&&!s.knockedOut&&s.hp>0&&s.combatActions>0)?'disabled class="combat-locked" title="Spend the party Combat AP before ending the round"':''} onclick="endTurn()">🔄 END COMBAT ROUND</button>`;
 
 }
 else{
@@ -4224,53 +4297,35 @@ renderLog();
   // COMBAT END TURN
 if(combat){
 
-    // Resolve one pending attack attempt before refreshing the round
+    const ready=G.ps.filter(s=>!s.dead&&!s.knockedOut&&s.hp>0&&s.combatActions>0);
+    if(ready.length){
+      log(`⚔️ ${ready.map(s=>s.name).join(", ")} still ${ready.length===1?"has":"have"} Combat AP. Switch fighters and spend it before ending the round.`,"bad");
+      render();
+      return;
+    }
+
     if(combat.provoked && (combat.attacksSinceCounter||0)>0){
         combat.attacksSinceCounter=0;
         creatureAttack(combat);
-
-        // Party may have been defeated during the creature attack
-        if(!combat){
-            return;
-        }
-
-        // If this survivor was knocked out/dead,
-        // switchCombatSurvivor() already handled the next fighter
-        if(p.knockedOut || p.dead || p.hp<=0){
-            return;
-        }
+        if(!combat)return;
     }
 
-    // Reset combat Actions for the active survivor
-  p.combatActions=combatActionCount(p);
-
-    // All living, conscious allies recover +1 HP
     G.ps.forEach(ally=>{
+      if(ally.dead||ally.knockedOut||ally.hp<=0){ally.combatActions=0;return;}
+      ally.combatActions=combatActionCount(ally)+(ally.originalName==="The Signalman"?1:0);
+    });
 
-        if(
-            ally.dead ||
-            ally.knockedOut ||
-            ally.hp<=0
-        ) return;
-
+    G.ps.forEach(ally=>{
+        if(ally.dead||ally.knockedOut||ally.hp<=0)return;
         if(ally.hp<ally.maxHp){
-
-            ally.hp=Math.min(
-                ally.maxHp,
-                ally.hp+1
-            );
-
-            log(
-                `❤️ ${ally.name} recovers 1 HP after the combat round.`,
-                "good"
-            );
+            ally.hp=Math.min(ally.maxHp,ally.hp+1);
+            log(`❤️ ${ally.name} recovers 1 HP after the combat round.`,"good");
         }
     });
 
-    log(
-    `🔄 ${p.name} begins another combat round with ${p.combatActions} Combat Actions.`,
-    );
-
+    const firstReady=G.ps.findIndex(s=>!s.dead&&!s.knockedOut&&s.hp>0&&s.combatActions>0);
+    if(firstReady>=0)G.active=firstReady;
+    log(`🔄 A new combat round begins. Every conscious survivor's Combat AP is refreshed.`,"good");
     render();
     return;
 }
@@ -4525,6 +4580,7 @@ G.ps.forEach(s=>{
   s.combatActions=0;
 });
 const defeatedName=combat.name;
+resetCombatTransformations();
 combat=null;
 showPostCombatReward(defeatedName);
   }
