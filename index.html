@@ -427,11 +427,11 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 
 .beta-info-overlay{position:fixed;inset:0;z-index:15500;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);backdrop-filter:blur(9px)}.beta-info-overlay.open{display:grid}.beta-info-card{width:min(560px,100%);border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.beta-info-card h2{margin:0 0 10px;font-family:Georgia,serif;letter-spacing:2px}.beta-info-card p{margin:0;color:#c0c4c8;line-height:1.7}.beta-info-card .beta-thanks{margin-top:14px;color:#e4c4c7}.beta-info-close{margin:20px 0 0}.menu-version{cursor:pointer;transition:border-color .18s,background .18s,transform .18s}.menu-version:hover,.menu-version:focus{border-color:#c45a65;background:rgba(116,39,48,.32);transform:translateY(-1px);outline:none}
 
-.library-update-badge{position:absolute;right:24px;top:66px;z-index:3;margin:0;padding:8px 11px;border:1px solid rgba(227,107,117,.72);border-radius:99px;background:rgba(113,27,38,.82);color:#ffe7e9;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px);box-shadow:0 0 20px rgba(191,58,71,.22)}.library-update-badge:hover{border-color:#f08a94;background:rgba(141,36,48,.94)}.update-info-overlay{position:fixed;inset:0;z-index:15600;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(9px)}.update-info-overlay.open{display:grid}.update-info-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.update-info-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.update-info-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}.update-info-card p{margin:0;color:#c0c4c8;line-height:1.65}.update-info-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}.update-info-list li{margin:7px 0}.update-info-close{margin:20px 0 0}@media(max-width:600px){.library-update-badge{right:14px;top:58px;padding:7px 9px;font-size:9px;letter-spacing:1.4px}.update-info-card{padding:21px}}
+.library-update-badge{position:absolute;right:24px;top:66px;z-index:3;margin:0;padding:8px 11px;border:1px solid rgba(227,107,117,.72);border-radius:99px;background:rgba(113,27,38,.82);color:#ffe7e9;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px);box-shadow:0 0 20px rgba(191,58,71,.22)}.library-update-badge:hover{border-color:#f08a94;background:rgba(141,36,48,.94)}.library-previous-update-badge{top:108px;border-color:rgba(176,181,187,.5);background:rgba(25,28,31,.82);color:#d7dade;box-shadow:0 0 18px rgba(0,0,0,.3)}.library-previous-update-badge:hover{border-color:#c7cbd0;background:rgba(43,47,51,.95)}.update-info-overlay{position:fixed;inset:0;z-index:15600;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(9px)}.update-info-overlay.open{display:grid}.update-info-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.update-info-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.update-info-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}.update-info-card p{margin:0;color:#c0c4c8;line-height:1.65}.update-info-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}.update-info-list li{margin:7px 0}.update-info-close{margin:20px 0 0}@media(max-width:600px){.library-update-badge{right:14px;top:58px;padding:7px 9px;font-size:9px;letter-spacing:1.4px}.update-info-card{padding:21px}}
 
 .library-update-badge.library-update-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;min-height:34px}
-#updateDetailsPanel{position:fixed;inset:0;z-index:26000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px);pointer-events:auto}
-#updateDetailsPanel:target{display:grid}
+#updateDetailsPanel,#previousUpdatePanel{position:fixed;inset:0;z-index:26000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px);pointer-events:auto}
+#updateDetailsPanel:target,#previousUpdatePanel:target{display:grid}
 .update-details-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000;padding:26px}
 .update-details-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
 .update-details-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}
@@ -439,7 +439,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 .update-details-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}
 .update-details-list li{margin:8px 0}
 .update-details-back{display:inline-flex;align-items:center;justify-content:center;margin-top:20px;padding:10px 14px;border:1px solid #76545a;border-radius:9px;background:#1a1c1f;color:#fff;text-decoration:none;font-weight:800}
-@media(max-width:600px){.update-details-card{padding:21px}.library-update-badge.library-update-link{right:14px;top:58px;font-size:9px}}
+@media(max-width:600px){.update-details-card{padding:21px}.library-update-badge.library-update-link{right:14px;top:58px;font-size:9px}.library-update-badge.library-update-link.library-previous-update-badge{top:98px}}
 </style>
 </head>
 <body class="menu-mode">
@@ -461,7 +461,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
           <button class="library-details" onclick="enterGameSite('info')">Explore Characters</button>
         </div>
       </section>
-      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.4 Beta update details">New Update</a></div>
+      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.5 Beta update details">New Update</a><a class="library-update-badge library-update-link library-previous-update-badge" href="#previousUpdatePanel" aria-label="View V-0.4 Beta previous update details">Previous Update</a></div>
     </article>
     <footer class="library-foot"><span><strong>1 game available</strong> · More titles can be added here later.</span><span>No download required · Progress saves in your browser</span></footer>
   </div>
@@ -494,7 +494,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   <section class="menu-hero">
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
-    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.4 Beta</button>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.5 Beta</button>
   </section>
   <nav class="menu-actions" aria-label="Game information">
     <button onclick="showGameLibrary()">← Game Library</button>
@@ -538,7 +538,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="betaInfoOverlay" class="beta-info-overlay" role="dialog" aria-modal="true" aria-labelledby="betaInfoTitle" onclick="closeBetaInfo(event)">
   <section class="beta-info-card" onclick="event.stopPropagation()">
-    <h2 id="betaInfoTitle">V-0.4 Beta — Early Development</h2>
+    <h2 id="betaInfoTitle">V-0.5 Beta — Early Development</h2>
     <p>The Last Night is still in early development. We will continue adding new updates, improvements, content, and quality-of-life changes as we work toward making the overall game experience as strong and enjoyable as possible.</p>
     <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience the Night of the Dead.</p>
     <button class="beta-info-close" type="button" onclick="closeBetaInfo()">Close</button>
@@ -5271,18 +5271,34 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <section id="updateDetailsPanel" aria-labelledby="updateDetailsTitle">
   <div class="update-details-card">
     <div class="update-details-kicker">Latest Build</div>
-    <h2 id="updateDetailsTitle">V-0.4 Beta — New Update</h2>
-    <p>This update adds new polish and fixes several issues reported during testing.</p>
+    <h2 id="updateDetailsTitle">V-0.5 Beta — New Update</h2>
+    <p>Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.</p>
+    <ul class="update-details-list">
+      <li><strong>Transformation Thresholds:</strong> The Moonbound and The Ashen Saint can no longer transform freely. Their transformed forms now unlock only after reaching their low-health combat requirements.</li>
+      <li><strong>Three-Night Transformations:</strong> Once a transformation is activated, that survivor can remain in the transformed form for up to three Nights before automatically returning to normal.</li>
+      <li><strong>Party Combat Switching:</strong> When the active survivor runs out of Combat AP, another living party member with Combat AP can step in and continue the same fight.</li>
+      <li><strong>Dangerous Retreats:</strong> Combat swaps carry a 30% chance for the creature to strike the survivor attempting to fall back, making every switch a risk.</li>
+      <li><strong>Horror Audio Overhaul:</strong> The old bass-heavy test sound has been replaced with quieter atmospheric horror music, eerie tones, wind, and environmental ambience designed to sit beneath gameplay.</li>
+      <li><strong>Combat Flow Improvements:</strong> Multi-survivor encounters now preserve creature health and battle state while the party rotates fighters, giving larger teams a more tactical role.</li>
+    </ul>
+    <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
+  </div>
+</section>
+
+<section id="previousUpdatePanel" aria-labelledby="previousUpdateTitle">
+  <div class="update-details-card">
+    <div class="update-details-kicker">Previous Build</div>
+    <h2 id="previousUpdateTitle">V-0.4 Beta — Previous Update</h2>
+    <p>V-0.4 expanded the survivor roster, protected save progress, and improved mobile presentation throughout Blackwood.</p>
     <ul class="update-details-list">
       <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>
       <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>
       <li><strong>Save Progress Protection:</strong> Existing save progress is preserved across future game updates, with automatic compatibility recovery and a backup copy for each save slot.</li>
-      <li><strong>Item images:</strong> fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
-      <li><strong>Transforming survivor cards:</strong> fixed inverted card text stacking and overlapping.</li>
-      <li><strong>Main Pack / Extra Pockets:</strong> improved the phone layout so it no longer crowds the top of the game.</li>
-      <li><strong>Main-menu portraits:</strong> improved mobile framing so survivor heads are less likely to be cropped.</li>
-      <li><strong>V-0.4 Beta information:</strong> added the early-development message and version information.</li>
-      <li><strong>Mobile polish:</strong> additional spacing, readability, and presentation improvements.</li>
+      <li><strong>Item Images:</strong> Fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
+      <li><strong>Transforming Survivor Cards:</strong> Fixed inverted card text stacking and overlapping.</li>
+      <li><strong>Main Pack / Extra Pockets:</strong> Improved the phone layout so it no longer crowds the top of the game.</li>
+      <li><strong>Main-Menu Portraits:</strong> Improved mobile framing so survivor heads are less likely to be cropped.</li>
+      <li><strong>Mobile Polish:</strong> Additional spacing, readability, and presentation improvements.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
