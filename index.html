@@ -443,6 +443,18 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 .update-details-list li{margin:8px 0}
 .update-details-back{display:inline-flex;align-items:center;justify-content:center;margin-top:20px;padding:10px 14px;border:1px solid #76545a;border-radius:9px;background:#1a1c1f;color:#fff;text-decoration:none;font-weight:800}
 @media(max-width:600px){.update-details-card{padding:21px}.library-update-badge.library-update-link{right:14px;top:58px;font-size:9px}.library-update-badge.library-update-link.library-previous-update-badge{top:98px}}
+
+/* V0.5 guardian showcase polish */
+.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;margin-bottom:14px}
+.new-survivor-showcase .new-goat-head>div,.new-gate-showcase .new-goat-head>div{min-width:0;flex:1}
+.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2{text-align:left;margin:0 0 5px}
+.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:left;margin:0}
+.showcase-next{width:auto!important;height:auto!important;min-width:172px!important;max-width:230px;padding:10px 14px!important;margin:0!important;white-space:normal;line-height:1.2;font-size:11px!important;font-weight:900;letter-spacing:.7px;border-radius:10px;background:linear-gradient(#2a2022,#171113);border:1px solid #89505a;color:#fff}
+.gate-guardian-card{background:#0d0f11}
+.gate-guardian-card img{object-fit:contain!important;object-position:center!important;background:radial-gradient(circle at 50% 44%,#211719 0,#0a0c0e 72%);padding:4px}
+.codex-card img.codex-special-art{object-fit:contain;background:radial-gradient(circle at 50% 45%,#211719 0,#0a0c0e 75%);padding:3px}
+@media(max-width:850px){.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{align-items:stretch;flex-direction:column;text-align:center}.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2,.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:center}.showcase-next{width:100%!important;max-width:none!important;min-width:0!important}.gate-guardian-card img{height:auto!important;aspect-ratio:2/3!important;max-height:430px}}
+
 </style>
 </head>
 <body class="menu-mode">
@@ -1303,7 +1315,7 @@ function renderNewSurvivorShowcase(){
   const showcase=document.getElementById("newSurvivorShowcase");
   if(!showcase)return;
   const recruits=S.filter(s=>s.recruitOnly);
-  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW SURVIVORS</h2><p>Seven flashlight-exclusive recruits. Click a card for rarity, stats, weapon, and ability information.</p></div><button class="gate-guardian-nav showcase-next" onclick="showNewGuardianSection()" aria-label="View new Root Gate creatures">NEXT: NEW CREATURES ›</button></div><div class="recruit-grid">${recruits.map((s,i)=>`<button class="recruit-card" onclick="openRecruitDetail(${i})"><img src="${s.image}" alt="${s.name}"><span class="new-badge">NEW</span><span class="recruit-card-info"><b>${s.name}</b><small>${s.rarity} · ❤️ ${s.hp} · 🧠 ${s.san} · ⚔️ ${s.damage}</small></span></button>`).join("")}</div>`;
+  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW SURVIVORS</h2><p>Seven flashlight-exclusive recruits. Click a card for rarity, stats, weapon, and ability information.</p></div><button class="showcase-next" onclick="showNewGuardianSection()" aria-label="View new Root Gate creatures">NEXT: NEW CREATURES ›</button></div><div class="recruit-grid">${recruits.map((s,i)=>`<button class="recruit-card" onclick="openRecruitDetail(${i})"><img src="${s.image}" alt="${s.name}"><span class="new-badge">NEW</span><span class="recruit-card-info"><b>${s.name}</b><small>${s.rarity} · ❤️ ${s.hp} · 🧠 ${s.san} · ⚔️ ${s.damage}</small></span></button>`).join("")}</div>`;
 }
 function showNewGuardianSection(){
   const survivors=document.getElementById("newSurvivorShowcase"),guardians=document.getElementById("newGateGuardianShowcase");
@@ -1325,7 +1337,7 @@ function renderRootGateGuardianShowcase(){
   if(!guardians.length){showcase.innerHTML="";return;}
   rootGuardianShowcaseIndex=(rootGuardianShowcaseIndex+guardians.length)%guardians.length;
   const c=guardians[rootGuardianShowcaseIndex];
-  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW ROOT GATE GUARDIANS</h2><p>Three creatures seal the entrance to the final chamber. Defeat all three to reveal the fusion threat guarding The Root.</p></div><button class="gate-guardian-nav showcase-next" onclick="showNewSurvivorSection()" aria-label="Back to new survivors">‹ NEW SURVIVORS</button></div><div class="gate-guardian-stage"><button class="gate-guardian-nav" onclick="nextRootGateGuardian(-1)" aria-label="Previous Root Gate guardian">‹</button><button class="gate-guardian-card" onclick="openRootGuardianDetail(${rootGuardianShowcaseIndex})"><img src="${c.image}" alt="${c.name}"><span class="new-badge">NEW</span><span class="gate-guardian-info"><small>ROOT GATE GUARDIAN ${c.gateOrder}/3 · ${c.rarity}</small><b>${c.name}</b><small>❤️ ${c.hp} · ⚔️ ${c.atk}</small><p>${c.ability}</p></span></button><button class="gate-guardian-nav" onclick="nextRootGateGuardian(1)" aria-label="Next Root Gate guardian">›</button></div><div class="gate-guardian-dots">${guardians.map((_,i)=>`<button class="gate-guardian-dot ${i===rootGuardianShowcaseIndex?'active':''}" onclick="showRootGateGuardian(${i})" aria-label="Show guardian ${i+1}"></button>`).join("")}</div>`;
+  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW ROOT GATE GUARDIANS</h2><p>Three creatures seal the entrance to the final chamber. Defeat all three to reveal the fusion threat guarding The Root.</p></div><button class="showcase-next" onclick="showNewSurvivorSection()" aria-label="Back to new survivors">‹ NEW SURVIVORS</button></div><div class="gate-guardian-stage"><button class="gate-guardian-nav" onclick="nextRootGateGuardian(-1)" aria-label="Previous Root Gate guardian">‹</button><button class="gate-guardian-card" onclick="openRootGuardianDetail(${rootGuardianShowcaseIndex})"><img src="${c.image}" alt="${c.name}"><span class="new-badge">NEW</span><span class="gate-guardian-info"><small>ROOT GATE GUARDIAN ${c.gateOrder}/3 · ${c.rarity}</small><b>${c.name}</b><small>❤️ ${c.hp} · ⚔️ ${c.atk}</small><p>${c.ability}</p></span></button><button class="gate-guardian-nav" onclick="nextRootGateGuardian(1)" aria-label="Next Root Gate guardian">›</button></div><div class="gate-guardian-dots">${guardians.map((_,i)=>`<button class="gate-guardian-dot ${i===rootGuardianShowcaseIndex?'active':''}" onclick="showRootGateGuardian(${i})" aria-label="Show guardian ${i+1}"></button>`).join("")}</div>`;
 }
 function nextRootGateGuardian(direction){rootGuardianShowcaseIndex+=direction;renderRootGateGuardianShowcase();}
 function showRootGateGuardian(index){rootGuardianShowcaseIndex=index;renderRootGateGuardianShowcase();}
@@ -1391,13 +1403,19 @@ const MENU_GUIDES={
 };
 
 function codexCards(list,type){
-  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit?'NEW · ':''}${type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(entry.fusionPreview?"FUSION THREAT":entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT")}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span>${entry.armor?`<span>🛡️ ${entry.armor}</span>`:""}<span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
+  return `<div class="codex-grid">${list.map(entry=>{
+    const isTriune=type==="creatures"&&entry.name==="The Triune Maw";
+    const specialCreature=type==="creatures"&&(entry.gateGuardian||isTriune);
+    const availability=type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(isTriune?"FUSION THREAT":entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT");
+    return `<article class="codex-card"><img class="${specialCreature?'codex-special-art':''}" src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit||isTriune?'NEW · ':''}${availability}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span>${entry.armor?`<span>🛡️ ${entry.armor}</span>`:""}<span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}${specialCreature?`<button onclick="viewRootFusionTransformation()">VIEW TRANSFORMATION</button>`:""}`}</div></article>`;
+  }).join("")}</div>`;
 }
 
 function showCodex(type){
   document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");
   document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");
-  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:[...CRE,{...ROOT_FUSION_CODEX,isNew:true,fusionPreview:true}],type);
+  const source=type==="survivors"?S:CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index);
+  document.getElementById("codexContent").innerHTML=codexCards(source,type);
 }
 
 function settingsHtml(){
@@ -1494,7 +1512,7 @@ function openMenuPanel(type){
   const content=document.getElementById("menuDialogContent");
   if(type==="info"){
     document.getElementById("menuDialogTitle").textContent="Blackwood Survivor & Creature Codex";
-    content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+(CRE.length+1)+')</button></div><div id="codexContent"></div>';
+    content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+CRE.length+')</button></div><div id="codexContent"></div>';
     showCodex("survivors");
   }else if(type==="items"){
     document.getElementById("menuDialogTitle").textContent="Blackwood Obtainable Item Codex";
