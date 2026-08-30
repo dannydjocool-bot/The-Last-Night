@@ -252,7 +252,7 @@ body{
 }
 .menu-kicker{color:#c76970;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
 .menu-title{margin:8px 0 8px;font-family:Georgia,serif;font-size:clamp(34px,5vw,64px);letter-spacing:5px;line-height:.95;text-shadow:0 3px 24px #000}
-.menu-subtitle{max-width:600px;color:#b6b9bd;font-size:15px;line-height:1.7}
+.menu-subtitle{max-width:600px;color:#b6b9bd;font-size:15px;line-height:1.7}.menu-version{display:inline-block;margin-top:12px;padding:6px 10px;border:1px solid #6b444a;border-radius:999px;background:rgba(116,39,48,.18);color:#d88a91;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
 .menu-content{position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);gap:22px;padding:26px}
 .menu-section{
   min-width:0;padding:24px;border:1px solid #34373a;border-radius:14px;
@@ -338,6 +338,108 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 
 .location-codex-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 16px;padding:13px 15px;border-left:3px solid #8c454f;background:#101214;color:#b9bec3}.location-codex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.location-codex-card{overflow:hidden;border:1px solid #3d4247;border-radius:12px;background:#101214}.location-codex-art{height:150px;background-repeat:no-repeat;box-shadow:inset 0 -55px 60px rgba(0,0,0,.55)}.location-codex-info{padding:12px}.location-codex-info h3{margin:2px 0 7px;font-family:Georgia,serif;color:#e4c9cc}.location-codex-info p{margin:5px 0;color:#adb2b7;font-size:12px;line-height:1.45}.location-codex-status{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fd18f}.location-codex-card.locked{border-color:#292c2f}.location-codex-card.locked .location-codex-art{filter:grayscale(1) brightness(.18) blur(3px)}.location-codex-card.locked .location-codex-info h3{color:#777b7f}.location-codex-card.locked .location-codex-status{color:#777b7f}.location-codex-card.locked .location-codex-info p{color:#676b6f}@media(max-width:1050px){.location-codex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.location-codex-grid{grid-template-columns:1fr}.location-codex-summary{align-items:flex-start;flex-direction:column}}
 .audio-setting input[type="range"]{width:min(260px,45vw);accent-color:#b94c57}.audio-value{min-width:40px;color:#d6aeb2;font-size:11px;text-align:right}.night-transition{position:fixed;inset:0;z-index:19000;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 42%,rgba(114,24,38,.24),transparent 42%),#020304;transition:opacity .35s}.night-transition.open{opacity:1}.night-transition-card{text-align:center;transform:scale(.9);transition:transform .5s}.night-transition.open .night-transition-card{transform:scale(1)}.night-transition-kicker{color:#bd5a65;font-size:10px;font-weight:900;letter-spacing:5px}.night-transition h2{margin:10px 0;font-family:Georgia,serif;font-size:clamp(52px,12vw,120px);letter-spacing:7px}.night-transition p{color:#adb2b7;letter-spacing:2px}.combat-intro{position:fixed;inset:0;z-index:18500;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(115,21,34,.32),rgba(0,0,0,.94) 68%);transition:opacity .2s}.combat-intro.open{opacity:1}.combat-intro-card{position:relative;width:min(340px,72vw);aspect-ratio:2/3;overflow:hidden;border:1px solid #9b4651;border-radius:18px;box-shadow:0 0 80px rgba(193,51,66,.35);transform:scale(.65) rotate(-3deg);transition:transform .45s}.combat-intro.open .combat-intro-card{transform:scale(1) rotate(0)}.combat-intro-card img{width:100%;height:100%;object-fit:cover}.combat-intro-card:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#050607)}.combat-intro-copy{position:absolute;z-index:2;inset:auto 18px 18px;text-align:center}.combat-intro-copy span{display:block;color:#da6671;font-size:9px;font-weight:900;letter-spacing:4px}.combat-intro-copy strong{display:block;margin-top:7px;font-family:Georgia,serif;font-size:27px;letter-spacing:2px}.combat-fx-layer{position:fixed;inset:0;z-index:18000;pointer-events:none;overflow:hidden}.combat-float{position:absolute;left:50%;top:42%;padding:8px 13px;border-radius:9px;background:rgba(5,6,7,.88);color:#fff;font-size:clamp(24px,5vw,48px);font-weight:900;text-shadow:0 0 18px currentColor;animation:combatFloat .85s ease-out forwards}.combat-float.enemy{color:#ff6673}.combat-float.heavy{color:#ffc65e}.combat-float.miss{color:#b2b7bc}.combat-counter-warning{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:12px 18px;border:1px solid #b94a55;border-radius:10px;background:rgba(40,10,15,.94);color:#ffd9dc;font-weight:900;letter-spacing:2px;animation:counterPulse .8s ease both}.combat-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,244,211,.48),transparent 34%);animation:flashOut .28s ease-out forwards}body.combat-impact #game{animation:gameShake .28s linear}body.reduce-motion .night-transition,body.reduce-motion .night-transition-card,body.reduce-motion .combat-intro,body.reduce-motion .combat-intro-card{transition:none}body.reduce-motion .combat-float,body.reduce-motion .combat-counter-warning,body.reduce-motion #game{animation:none!important}@keyframes combatFloat{0%{transform:translate(-50%,20px);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-75px);opacity:0}}@keyframes counterPulse{0%{opacity:0;transform:translateX(-50%) scale(.8)}45%{opacity:1;transform:translateX(-50%) scale(1.05)}100%{opacity:0;transform:translateX(-50%) scale(1)}}@keyframes flashOut{to{opacity:0}}@keyframes gameShake{0%,100%{transform:none}25%{transform:translate(-5px,2px)}50%{transform:translate(5px,-2px)}75%{transform:translate(-3px,1px)}}
+
+/* MOBILE_UI_FIX_V1 */
+.flip-card-inner{-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
+.flip-face{-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.flip-face.back{-webkit-transform:rotateY(180deg) translateZ(1px);transform:rotateY(180deg) translateZ(1px)}
+.flip-card.flipped .flip-card-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
+.flip-info{max-width:calc(100% - 28px)}
+.flip-info b,.flip-info span{overflow-wrap:anywhere;word-break:normal}
+@media(max-width:850px){
+  body:not(.menu-mode) #extraPocketsPanel{position:fixed!important;left:10px!important;right:10px!important;top:auto!important;bottom:10px!important;width:auto!important;margin:0!important;max-height:min(64vh,520px)!important;overflow:hidden!important;z-index:10020!important;padding:9px 10px!important;border-radius:14px!important;box-shadow:0 14px 44px rgba(0,0,0,.82),0 0 0 1px rgba(126,49,57,.18)!important}
+  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed{max-height:58px!important}
+  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed > *:not(#extraPocketsHandle):not(#mobilePackToggle){display:none!important}
+  #extraPocketsHandle{margin:0!important;min-height:40px;display:flex;align-items:center;padding-right:106px;cursor:default!important;font-size:16px}
+  #mobilePackToggle{position:absolute;right:8px;top:7px;min-width:92px;min-height:42px;margin:0;z-index:2;font-weight:800;touch-action:manipulation}
+  #extraPocketsPanel:not(.mobile-pack-collapsed){overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+  #resetExtraPocketsPosition{display:none!important}
+  #gameSite.wrap{padding-bottom:82px}
+  .new-goat-showcase{padding:14px 10px}
+  .new-goat-grid{grid-template-columns:1fr!important;gap:16px}
+  .flip-card{min-height:440px;width:100%;max-width:330px;margin-inline:auto}
+  .flip-info b{font-size:clamp(18px,6vw,22px);line-height:1.08}
+  .flip-info span{font-size:11px;line-height:1.45}
+  .flip-hint,.new-badge{max-width:46%;white-space:normal;line-height:1.2;text-align:center}
+}
+
+
+/* MOBILE_ITEM_CODEX_FIX_V1 */
+@media(max-width:600px){
+  .codex-card.item-codex-card{grid-template-columns:1fr!important;gap:12px!important;padding:14px!important}
+  .item-codex-card .item-codex-art{width:100%!important;height:auto!important;aspect-ratio:16/9!important;margin:0!important;border-radius:10px!important;background-size:400% 400%!important}
+  .item-codex-card > div:last-child{min-width:0!important;width:100%!important}
+  .item-codex-card h3{margin:4px 0 8px!important;font-size:clamp(24px,8vw,34px)!important;line-height:1.05!important;overflow-wrap:anywhere}
+  .item-codex-card p{margin:10px 0 0!important;font-size:14px!important;line-height:1.55!important;overflow-wrap:anywhere}
+  .item-codex-card .codex-stats{margin:6px 0 8px!important}
+  .item-codex-card .item-type-badge{display:block!important;margin-top:2px!important}
+}
+
+
+/* MOBILE_ITEM_CODEX_FIX_V2 */
+@media(max-width:600px){
+  .codex-card.item-codex-card{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:12px!important;
+    padding:14px!important;
+  }
+  .item-codex-card .item-codex-art{
+    width:100%!important;
+    height:180px!important;
+    aspect-ratio:auto!important;
+    margin:0!important;
+    border-radius:10px!important;
+    flex:none!important;
+  }
+  .item-codex-card > div:last-child{
+    width:100%!important;
+    min-width:0!important;
+    display:block!important;
+  }
+  .item-codex-card h3{
+    margin:4px 0 8px!important;
+    font-size:28px!important;
+    line-height:1.08!important;
+  }
+  .item-codex-card p{
+    margin:10px 0 0!important;
+    font-size:14px!important;
+    line-height:1.55!important;
+  }
+  .item-codex-card .item-type-badge{
+    display:block!important;
+    margin:0 0 4px!important;
+  }
+}
+
+
+/* MOBILE_VISUAL_FIT_V5 */
+@media(max-width:600px){
+  .item-codex-card .item-codex-art{height:180px!important;background-repeat:no-repeat!important;background-color:#090a0b!important}
+  .item-codex-card .item-codex-art[style*="weapon-items.png"]{background-size:300% 200%!important}
+  .item-codex-card .item-codex-art[style*="item-atlas.png"]{background-size:400% 400%!important}
+  #newSurvivorShowcase .recruit-card{min-height:0!important;background:#090a0b!important}
+  #newSurvivorShowcase .recruit-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:2/3!important;object-fit:contain!important;object-position:center top!important;background:#090a0b!important}
+  #newSurvivorShowcase .recruit-card:after{inset:42% 0 0!important}
+}
+
+
+.beta-info-overlay{position:fixed;inset:0;z-index:15500;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);backdrop-filter:blur(9px)}.beta-info-overlay.open{display:grid}.beta-info-card{width:min(560px,100%);border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.beta-info-card h2{margin:0 0 10px;font-family:Georgia,serif;letter-spacing:2px}.beta-info-card p{margin:0;color:#c0c4c8;line-height:1.7}.beta-info-card .beta-thanks{margin-top:14px;color:#e4c4c7}.beta-info-close{margin:20px 0 0}.menu-version{cursor:pointer;transition:border-color .18s,background .18s,transform .18s}.menu-version:hover,.menu-version:focus{border-color:#c45a65;background:rgba(116,39,48,.32);transform:translateY(-1px);outline:none}
+
+.library-update-badge{position:absolute;right:24px;top:66px;z-index:3;margin:0;padding:8px 11px;border:1px solid rgba(227,107,117,.72);border-radius:99px;background:rgba(113,27,38,.82);color:#ffe7e9;font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px);box-shadow:0 0 20px rgba(191,58,71,.22)}.library-update-badge:hover{border-color:#f08a94;background:rgba(141,36,48,.94)}.update-info-overlay{position:fixed;inset:0;z-index:15600;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(9px)}.update-info-overlay.open{display:grid}.update-info-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.update-info-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.update-info-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}.update-info-card p{margin:0;color:#c0c4c8;line-height:1.65}.update-info-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}.update-info-list li{margin:7px 0}.update-info-close{margin:20px 0 0}@media(max-width:600px){.library-update-badge{right:14px;top:58px;padding:7px 9px;font-size:9px;letter-spacing:1.4px}.update-info-card{padding:21px}}
+
+.library-update-badge.library-update-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;min-height:34px}
+#updateDetailsPanel{position:fixed;inset:0;z-index:26000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px);pointer-events:auto}
+#updateDetailsPanel:target{display:grid}
+.update-details-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000;padding:26px}
+.update-details-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+.update-details-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}
+.update-details-card p{margin:0;color:#c0c4c8;line-height:1.65}
+.update-details-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}
+.update-details-list li{margin:8px 0}
+.update-details-back{display:inline-flex;align-items:center;justify-content:center;margin-top:20px;padding:10px 14px;border:1px solid #76545a;border-radius:9px;background:#1a1c1f;color:#fff;text-decoration:none;font-weight:800}
+@media(max-width:600px){.update-details-card{padding:21px}.library-update-badge.library-update-link{right:14px;top:58px;font-size:9px}}
 </style>
 </head>
 <body class="menu-mode">
@@ -359,7 +461,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
           <button class="library-details" onclick="enterGameSite('info')">Explore Characters</button>
         </div>
       </section>
-      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"></div>
+      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.4 Beta update details">New Update</a></div>
     </article>
     <footer class="library-foot"><span><strong>1 game available</strong> · More titles can be added here later.</span><span>No download required · Progress saves in your browser</span></footer>
   </div>
@@ -392,7 +494,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   <section class="menu-hero">
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
-    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.4 Beta</button>
   </section>
   <nav class="menu-actions" aria-label="Game information">
     <button onclick="showGameLibrary()">← Game Library</button>
@@ -434,6 +536,15 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   </section>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="betaInfoOverlay" class="beta-info-overlay" role="dialog" aria-modal="true" aria-labelledby="betaInfoTitle" onclick="closeBetaInfo(event)">
+  <section class="beta-info-card" onclick="event.stopPropagation()">
+    <h2 id="betaInfoTitle">V-0.4 Beta — Early Development</h2>
+    <p>The Last Night is still in early development. We will continue adding new updates, improvements, content, and quality-of-life changes as we work toward making the overall game experience as strong and enjoyable as possible.</p>
+    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience the Night of the Dead.</p>
+    <button class="beta-info-close" type="button" onclick="closeBetaInfo()">Close</button>
+  </section>
+</div>
+
 <div id="transformationOverlay" class="transform-overlay" aria-hidden="true"><img id="transformationImage" alt="Transformation artwork"><strong id="transformationName"></strong></div>
 <div id="flashlightOverlay" class="flashlight-overlay" role="dialog" aria-modal="true" aria-labelledby="flashlightTitle"><section id="flashlightDialog" class="flashlight-dialog"></section></div>
 <div id="warningOverlay" class="warning-overlay" role="alertdialog" aria-modal="true" aria-labelledby="warningTitle" aria-describedby="warningMessage">
@@ -1337,9 +1448,44 @@ function ensureHorrorAudio(){
   if(!horrorAudio){
     const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
     master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
-    const drone=ctx.createOscillator(),droneFilter=ctx.createBiquadFilter();drone.type="sine";drone.frequency.value=42;droneFilter.type="lowpass";droneFilter.frequency.value=130;drone.connect(droneFilter);droneFilter.connect(music);drone.start();
-    const wind=ctx.createOscillator(),windFilter=ctx.createBiquadFilter();wind.type="triangle";wind.frequency.value=71;windFilter.type="lowpass";windFilter.frequency.value=95;wind.connect(windFilter);windFilter.connect(ambience);wind.start();
-    horrorAudio={ctx,master,music,ambience,effects,drone,wind};
+
+    // Dark cinematic pad: layered musical intervals instead of a single static tone.
+    const padFilter=ctx.createBiquadFilter();
+    padFilter.type="lowpass";padFilter.frequency.value=420;padFilter.Q.value=.7;padFilter.connect(music);
+    const padNotes=[43.65,65.41,87.31];
+    const padOscillators=padNotes.map((freq,index)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type=index===0?"sine":"triangle";
+      osc.frequency.value=freq;
+      osc.detune.value=index===1?-7:index===2?5:0;
+      gain.gain.value=index===0?.46:index===1?.16:.10;
+      osc.connect(gain);gain.connect(padFilter);osc.start();
+      return {osc,gain};
+    });
+    const musicLfo=ctx.createOscillator(),musicLfoGain=ctx.createGain();
+    musicLfo.type="sine";musicLfo.frequency.value=.055;musicLfoGain.gain.value=75;
+    musicLfo.connect(musicLfoGain);musicLfoGain.connect(padFilter.frequency);musicLfo.start();
+
+    // Wind ambience: filtered, slowly moving noise with a faint distant howl.
+    const noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),noiseData=noiseBuffer.getChannelData(0);
+    let last=0;
+    for(let i=0;i<noiseData.length;i++){
+      const white=Math.random()*2-1;
+      last=last*.985+white*.015;
+      noiseData[i]=last*.8;
+    }
+    const wind=ctx.createBufferSource(),windFilter=ctx.createBiquadFilter(),windGain=ctx.createGain();
+    wind.buffer=noiseBuffer;wind.loop=true;windFilter.type="bandpass";windFilter.frequency.value=520;windFilter.Q.value=.55;windGain.gain.value=.48;
+    wind.connect(windFilter);windFilter.connect(windGain);windGain.connect(ambience);wind.start();
+    const windLfo=ctx.createOscillator(),windLfoGain=ctx.createGain();
+    windLfo.type="sine";windLfo.frequency.value=.11;windLfoGain.gain.value=.18;
+    windLfo.connect(windLfoGain);windLfoGain.connect(windGain.gain);windLfo.start();
+    const howl=ctx.createOscillator(),howlGain=ctx.createGain(),howlLfo=ctx.createOscillator(),howlPitch=ctx.createGain();
+    howl.type="sine";howl.frequency.value=185;howlGain.gain.value=.025;
+    howlLfo.type="sine";howlLfo.frequency.value=.07;howlPitch.gain.value=22;
+    howlLfo.connect(howlPitch);howlPitch.connect(howl.frequency);howl.connect(howlGain);howlGain.connect(ambience);howl.start();howlLfo.start();
+
+    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};
   }
   if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
   updateAudioMix();
@@ -1362,6 +1508,10 @@ function combatFx(type,value){
 }
 function showCombatIntro(c){const overlay=document.getElementById("combatIntro");if(!overlay||!c)return;document.getElementById("combatIntroImage").src=c.image;document.getElementById("combatIntroImage").alt=c.name;document.getElementById("combatIntroName").textContent=c.name;overlay.classList.add("open");horrorTone("warning");setTimeout(()=>overlay.classList.remove("open"),1200);}
 function showNightTransition(night){const overlay=document.getElementById("nightTransition");if(!overlay)return;const p=G&&G.ps[G.active],loc=p&&LM[p.loc]?LM[p.loc][1]:"Blackwood";const lines=["The roads grow quieter.","Something watches from beyond the light.","The investigation continues at "+loc+".","Dawn feels farther away than before."];document.getElementById("nightTransitionTitle").textContent="NIGHT "+night;document.getElementById("nightTransitionCopy").textContent=lines[(night-1)%lines.length];overlay.classList.add("open");horrorTone("night");setTimeout(()=>overlay.classList.remove("open"),1500);}
+
+
+function openBetaInfo(){document.getElementById("betaInfoOverlay")?.classList.add("open");document.body.style.overflow="hidden";}
+function closeBetaInfo(event){if(event&&event.target!==document.getElementById("betaInfoOverlay"))return;document.getElementById("betaInfoOverlay")?.classList.remove("open");document.body.style.overflow="";}
 
 function showToast(message){
   const toast=document.getElementById("toast");
@@ -4665,14 +4815,49 @@ function toggleLog(){
 
 
 const SAVE_PREFIX="theLastNightSaveSlot";
-const SAVE_VERSION=2;
+const SAVE_BACKUP_PREFIX="theLastNightPersistentSaveSlot";
+const SAVE_VERSION=3;
+
+function findCompatibleSaveRaw(slot){
+  const preferred=[SAVE_PREFIX+slot,SAVE_BACKUP_PREFIX+slot];
+  for(const key of preferred){
+    const raw=localStorage.getItem(key);
+    if(raw)return raw;
+  }
+  // Recover older save-key names from previous builds without deleting anything.
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i)||"";
+    if(!/(last.?night|night.?of.?the.?dead)/i.test(key))continue;
+    if(!/save/i.test(key))continue;
+    if(!new RegExp(String(slot)+"$").test(key))continue;
+    const raw=localStorage.getItem(key);
+    if(!raw)continue;
+    try{
+      const parsed=JSON.parse(raw,saveReviver);
+      if(parsed&&(parsed.G||parsed.game||parsed.state))return raw;
+    }catch(error){}
+  }
+  return null;
+}
+
+function mirrorExistingSaves(){
+  for(let slot=1;slot<=3;slot++){
+    const raw=findCompatibleSaveRaw(slot);
+    if(!raw)continue;
+    if(!localStorage.getItem(SAVE_PREFIX+slot))localStorage.setItem(SAVE_PREFIX+slot,raw);
+    if(!localStorage.getItem(SAVE_BACKUP_PREFIX+slot))localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);
+  }
+}
+mirrorExistingSaves();
 
 function buildSavePayload(){
   return {version:SAVE_VERSION,savedAt:new Date().toISOString(),outcome:G&&G.outcome||null,G:G,combat:combat};
 }
 
 function persistRunToSlot(slot){
-  localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(buildSavePayload(),saveReplacer));
+  const serialized=JSON.stringify(buildSavePayload(),saveReplacer);
+  localStorage.setItem(SAVE_PREFIX+slot,serialized);
+  localStorage.setItem(SAVE_BACKUP_PREFIX+slot,serialized);
   currentSaveSlot=slot;
   updateSaveSlots();
 }
@@ -4760,8 +4945,13 @@ function saveReviver(key,value){
 
 function readSaveSlot(slot){
   try{
-    const raw=localStorage.getItem(SAVE_PREFIX+slot);
-    return raw?JSON.parse(raw,saveReviver):null;
+    const raw=findCompatibleSaveRaw(slot);
+    if(!raw)return null;
+    const parsed=JSON.parse(raw,saveReviver);
+    // Self-heal/migrate any older save into the current stable keys.
+    localStorage.setItem(SAVE_PREFIX+slot,raw);
+    localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);
+    return parsed;
   }catch(error){
     console.error("Unable to read save slot",slot,error);
     return null;
@@ -4813,6 +5003,7 @@ async function deleteSaveSlot(slot){
   if(!readSaveSlot(slot))return;
   if(!await showWarning({title:"Delete Save Slot "+slot+"?",message:"This saved run will be permanently removed from this browser and cannot be restored.",confirmLabel:"Delete Save",icon:"🗑️",danger:true}))return;
   localStorage.removeItem(SAVE_PREFIX+slot);
+  localStorage.removeItem(SAVE_BACKUP_PREFIX+slot);
   updateSaveSlots();
 }
 
@@ -4947,7 +5138,87 @@ document.addEventListener("mouseup",function(){
   extraPocketsPanel.style.bottom="auto";
 
 });
+
+function openUpdateInfo(){document.getElementById("updateInfoOverlay")?.classList.add("open");document.body.style.overflow="hidden";}
+function closeUpdateInfo(event){if(event&&event.target!==document.getElementById("updateInfoOverlay"))return;document.getElementById("updateInfoOverlay")?.classList.remove("open");document.body.style.overflow="";}
+function installLibraryUpdateBadge(){const art=document.querySelector(".library-art");if(!art||art.querySelector(".library-update-badge"))return;const b=document.createElement("button");b.type="button";b.className="library-update-badge";b.textContent="New Update";b.setAttribute("aria-haspopup","dialog");b.addEventListener("click",openUpdateInfo);art.appendChild(b);}
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",installLibraryUpdateBadge);}else{installLibraryUpdateBadge();}
+
 </script>
 
+
+<script>
+/* MOBILE_UI_FIX_V1_JS */
+(function(){
+  const mq=window.matchMedia('(max-width: 850px)');
+  const panel=document.getElementById('extraPocketsPanel');
+  if(!panel)return;
+  let toggle=document.getElementById('mobilePackToggle');
+  if(!toggle){
+    toggle=document.createElement('button');
+    toggle.id='mobilePackToggle';
+    toggle.type='button';
+    toggle.setAttribute('aria-controls','extraPocketsPanel');
+    toggle.setAttribute('aria-expanded','false');
+    panel.appendChild(toggle);
+  }
+  function applyPhonePack(){
+    if(mq.matches){
+      panel.style.left='';panel.style.top='';panel.style.right='';panel.style.bottom='';
+      panel.classList.add('mobile-pack-collapsed');
+      toggle.hidden=false;toggle.textContent='🎒 OPEN';toggle.setAttribute('aria-expanded','false');
+    }else{
+      panel.classList.remove('mobile-pack-collapsed');toggle.hidden=true;
+    }
+  }
+  toggle.addEventListener('click',function(e){
+    e.stopPropagation();
+    const collapsed=panel.classList.toggle('mobile-pack-collapsed');
+    toggle.textContent=collapsed?'🎒 OPEN':'✕ CLOSE';
+    toggle.setAttribute('aria-expanded',String(!collapsed));
+  });
+  if(mq.addEventListener)mq.addEventListener('change',applyPhonePack);else if(mq.addListener)mq.addListener(applyPhonePack);
+  applyPhonePack();
+})();
+</script>
+
+
+<div id="updateInfoOverlay" class="update-info-overlay" role="dialog" aria-modal="true" aria-labelledby="updateInfoTitle" onclick="closeUpdateInfo(event)">
+  <section class="update-info-card" onclick="event.stopPropagation()">
+    <div class="update-info-kicker">Latest Build</div>
+    <h2 id="updateInfoTitle">V-0.4 Beta — New Update</h2>
+    <p>This update focuses on improving the overall experience, especially on phones, while keeping the PC layout intact.</p>
+    <ul class="update-info-list">
+      <li>Improved mobile layout for the Main Pack / Extra Pockets panel.</li>
+      <li>Fixed transforming survivor cards so flipped text no longer overlaps.</li>
+      <li>Improved Obtainable Items Codex spacing and mobile item image fitting.</li>
+      <li>Adjusted main-menu survivor portraits on phones so heads are less likely to be cropped.</li>
+      <li>Added the clickable V-0.4 Beta development message.</li>
+      <li>Additional mobile polish and readability fixes across menus.</li>
+    </ul>
+    <button class="update-info-close" type="button" onclick="closeUpdateInfo()">Close</button>
+  </section>
+</div>
+
+
+<section id="updateDetailsPanel" aria-labelledby="updateDetailsTitle">
+  <div class="update-details-card">
+    <div class="update-details-kicker">Latest Build</div>
+    <h2 id="updateDetailsTitle">V-0.4 Beta — New Update</h2>
+    <p>This update adds new polish and fixes several issues reported during testing.</p>
+    <ul class="update-details-list">
+      <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>
+      <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>
+      <li><strong>Save Progress Protection:</strong> Existing save progress is preserved across future game updates, with automatic compatibility recovery and a backup copy for each save slot.</li>
+      <li><strong>Item images:</strong> fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
+      <li><strong>Transforming survivor cards:</strong> fixed inverted card text stacking and overlapping.</li>
+      <li><strong>Main Pack / Extra Pockets:</strong> improved the phone layout so it no longer crowds the top of the game.</li>
+      <li><strong>Main-menu portraits:</strong> improved mobile framing so survivor heads are less likely to be cropped.</li>
+      <li><strong>V-0.4 Beta information:</strong> added the early-development message and version information.</li>
+      <li><strong>Mobile polish:</strong> additional spacing, readability, and presentation improvements.</li>
+    </ul>
+    <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
+  </div>
+</section>
 </body>
 </html>
