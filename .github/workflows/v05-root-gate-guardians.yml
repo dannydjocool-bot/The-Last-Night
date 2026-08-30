@@ -35,6 +35,19 @@ jobs:
       - name: Apply Root Gate guardian update
         run: python3 .github/scripts/v05-root-gate-guardians.py
 
+      - name: Correct generated objective expression
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text()
+          bad='${["The Thornbound","The Veinmaw","The Ash Wraith"].map(name=>(G.rootGateMinionsDefeated||[]).includes(name)?"✅":"⬜")+" "+name).join("<br>")}'
+          good='${["The Thornbound","The Veinmaw","The Ash Wraith"].map(name=>((G.rootGateMinionsDefeated||[]).includes(name)?"✅":"⬜")+" "+name)).join("<br>")}'
+          if bad not in t:
+              raise SystemExit('Generated Root Gate objective expression not found')
+          p.write_text(t.replace(bad,good,1))
+          PY
+
       - name: Syntax check game JavaScript
         run: |
           python3 - <<'PY'
@@ -70,6 +83,8 @@ jobs:
           assert 'rootGateMinionsDefeated.length>=3||G.rootDefeated' in t
           assert 'library-previous-update-badge' in t
           assert 'V-0.5 Beta — New Update' in t
+          assert 'newGateGuardianShowcase' in t
+          assert 'gate-guardian-stage' in t
           print('Static story, save migration, desktop and mobile checks passed.')
           PY
 
@@ -81,4 +96,4 @@ jobs:
           git commit -m 'Add three Root Gate guardians to V-0.5 Beta' || exit 0
           git push origin dev
 
-# V0.5 gate guardian integration run 2
+# V0.5 gate guardian integration run 3
