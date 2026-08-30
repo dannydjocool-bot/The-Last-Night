@@ -1,0 +1,49 @@
+name: Add V-0.4 Beta info popup
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/add-beta-note.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch beta popup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+
+          css='''\n.beta-info-overlay{position:fixed;inset:0;z-index:15500;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.86);backdrop-filter:blur(9px)}.beta-info-overlay.open{display:grid}.beta-info-card{width:min(560px,100%);border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}.beta-info-card h2{margin:0 0 10px;font-family:Georgia,serif;letter-spacing:2px}.beta-info-card p{margin:0;color:#c0c4c8;line-height:1.7}.beta-info-card .beta-thanks{margin-top:14px;color:#e4c4c7}.beta-info-close{margin:20px 0 0}.menu-version{cursor:pointer;transition:border-color .18s,background .18s,transform .18s}.menu-version:hover,.menu-version:focus{border-color:#c45a65;background:rgba(116,39,48,.32);transform:translateY(-1px);outline:none}\n'''
+          if '.beta-info-overlay{' not in text:
+              text=text.replace('</style>',css+'</style>',1)
+
+          text=text.replace('<div class="menu-version">V-0.4 Beta</div>','<button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.4 Beta</button>')
+
+          overlay='''\n<div id="betaInfoOverlay" class="beta-info-overlay" role="dialog" aria-modal="true" aria-labelledby="betaInfoTitle" onclick="closeBetaInfo(event)">\n  <section class="beta-info-card" onclick="event.stopPropagation()">\n    <h2 id="betaInfoTitle">V-0.4 Beta — Early Development</h2>\n    <p>The Last Night is still in early development. We will continue adding new updates, improvements, content, and quality-of-life changes as we work toward making the overall game experience as strong and enjoyable as possible.</p>\n    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience the Night of the Dead.</p>\n    <button class="beta-info-close" type="button" onclick="closeBetaInfo()">Close</button>\n  </section>\n</div>\n'''
+          if 'id="betaInfoOverlay"' not in text:
+              text=text.replace('<div id="toast" class="toast" role="status" aria-live="polite"></div>','<div id="toast" class="toast" role="status" aria-live="polite"></div>'+overlay)
+
+          js='''\nfunction openBetaInfo(){document.getElementById("betaInfoOverlay")?.classList.add("open");document.body.style.overflow="hidden";}\nfunction closeBetaInfo(event){if(event&&event.target!==document.getElementById("betaInfoOverlay"))return;document.getElementById("betaInfoOverlay")?.classList.remove("open");document.body.style.overflow="";}\n'''
+          if 'function openBetaInfo()' not in text:
+              text=text.replace('function showToast(message){',js+'\nfunction showToast(message){')
+
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit beta popup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add V-0.4 Beta development message"
+          git push origin dev
