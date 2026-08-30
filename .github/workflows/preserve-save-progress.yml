@@ -1,0 +1,55 @@
+name: Preserve save progress across updates
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/preserve-save-progress.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch persistent save compatibility
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+
+          old='''const SAVE_PREFIX="theLastNightSaveSlot";\nconst SAVE_VERSION=2;'''
+          new='''const SAVE_PREFIX="theLastNightSaveSlot";\nconst SAVE_BACKUP_PREFIX="theLastNightPersistentSaveSlot";\nconst SAVE_VERSION=3;\n\nfunction findCompatibleSaveRaw(slot){\n  const preferred=[SAVE_PREFIX+slot,SAVE_BACKUP_PREFIX+slot];\n  for(const key of preferred){\n    const raw=localStorage.getItem(key);\n    if(raw)return raw;\n  }\n  // Recover older save-key names from previous builds without deleting anything.\n  for(let i=0;i<localStorage.length;i++){\n    const key=localStorage.key(i)||"";\n    if(!/(last.?night|night.?of.?the.?dead)/i.test(key))continue;\n    if(!/save/i.test(key))continue;\n    if(!new RegExp(String(slot)+"$").test(key))continue;\n    const raw=localStorage.getItem(key);\n    if(!raw)continue;\n    try{\n      const parsed=JSON.parse(raw,saveReviver);\n      if(parsed&&(parsed.G||parsed.game||parsed.state))return raw;\n    }catch(error){}\n  }\n  return null;\n}\n\nfunction mirrorExistingSaves(){\n  for(let slot=1;slot<=3;slot++){\n    const raw=findCompatibleSaveRaw(slot);\n    if(!raw)continue;\n    if(!localStorage.getItem(SAVE_PREFIX+slot))localStorage.setItem(SAVE_PREFIX+slot,raw);\n    if(!localStorage.getItem(SAVE_BACKUP_PREFIX+slot))localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);\n  }\n}\nmirrorExistingSaves();'''
+          if old not in text:
+              raise SystemExit('SAVE constants not found')
+          text=text.replace(old,new,1)
+
+          old='''function persistRunToSlot(slot){\n  localStorage.setItem(SAVE_PREFIX+slot,JSON.stringify(buildSavePayload(),saveReplacer));\n  currentSaveSlot=slot;\n  updateSaveSlots();\n}'''
+          new='''function persistRunToSlot(slot){\n  const serialized=JSON.stringify(buildSavePayload(),saveReplacer);\n  localStorage.setItem(SAVE_PREFIX+slot,serialized);\n  localStorage.setItem(SAVE_BACKUP_PREFIX+slot,serialized);\n  currentSaveSlot=slot;\n  updateSaveSlots();\n}'''
+          if old not in text:
+              raise SystemExit('persistRunToSlot block not found')
+          text=text.replace(old,new,1)
+
+          old='''function readSaveSlot(slot){\n  try{\n    const raw=localStorage.getItem(SAVE_PREFIX+slot);\n    return raw?JSON.parse(raw,saveReviver):null;\n  }catch(error){\n    console.error("Unable to read save slot",slot,error);\n    return null;\n  }\n}'''
+          new='''function readSaveSlot(slot){\n  try{\n    const raw=findCompatibleSaveRaw(slot);\n    if(!raw)return null;\n    const parsed=JSON.parse(raw,saveReviver);\n    // Self-heal/migrate any older save into the current stable keys.\n    localStorage.setItem(SAVE_PREFIX+slot,raw);\n    localStorage.setItem(SAVE_BACKUP_PREFIX+slot,raw);\n    return parsed;\n  }catch(error){\n    console.error("Unable to read save slot",slot,error);\n    return null;\n  }\n}'''
+          if old not in text:
+              raise SystemExit('readSaveSlot block not found')
+          text=text.replace(old,new,1)
+
+          old='''  localStorage.removeItem(SAVE_PREFIX+slot);\n  updateSaveSlots();'''
+          new='''  localStorage.removeItem(SAVE_PREFIX+slot);\n  localStorage.removeItem(SAVE_BACKUP_PREFIX+slot);\n  updateSaveSlots();'''
+          if old not in text:
+              raise SystemExit('delete save block not found')
+          text=text.replace(old,new,1)
+
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Preserve save progress across game updates"
+          git push origin dev
