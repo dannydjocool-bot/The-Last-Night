@@ -1,0 +1,79 @@
+name: Apply mobile item codex fix
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/mobile-item-codex-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch mobile item codex layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          marker='/* MOBILE_ITEM_CODEX_FIX_V1 */'
+          if marker in text:
+              raise SystemExit('Patch already applied')
+          css=r'''
+/* MOBILE_ITEM_CODEX_FIX_V1 */
+@media(max-width:600px){
+  .codex-card.item-codex-card{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    padding:14px!important;
+  }
+  .item-codex-card .item-codex-art{
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:16/9!important;
+    margin:0!important;
+    border-radius:10px!important;
+    background-size:400% 400%!important;
+  }
+  .item-codex-card > div:last-child{
+    min-width:0!important;
+    width:100%!important;
+  }
+  .item-codex-card h3{
+    margin:4px 0 8px!important;
+    font-size:clamp(24px,8vw,34px)!important;
+    line-height:1.05!important;
+    overflow-wrap:anywhere;
+  }
+  .item-codex-card p{
+    margin:10px 0 0!important;
+    font-size:14px!important;
+    line-height:1.55!important;
+    overflow-wrap:anywhere;
+  }
+  .item-codex-card .codex-stats{
+    margin:6px 0 8px!important;
+  }
+  .item-codex-card .item-type-badge{
+    display:block!important;
+    margin-top:2px!important;
+  }
+}
+'''
+          text=text.replace('</style>',css+'\n</style>',1)
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit patch to dev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix item codex overlap on phones"
+          git push origin dev
