@@ -1,4 +1,0 @@
-{
-  "buildCommand": "python3 patch_mobile_build.py",
-  "outputDirectory": "."
-}
