@@ -1,0 +1,117 @@
+name: V0.5 Roster and Guardian UI Fix
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-roster-ui-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Repair guardian showcase and creature codex
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path=Path('index.html')
+          t=path.read_text()
+
+          # 1) Main-menu header/navigation: make the NEXT/BACK controls proper buttons,
+          # not the narrow guardian arrow control that caused stacked text.
+          css='''\n/* V0.5 guardian showcase polish */\n.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;margin-bottom:14px}\n.new-survivor-showcase .new-goat-head>div,.new-gate-showcase .new-goat-head>div{min-width:0;flex:1}\n.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2{text-align:left;margin:0 0 5px}\n.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:left;margin:0}\n.showcase-next{width:auto!important;height:auto!important;min-width:172px!important;max-width:230px;padding:10px 14px!important;margin:0!important;white-space:normal;line-height:1.2;font-size:11px!important;font-weight:900;letter-spacing:.7px;border-radius:10px;background:linear-gradient(#2a2022,#171113);border-color:#89505a}\n.gate-guardian-card{background:#0d0f11}\n.gate-guardian-card img{object-fit:contain!important;object-position:center!important;background:radial-gradient(circle at 50% 44%,#211719 0,#0a0c0e 72%);padding:4px}\n@media(max-width:850px){.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{align-items:stretch;flex-direction:column;text-align:center}.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2,.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:center}.showcase-next{width:100%!important;max-width:none!important;min-width:0!important}.gate-guardian-card img{height:auto!important;aspect-ratio:2/3!important;max-height:430px}}\n'''
+          if '/* V0.5 guardian showcase polish */' not in t:
+              t=t.replace('</style>',css+'\n</style>',1)
+
+          # 2) Use a dedicated class for the section control instead of inheriting the tiny arrow-button sizing.
+          t=t.replace('class="gate-guardian-nav showcase-next" onclick="showNewGuardianSection()"','class="showcase-next" onclick="showNewGuardianSection()"')
+          t=t.replace('class="gate-guardian-nav showcase-next" onclick="showNewSurvivorSection()"','class="showcase-next" onclick="showNewSurvivorSection()"')
+
+          # 3) Remove the injected duplicate Triune Maw. The real Triune Maw already exists in CRE.
+          t=t.replace("Creatures ('+(CRE.length+1)+')","Creatures ('+CRE.length+')")
+          t=t.replace('codexCards(type==="survivors"?S:[...CRE,{...ROOT_FUSION_CODEX,isNew:true,fusionPreview:true}],type)','codexCards(type==="survivors"?S:CRE,type)')
+
+          # 4) Rebuild codex cards so the single real Triune Maw is labeled as the Fusion Threat,
+          # and Guardians/Triune retain a View Transformation control without adding a second creature.
+          start=t.find('function codexCards(list,type){')
+          end=t.find('\n\nfunction showCodex(type){',start)
+          if start<0 or end<0:
+              raise SystemExit('Could not locate codexCards block')
+          codex=r'''function codexCards(list,type){
+  return `<div class="codex-grid">${list.map(entry=>{
+    const isTriune=type==="creatures"&&entry.name==="The Triune Maw";
+    const specialCreature=type==="creatures"&&(entry.gateGuardian||isTriune);
+    const availability=type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(isTriune?"FUSION THREAT":entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT");
+    return `<article class="codex-card"><img class="${specialCreature?'codex-special-art':''}" src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit||isTriune?'NEW · ':''}${availability}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span>${entry.armor?`<span>🛡️ ${entry.armor}</span>`:""}<span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}${specialCreature?`<button onclick="viewRootFusionTransformation()">VIEW TRANSFORMATION</button>`:""}`}</div></article>`;
+  }).join("")}</div>`;
+}'''
+          t=t[:start]+codex+t[end:]
+
+          # 5) Codex special art should display the entire creature instead of cropping it.
+          special_css='''\n.codex-card img.codex-special-art{object-fit:contain;background:radial-gradient(circle at 50% 45%,#211719 0,#0a0c0e 75%);padding:3px}\n'''
+          if '.codex-card img.codex-special-art' not in t:
+              t=t.replace('</style>',special_css+'\n</style>',1)
+
+          # 6) Defensive cleanup: if a previous preview-only Triune object is ever present in CRE rendering,
+          # keep the roster unique by name.
+          old='function showCodex(type){\n  document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");\n  document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");\n  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:CRE,type);\n}'
+          new='function showCodex(type){\n  document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");\n  document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");\n  const source=type==="survivors"?S:CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index);\n  document.getElementById("codexContent").innerHTML=codexCards(source,type);\n}'
+          if old in t:
+              t=t.replace(old,new)
+
+          path.write_text(t)
+          PY
+
+      - name: JavaScript syntax check
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text()
+          Path('/tmp/game.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>',t,re.S)))
+          PY
+          node --check /tmp/game.js
+
+      - name: Verify roster and UI repairs
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          checks={
+            'guardian JPG mapping': all(x in t for x in ['thornbound.jpg','veinmaw.jpg','ashwraith.jpg']),
+            'no injected Triune duplicate': '[...CRE,{...ROOT_FUSION_CODEX' not in t,
+            'correct creature count': "Creatures ('+CRE.length+')" in t,
+            'unique creature roster': 'CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index)' in t,
+            'Triune labeled fusion threat': 'isTriune?"FUSION THREAT"' in t,
+            'transformation button preserved': 'VIEW TRANSFORMATION' in t,
+            'clean section nav': 'class="showcase-next" onclick="showNewGuardianSection()"' in t,
+            'guardian art contain': '.gate-guardian-card img{object-fit:contain!important' in t,
+            'codex special art contain': '.codex-card img.codex-special-art{object-fit:contain' in t,
+            'fusion progression intact': 'showRootFusionCutscene' in t and 'spawnTriuneMaw' in t and 'rootFusionDefeated' in t,
+            'tonal soundtrack intact': 'const chordSets=[' in t and 'playHorrorNote' in t,
+          }
+          bad=[k for k,v in checks.items() if not v]
+          for k,v in checks.items(): print(f'{k}: {"PASS" if v else "FAIL"}')
+          if bad: raise SystemExit('Failed: '+', '.join(bad))
+          PY
+
+      - name: Commit repairs to dev
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No index.html changes needed.'
+            exit 0
+          fi
+          git config user.name 'V0.5 Beta Repair'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Fix V0.5 guardian showcase and duplicate Triune Maw'
+          git push origin HEAD:dev
