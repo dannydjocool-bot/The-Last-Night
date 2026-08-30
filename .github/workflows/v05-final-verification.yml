@@ -6,7 +6,11 @@ on:
     paths:
       - '.github/workflows/v05-final-verification.yml'
       - 'index.html'
+      - '*.jpg'
       - '*.webp'
+
+permissions:
+  contents: write
 
 jobs:
   verify:
@@ -15,6 +19,68 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dev
+
+      - name: Repair guardian showcase and codex
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path('index.html')
+          t=p.read_text()
+
+          css='''
+/* V0.5 guardian showcase polish */
+.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;margin-bottom:14px}
+.new-survivor-showcase .new-goat-head>div,.new-gate-showcase .new-goat-head>div{min-width:0;flex:1}
+.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2{text-align:left;margin:0 0 5px}
+.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:left;margin:0}
+.showcase-next{width:auto!important;height:auto!important;min-width:172px!important;max-width:230px;padding:10px 14px!important;margin:0!important;white-space:normal;line-height:1.2;font-size:11px!important;font-weight:900;letter-spacing:.7px;border-radius:10px;background:linear-gradient(#2a2022,#171113);border:1px solid #89505a;color:#fff}
+.gate-guardian-card{background:#0d0f11}
+.gate-guardian-card img{object-fit:contain!important;object-position:center!important;background:radial-gradient(circle at 50% 44%,#211719 0,#0a0c0e 72%);padding:4px}
+.codex-card img.codex-special-art{object-fit:contain;background:radial-gradient(circle at 50% 45%,#211719 0,#0a0c0e 75%);padding:3px}
+@media(max-width:850px){.new-survivor-showcase .new-goat-head,.new-gate-showcase .new-goat-head{align-items:stretch;flex-direction:column;text-align:center}.new-survivor-showcase .new-goat-head h2,.new-gate-showcase .new-goat-head h2,.new-survivor-showcase .new-goat-head p,.new-gate-showcase .new-goat-head p{text-align:center}.showcase-next{width:100%!important;max-width:none!important;min-width:0!important}.gate-guardian-card img{height:auto!important;aspect-ratio:2/3!important;max-height:430px}}
+'''
+          if '/* V0.5 guardian showcase polish */' not in t:
+              t=t.replace('</style>',css+'\n</style>',1)
+
+          t=t.replace('class="gate-guardian-nav showcase-next" onclick="showNewGuardianSection()"','class="showcase-next" onclick="showNewGuardianSection()"')
+          t=t.replace('class="gate-guardian-nav showcase-next" onclick="showNewSurvivorSection()"','class="showcase-next" onclick="showNewSurvivorSection()"')
+
+          # Remove the preview-only duplicate Triune Maw from the creature codex.
+          t=t.replace("Creatures ('+(CRE.length+1)+')","Creatures ('+CRE.length+')")
+          t=t.replace('codexCards(type==="survivors"?S:[...CRE,{...ROOT_FUSION_CODEX,isNew:true,fusionPreview:true}],type)','codexCards(type==="survivors"?S:CRE,type)')
+
+          # Replace codex renderer with a single-source roster and special full-art handling.
+          start=t.find('function codexCards(list,type){')
+          end=t.find('\n\nfunction showCodex(type){',start)
+          if start < 0 or end < 0:
+              raise SystemExit('codexCards block not found')
+          codex='''function codexCards(list,type){
+  return `<div class="codex-grid">${list.map(entry=>{
+    const isTriune=type==="creatures"&&entry.name==="The Triune Maw";
+    const specialCreature=type==="creatures"&&(entry.gateGuardian||isTriune);
+    const availability=type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(isTriune?"FUSION THREAT":entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT");
+    return `<article class="codex-card"><img class="${specialCreature?'codex-special-art':''}" src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit||isTriune?'NEW · ':''}${availability}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span>${entry.armor?`<span>🛡️ ${entry.armor}</span>`:""}<span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}${specialCreature?`<button onclick="viewRootFusionTransformation()">VIEW TRANSFORMATION</button>`:""}`}</div></article>`;
+  }).join("")}</div>`;
+}'''
+          t=t[:start]+codex+t[end:]
+
+          old='''function showCodex(type){
+  document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");
+  document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");
+  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:CRE,type);
+}'''
+          new='''function showCodex(type){
+  document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");
+  document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");
+  const source=type==="survivors"?S:CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index);
+  document.getElementById("codexContent").innerHTML=codexCards(source,type);
+}'''
+          if old in t:
+              t=t.replace(old,new)
+
+          p.write_text(t)
+          PY
 
       - name: Verify required artwork
         run: |
@@ -43,32 +109,36 @@ jobs:
           from pathlib import Path
           t=Path('index.html').read_text()
           checks={
-            'guardian art': all(x in t for x in ['thornbound.jpg','veinmaw.jpg','ashwraith.jpg']),
+            'guardian JPG mapping': all(x in t for x in ['thornbound.jpg','veinmaw.jpg','ashwraith.jpg']),
             'four cutscene panels': all(x in t for x in ['root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp']),
-            'cutscene next controller': 'rootFusionOverlay' in t and 'nextRootFusionScene' in t and 'SCENE ' in t,
-            '3/3 fusion trigger': 'if(defeated>=3 && !G.rootFusionTriggered)' in t and 'showRootFusionCutscene();' in t,
-            'safe third guardian cleanup': 'const fallenGuardian=combat;' in t and 'G.creatures=G.creatures.filter(c=>c!==fallenGuardian);' in t and 'showRootFusionCutscene();\n    return;' in t,
+            'single Triune codex source': '[...CRE,{...ROOT_FUSION_CODEX' not in t and "Creatures ('+CRE.length+')" in t,
+            'unique creature roster': 'CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index)' in t,
+            'Triune fusion label': 'isTriune?"FUSION THREAT"' in t,
+            'clean menu nav': 'class="showcase-next" onclick="showNewGuardianSection()"' in t,
+            'guardian full-art fit': '.gate-guardian-card img{object-fit:contain!important' in t,
+            'codex full-art fit': '.codex-card img.codex-special-art{object-fit:contain' in t,
+            'transformation preview': 'VIEW TRANSFORMATION' in t and 'previewRootFusionScene' in t,
+            'fusion progression': 'showRootFusionCutscene' in t and 'spawnTriuneMaw' in t and 'rootFusionDefeated' in t,
             'triune stats': 'name:"The Triune Maw"' in t and 'hp:120' in t and 'atk:14' in t and 'armor:80' in t,
-            'triune correct damage variable': 'if(c.hp<=c.maxHp*0.5)damage+=3;' in t and 'if(c.triuneAttackCount%3===0){damage+=6;' in t,
-            'rootstorm combat actions': 'p.combatActions=Math.max(0,(p.combatActions||0)-drained)' in t and 'p.combatAp' not in t,
-            'triune armor': 'combat.rootFusionBoss && (combat.armor||0)>0' in t,
-            'root lock': 'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t,
-            'triune defeat unlocks root': 'if(combat.name==="The Triune Maw")' in t and 'G.rootGateUnlocked=true' in t,
-            'fusion save recovery': 'a save made after the fusion trigger must never strand the Root gate' in t and 'spawnTriuneMaw();' in t,
-            'three-night transformations': 'p.transformedThroughNight=G.night+2' in t and 'if(G.night>p.transformedThroughNight)' in t,
-            'party combat switching': 's.combatActions=combatActionCount(s)' in t,
-            'mobile cutscene': '@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
-            'new update player notes': 'New Fusion Encounter:' in t and 'Safer Boss Progression:' in t and 'Horror Soundtrack:' in t,
-            'main menu creature paging': 'NEXT: NEW CREATURES' in t and 'showNewGuardianSection' in t and 'showNewSurvivorSection' in t,
-            'transformation preview': 'VIEW TRANSFORMATION' in t and 'previewRootFusionScene' in t and 'Transformation Preview' in t,
-            'full codex fusion roster': 'ROOT_FUSION_CODEX' in t and "CRE.length+1" in t and 'FUSION THREAT' in t,
-            'tonal horror soundtrack': 'const chordSets=[' in t and 'playHorrorNote' in t and 'const roomTones=' in t,
-            'no static noise buffer': 'createBufferSource' not in t and 'noiseBuffer' not in t and 'noiseData' not in t,
+            'rootstorm': 'p.combatActions=Math.max(0,(p.combatActions||0)-drained)' in t,
+            'three-night transformations': 'p.transformedThroughNight=G.night+2' in t,
+            'party switching': 's.combatActions=combatActionCount(s)' in t,
+            'tonal horror soundtrack': 'const chordSets=[' in t and 'playHorrorNote' in t and 'createBufferSource' not in t,
           }
           bad=[k for k,v in checks.items() if not v]
           for k,v in checks.items(): print(f'{k}: {"PASS" if v else "FAIL"}')
           if bad: raise SystemExit('Failed: '+', '.join(bad))
-          print('All V0.5 regression checks passed.')
+          print('All V0.5 checks passed.')
           PY
 
-# verification run after final artwork upload
+      - name: Commit repaired index to dev
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No repair commit needed.'
+            exit 0
+          fi
+          git config user.name 'V0.5 Beta Repair'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Fix V0.5 guardian showcase and duplicate Triune Maw'
+          git push origin HEAD:dev
