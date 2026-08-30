@@ -1,0 +1,58 @@
+name: V0.5 Final Verification
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-final-verification.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Verify required artwork
+        run: |
+          test -s thornbound.webp
+          test -s veinmaw.webp
+          test -s ashwraith.webp
+          test -s root-fusion-1.webp
+          test -s root-fusion-2.webp
+          test -s root-fusion-3.webp
+          test -s root-fusion-4.webp
+      - name: JavaScript syntax check
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text()
+          scripts=re.findall(r'<script>(.*?)</script>',t,re.S)
+          Path('/tmp/game.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/game.js
+      - name: Verify V0.5 story and combat hooks
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          checks={
+            'three guardian art': all(x in t for x in ['thornbound.webp','veinmaw.webp','ashwraith.webp']),
+            'four cutscene art': all(x in t for x in ['root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp']),
+            'cutscene overlay': 'rootFusionOverlay' in t and 'nextRootFusionScene' in t,
+            'three deaths trigger fusion': 'if(defeated>=3 && !G.rootFusionTriggered)' in t and 'showRootFusionCutscene()' in t,
+            'triune stats': 'name:"The Triune Maw"' in t and 'hp:120' in t and 'atk:14' in t and 'armor:80' in t,
+            'triune damage variable fixed': 'if(c.hp<=c.maxHp*0.5)damage+=3;' in t and 'if(c.triuneAttackCount%3===0){damage+=6;' in t,
+            'rootstorm correct AP field': 'p.combatActions=Math.max(0,(p.combatActions||0)-drained)' in t and 'p.combatAp' not in t,
+            'root locked behind triune': 'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t,
+            'triune defeat opens root': 'if(combat.name==="The Triune Maw")' in t and 'G.rootGateUnlocked=true' in t,
+            'save hooks': 'rootFusionTriggered' in t and 'rootFusionDefeated' in t,
+            'mobile cutscene': '@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
+            'party switching AP': 's.combatActions=combatActionCount(s)' in t,
+            'transformation duration': 'transformedThroughNight' in t,
+          }
+          bad=[k for k,v in checks.items() if not v]
+          for k,v in checks.items(): print(f'{k}: {"PASS" if v else "FAIL"}')
+          if bad: raise SystemExit('Failed: '+', '.join(bad))
+          PY
