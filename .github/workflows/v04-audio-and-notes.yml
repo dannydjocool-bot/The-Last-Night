@@ -1,0 +1,70 @@
+name: Improve V0.4 audio and update notes
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v04-audio-and-notes.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch audio and update notes
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+
+          # Add the two survivor feature notes once.
+          marker='<ul class="update-details-list">'
+          pos=text.find(marker)
+          if pos == -1:
+              raise SystemExit('Update details list not found')
+          insert='''\n      <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>\n      <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>'''
+          if '2 New G.O.A.T Survivors:' not in text:
+              text=text[:pos+len(marker)] + insert + text[pos+len(marker):]
+
+          old='''function ensureHorrorAudio(){\n  if(!audioEnabled())return null;\n  const AudioCtor=window.AudioContext||window.webkitAudioContext;\n  if(!AudioCtor)return null;\n  if(!horrorAudio){\n    const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();\n    master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);\n    const drone=ctx.createOscillator(),droneFilter=ctx.createBiquadFilter();drone.type="sine";drone.frequency.value=42;droneFilter.type="lowpass";droneFilter.frequency.value=130;drone.connect(droneFilter);droneFilter.connect(music);drone.start();\n    const wind=ctx.createOscillator(),windFilter=ctx.createBiquadFilter();wind.type="triangle";wind.frequency.value=71;windFilter.type="lowpass";windFilter.frequency.value=95;wind.connect(windFilter);windFilter.connect(ambience);wind.start();\n    horrorAudio={ctx,master,music,ambience,effects,drone,wind};\n  }'''
+          new='''function ensureHorrorAudio(){\n  if(!audioEnabled())return null;\n  const AudioCtor=window.AudioContext||window.webkitAudioContext;\n  if(!AudioCtor)return null;\n  if(!horrorAudio){\n    const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();\n    master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);\n\n    // Dark cinematic pad: layered musical intervals instead of a single static tone.\n    const padFilter=ctx.createBiquadFilter();\n    padFilter.type="lowpass";padFilter.frequency.value=420;padFilter.Q.value=.7;padFilter.connect(music);\n    const padNotes=[43.65,65.41,87.31];\n    const padOscillators=padNotes.map((freq,index)=>{\n      const osc=ctx.createOscillator(),gain=ctx.createGain();\n      osc.type=index===0?"sine":"triangle";\n      osc.frequency.value=freq;\n      osc.detune.value=index===1?-7:index===2?5:0;\n      gain.gain.value=index===0?.46:index===1?.16:.10;\n      osc.connect(gain);gain.connect(padFilter);osc.start();\n      return {osc,gain};\n    });\n    const musicLfo=ctx.createOscillator(),musicLfoGain=ctx.createGain();\n    musicLfo.type="sine";musicLfo.frequency.value=.055;musicLfoGain.gain.value=75;\n    musicLfo.connect(musicLfoGain);musicLfoGain.connect(padFilter.frequency);musicLfo.start();\n\n    // Wind ambience: filtered, slowly moving noise with a faint distant howl.\n    const noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),noiseData=noiseBuffer.getChannelData(0);\n    let last=0;\n    for(let i=0;i<noiseData.length;i++){\n      const white=Math.random()*2-1;\n      last=last*.985+white*.015;\n      noiseData[i]=last*.8;\n    }\n    const wind=ctx.createBufferSource(),windFilter=ctx.createBiquadFilter(),windGain=ctx.createGain();\n    wind.buffer=noiseBuffer;wind.loop=true;windFilter.type="bandpass";windFilter.frequency.value=520;windFilter.Q.value=.55;windGain.gain.value=.48;\n    wind.connect(windFilter);windFilter.connect(windGain);windGain.connect(ambience);wind.start();\n    const windLfo=ctx.createOscillator(),windLfoGain=ctx.createGain();\n    windLfo.type="sine";windLfo.frequency.value=.11;windLfoGain.gain.value=.18;\n    windLfo.connect(windLfoGain);windLfoGain.connect(windGain.gain);windLfo.start();\n    const howl=ctx.createOscillator(),howlGain=ctx.createGain(),howlLfo=ctx.createOscillator(),howlPitch=ctx.createGain();\n    howl.type="sine";howl.frequency.value=185;howlGain.gain.value=.025;\n    howlLfo.type="sine";howlLfo.frequency.value=.07;howlPitch.gain.value=22;\n    howlLfo.connect(howlPitch);howlPitch.connect(howl.frequency);howl.connect(howlGain);howlGain.connect(ambience);howl.start();howlLfo.start();\n\n    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};\n  }'''
+          if old not in text:
+              raise SystemExit('Original ensureHorrorAudio block not found')
+          text=text.replace(old,new,1)
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Validate game document
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import re
+          text=Path('index.html').read_text(encoding='utf-8')
+          checks={
+            'GOAT update note':'2 New G.O.A.T Survivors:' in text,
+            'Flashlight survivor note':'7 Flashlight-Exclusive Survivors:' in text,
+            'Layered cinematic pad':'const padNotes=[43.65,65.41,87.31];' in text,
+            'Filtered wind noise':'windFilter.type="bandpass"' in text,
+            'Wind modulation':'windLfo.frequency.value=.11' in text,
+            'Distant howl':'howl.frequency.value=185' in text,
+            'Save protection':'SAVE_BACKUP_PREFIX' in text,
+            'New Update panel':'id="updateDetailsPanel"' in text,
+          }
+          for name,ok in checks.items(): print(('PASS' if ok else 'FAIL')+': '+name)
+          failed=[name for name,ok in checks.items() if not ok]
+          if failed: raise SystemExit('Failed: '+', '.join(failed))
+          HTMLParser().feed(text)
+          scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',text,flags=re.S|re.I)
+          Path('/tmp/inline.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/inline.js
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Improve V0.4 horror audio and update notes"
+          git push origin dev
