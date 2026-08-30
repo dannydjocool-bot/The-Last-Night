@@ -1,0 +1,83 @@
+name: Fix clickable New Update details
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/fix-update-details-link.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch clickable update details
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+
+          css='''
+.library-update-badge.library-update-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;min-height:34px}
+#updateDetailsPanel{position:fixed;inset:0;z-index:17000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px)}
+#updateDetailsPanel:target{display:grid}
+.update-details-card{width:min(620px,100%);max-height:88dvh;overflow:auto;border:1px solid #72434a;border-radius:17px;background:linear-gradient(150deg,#211619,#0b0c0e 65%);box-shadow:0 30px 100px #000,0 0 45px rgba(175,48,61,.16);padding:26px}
+.update-details-kicker{color:#df737c;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+.update-details-card h2{margin:8px 0 10px;font-family:Georgia,serif;letter-spacing:2px}
+.update-details-card p{margin:0;color:#c0c4c8;line-height:1.65}
+.update-details-list{margin:16px 0 0;padding-left:20px;color:#c9cdd1;line-height:1.6}
+.update-details-list li{margin:8px 0}
+.update-details-back{display:inline-flex;align-items:center;justify-content:center;margin-top:20px;padding:10px 14px;border:1px solid #76545a;border-radius:9px;background:#1a1c1f;color:#fff;text-decoration:none;font-weight:800}
+.update-details-back:hover{border-color:#d36a74;background:#24272a}
+@media(max-width:600px){.update-details-card{padding:21px}.library-update-badge.library-update-link{right:14px;top:58px;font-size:9px}}
+'''
+          if '#updateDetailsPanel{' not in text:
+              text=text.replace('</style>',css+'</style>',1)
+
+          # Insert a real anchor inside the library artwork. This avoids JS click-handler failures.
+          if 'href="#updateDetailsPanel"' not in text:
+              pattern=r'(<[^>]+class=["\'][^"\']*library-art[^"\']*["\'][^>]*>)'
+              repl=r'\1<a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.4 Beta update details">New Update</a>'
+              text,n=re.subn(pattern,repl,text,count=1)
+              if n!=1:
+                  raise SystemExit('Could not find library-art container')
+
+          panel='''
+<section id="updateDetailsPanel" aria-labelledby="updateDetailsTitle">
+  <div class="update-details-card">
+    <div class="update-details-kicker">Latest Build</div>
+    <h2 id="updateDetailsTitle">V-0.4 Beta — New Update</h2>
+    <p>This update adds new polish and fixes several issues reported while testing on phones.</p>
+    <ul class="update-details-list">
+      <li><strong>Mobile item images fixed:</strong> Obtainable Items artwork now fits its cards better instead of overlapping or being heavily cropped.</li>
+      <li><strong>Transforming cards fixed:</strong> flipped survivor card text no longer stacks or overlaps.</li>
+      <li><strong>Main Pack / Extra Pockets improved:</strong> the phone layout is cleaner and no longer crowds the top of the game screen.</li>
+      <li><strong>Mobile survivor portraits improved:</strong> main-menu character images are positioned to reduce cropped heads.</li>
+      <li><strong>V-0.4 Beta info added:</strong> the version badge now explains that the game is still in early development.</li>
+      <li><strong>General mobile polish:</strong> readability, spacing, and menu presentation received additional fixes.</li>
+    </ul>
+    <a class="update-details-back" href="#">← Back to Library</a>
+  </div>
+</section>
+'''
+          if 'id="updateDetailsPanel"' not in text:
+              text=text.replace('</body>',panel+'\n</body>',1)
+
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix New Update click and add update details panel"
+          git push origin dev
