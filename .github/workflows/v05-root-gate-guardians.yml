@@ -1,0 +1,99 @@
+name: V0.5 Root Gate Guardians
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-root-gate-guardians.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Normalize combat section for patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text()
+          old='// ===============================\n// RARE CREATURE ABILITIES\n// ==============================='
+          new='  // ===============================\n// RARE CREATURE ABILITIES\n// ==============================='
+          if old in t:
+              t=t.replace(old,new,1)
+          p.write_text(t)
+          PY
+
+      - name: Apply Root Gate guardian update
+        run: python3 .github/scripts/v05-root-gate-guardians.py
+
+      - name: Simplify generated guardian objective
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text()
+          old='''    const defeated=(G.rootGateMinionsDefeated||[]).length;\n    objectiveText.innerHTML=`✅ Objective 13 — Entered the Root of Blackwood<br>➡️ Objective 14 — Break the Root Gate (${defeated}/3 Guardians defeated)<br>${["The Thornbound","The Veinmaw","The Ash Wraith"].map(name=>(G.rootGateMinionsDefeated||[]).includes(name)?"✅":"⬜")+" "+name).join("<br>")}`;'''
+          new='''    const defeated=(G.rootGateMinionsDefeated||[]).length;\n    const guardianLines=ROOT_GATE_GUARDIAN_NAMES.map(function(name){return ((G.rootGateMinionsDefeated||[]).includes(name)?"✅":"⬜")+" "+name;}).join("<br>");\n    objectiveText.innerHTML=`✅ Objective 13 — Entered the Root of Blackwood<br>➡️ Objective 14 — Break the Root Gate (${defeated}/3 Guardians defeated)<br>${guardianLines}`;'''
+          if old not in t:
+              raise SystemExit('Generated Root Gate objective block not found')
+          p.write_text(t.replace(old,new,1))
+          PY
+
+      - name: Syntax check game JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          scripts=re.findall(r'<script>(.*?)</script>',text,re.S)
+          Path('/tmp/the-last-night.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/the-last-night.js
+
+      - name: Verify Root Gate progression and responsive UI
+        run: |
+          grep -q 'The Thornbound' index.html
+          grep -q 'The Veinmaw' index.html
+          grep -q 'The Ash Wraith' index.html
+          grep -q 'ROOT GATE GUARDIAN' index.html
+          grep -q 'rootGateUnlocked' index.html
+          grep -q 'rootGateMinionsDefeated' index.html
+          grep -q 'spawnRootGateGuardians' index.html
+          grep -q 'NEW ROOT GATE GUARDIANS' index.html
+          grep -q 'nextRootGateGuardian' index.html
+          grep -q 'guardianLines' index.html
+          grep -q '@media(max-width:600px)' index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          names=['The Thornbound','The Veinmaw','The Ash Wraith']
+          assert all(n in t for n in names)
+          assert 'G.rootGateUnlocked=true' in t
+          assert 'if(defeated>=3)' in t
+          assert 'relicsComplete&&G.rootGateUnlocked&&!G.rootDefeated' in t
+          assert 'rootGateMinionsDefeated.length>=3||G.rootDefeated' in t
+          assert 'library-previous-update-badge' in t
+          assert 'V-0.5 Beta — New Update' in t
+          assert 'newGateGuardianShowcase' in t
+          assert 'gate-guardian-stage' in t
+          print('Static story, save migration, desktop and mobile checks passed.')
+          PY
+
+      - name: Commit V0.5 Root Gate guardians
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Add three Root Gate guardians to V-0.5 Beta' || exit 0
+          git push origin dev
+
+# V0.5 gate guardian integration run 4

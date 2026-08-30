@@ -1,0 +1,81 @@
+name: V0.5 Final Verification
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-final-verification.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Apply roster and guardian UI repair
+        run: python3 .github/scripts/v05-roster-ui-fix.py
+
+      - name: Verify required artwork
+        run: |
+          test -s thornbound.jpg
+          test -s veinmaw.jpg
+          test -s ashwraith.jpg
+          test -s root-fusion-1.webp
+          test -s root-fusion-2.webp
+          test -s root-fusion-3.webp
+          test -s root-fusion-4.webp
+
+      - name: JavaScript syntax check
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text()
+          Path('/tmp/game.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>',t,re.S)))
+          PY
+          node --check /tmp/game.js
+
+      - name: Verify V0.5 regression checks
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          checks={
+            'guardian JPG mapping': all(x in t for x in ['thornbound.jpg','veinmaw.jpg','ashwraith.jpg']),
+            'four cutscene panels': all(x in t for x in ['root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp']),
+            'single Triune codex source': '[...CRE,{...ROOT_FUSION_CODEX' not in t and "Creatures ('+CRE.length+')" in t,
+            'unique creature roster': 'CRE.filter((entry,index,array)=>array.findIndex(other=>other.name===entry.name)===index)' in t,
+            'Triune fusion label': 'isTriune?"FUSION THREAT"' in t,
+            'clean menu nav': 'class="showcase-next" onclick="showNewGuardianSection()"' in t,
+            'guardian full-art fit': '.gate-guardian-card img{object-fit:contain!important' in t,
+            'codex full-art fit': '.codex-card img.codex-special-art{object-fit:contain' in t,
+            'transformation preview': 'VIEW TRANSFORMATION' in t and 'previewRootFusionScene' in t,
+            'fusion progression': 'showRootFusionCutscene' in t and 'spawnTriuneMaw' in t and 'rootFusionDefeated' in t,
+            'triune stats': 'name:"The Triune Maw"' in t and 'hp:120' in t and 'atk:14' in t and 'armor:80' in t,
+            'rootstorm': 'p.combatActions=Math.max(0,(p.combatActions||0)-drained)' in t,
+            'three-night transformations': 'p.transformedThroughNight=G.night+2' in t,
+            'party switching': 's.combatActions=combatActionCount(s)' in t,
+            'tonal horror soundtrack': 'const chordSets=[' in t and 'playHorrorNote' in t and 'createBufferSource' not in t,
+          }
+          bad=[k for k,v in checks.items() if not v]
+          for k,v in checks.items(): print(f'{k}: {"PASS" if v else "FAIL"}')
+          if bad: raise SystemExit('Failed: '+', '.join(bad))
+          print('All V0.5 checks passed.')
+          PY
+
+      - name: Commit repaired index to dev
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No repair commit needed.'
+            exit 0
+          fi
+          git config user.name 'V0.5 Beta Repair'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Fix V0.5 guardian showcase and duplicate Triune Maw'
+          git push origin HEAD:dev

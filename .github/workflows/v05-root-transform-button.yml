@@ -1,0 +1,43 @@
+name: V0.5 Root Gate Transformation Button
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-root-transform-button.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Add Root Gate transformation button
+        run: python3 .github/scripts/add-root-transform-button.py
+      - name: Verify button and transformation function
+        run: |
+          grep -q 'VIEW TRANSFORMATION' index.html
+          grep -q 'gate-transform-actions' index.html
+          grep -q 'function viewRootFusionTransformation' index.html
+      - name: JavaScript syntax check
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text()
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',t,re.S)
+          Path('/tmp/check.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/check.js
+      - name: Commit change
+        run: |
+          git config user.name 'V0.5 Beta UI'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+          else
+            git commit -m 'Add Root Gate View Transformation button'
+            git push origin dev
+          fi

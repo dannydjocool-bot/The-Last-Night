@@ -1,0 +1,25 @@
+name: V0.5 Image Validation
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-image-validation.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Validate WebP headers
+        run: |
+          file thornbound.webp veinmaw.webp ashwraith.webp root-fusion-1.webp root-fusion-2.webp root-fusion-3.webp root-fusion-4.webp
+          python3 - <<'PY'
+          from pathlib import Path
+          files=['thornbound.webp','veinmaw.webp','ashwraith.webp','root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp']
+          for f in files:
+              b=Path(f).read_bytes()
+              ok=len(b)>12 and b[:4]==b'RIFF' and b[8:12]==b'WEBP'
+              print(f, len(b), b[:12], 'OK' if ok else 'BAD')
+              if not ok: raise SystemExit(1)
+          PY

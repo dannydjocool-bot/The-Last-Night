@@ -1,0 +1,105 @@
+name: V0.5 Root Fusion Cutscene
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-root-fusion-cutscene.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Decode and validate final V0.5 artwork
+        run: python3 .github/scripts/v05-decode-final-assets.py
+
+      - name: Apply final fusion cutscene update
+        run: python3 .github/scripts/v05-root-fusion-finalize.py
+
+      - name: Ensure Rootstorm ability
+        run: python3 .github/scripts/v05-rootstorm-patch.py
+
+      - name: Syntax check game JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          scripts=re.findall(r'<script>(.*?)</script>',text,re.S)
+          Path('/tmp/the-last-night.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/the-last-night.js
+
+      - name: Verify artwork files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          names=[
+            'thornbound.webp','veinmaw.webp','ashwraith.webp',
+            'root-fusion-1.webp','root-fusion-2.webp','root-fusion-3.webp','root-fusion-4.webp'
+          ]
+          for name in names:
+            p=Path(name)
+            if not p.exists(): raise SystemExit(f'Missing asset: {name}')
+            b=p.read_bytes()
+            if len(b)<100 or b[:4]!=b'RIFF' or b[8:12]!=b'WEBP':
+              raise SystemExit(f'Invalid WebP: {name}')
+            print(f'{name}: {len(b)} bytes PASS')
+          print('All seven final V0.5 artwork files passed validation.')
+          PY
+
+      - name: Verify fusion progression and responsive cutscene
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          checks={
+            'Triune definition':'The Triune Maw' in t,
+            'cutscene overlay':'rootFusionOverlay' in t and 'root-fusion-overlay' in t,
+            '4-scene controller':'ROOT_FUSION_SCENES' in t and 'nextRootFusionScene' in t,
+            'guardian 3/3 trigger':'if(defeated>=3 && !G.rootFusionTriggered)' in t,
+            'cutscene trigger':'showRootFusionCutscene()' in t,
+            'Triune spawn':'spawnTriuneMaw()' in t,
+            '120 HP':'120 HP' in t,
+            '80 Armor':'80 ARMOR' in t,
+            'Triune Berserk':'TRIUNE BERSERK' in t,
+            'Rootstorm':'ROOTSTORM coils around' in t,
+            'armor absorption':'combat.rootFusionBoss && (combat.armor||0)>0' in t,
+            'save state':'rootFusionTriggered' in t and 'rootFusionDefeated' in t,
+            'Root lock':'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t,
+            'Triune objective':'Defeat The Triune Maw' in t,
+            'Root objective after fusion':'Destroy the Root of Blackwood' in t,
+            'mobile rules':'@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
+            'panel 1 art':'root-fusion-1.webp' in t,
+            'panel 2 art':'root-fusion-2.webp' in t,
+            'panel 3 art':'root-fusion-3.webp' in t,
+            'panel 4 art':'root-fusion-4.webp' in t,
+            'guardian art':'thornbound.webp' in t and 'veinmaw.webp' in t and 'ashwraith.webp' in t,
+          }
+          failed=[]
+          for name,ok in checks.items():
+            print(f'{name}: {"PASS" if ok else "FAIL"}')
+            if not ok: failed.append(name)
+          if failed:
+            raise SystemExit('Failed checks: '+', '.join(failed))
+          print('Fusion story, combat, save hooks, desktop and mobile static checks passed.')
+          PY
+
+      - name: Commit final V0.5 artwork and gameplay
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html thornbound.webp veinmaw.webp ashwraith.webp root-fusion-1.webp root-fusion-2.webp root-fusion-3.webp root-fusion-4.webp
+          git commit -m 'Add final Root Gate guardian and fusion artwork' || exit 0
+          git push origin dev
+
+# final artwork decoder run
