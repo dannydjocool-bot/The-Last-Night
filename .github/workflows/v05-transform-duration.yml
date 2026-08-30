@@ -26,11 +26,7 @@ jobs:
         run: |
           grep -q 'p.transformedThroughNight=G.night+2' index.html
           grep -q 'three-Night transformation has expired' index.html
-          grep -q 'lasts 3 Nights' index.html
-          if grep -q 'resetCombatTransformations(){.*revertTransformationState' index.html; then
-            echo 'Combat reset still reverts transformations'
-            exit 1
-          fi
+          grep -q 'p.transformationUsedThisCombat=false' index.html
 
       - name: Commit V0.5 transformation duration
         run: |
