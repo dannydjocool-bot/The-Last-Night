@@ -1519,67 +1519,91 @@ function ensureHorrorAudio(){
     const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
     master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
 
-    // V0.5 horror score: restrained midrange drone with sparse, eerie musical notes.
-    const padFilter=ctx.createBiquadFilter();
-    padFilter.type="lowpass";padFilter.frequency.value=950;padFilter.Q.value=.55;padFilter.connect(music);
-    const padNotes=[110.00,164.81,220.00];
-    const padOscillators=padNotes.map((freq,index)=>{
+    // V0.5 horror soundtrack: fully tonal score — no white-noise/static loop.
+    const scoreFilter=ctx.createBiquadFilter();
+    scoreFilter.type="lowpass";scoreFilter.frequency.value=1350;scoreFilter.Q.value=.7;scoreFilter.connect(music);
+
+    // Slow, uneasy chord progression centered around A minor / tritone tension.
+    const chordSets=[
+      [55.00,82.41,110.00,155.56],
+      [58.27,87.31,116.54,164.81],
+      [51.91,77.78,103.83,146.83],
+      [55.00,77.78,110.00,138.59]
+    ];
+    const padOscillators=[0,1,2,3].map((_,index)=>{
       const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.type=index===0?"triangle":"sine";
-      osc.frequency.value=freq;
-      osc.detune.value=index===1?-9:index===2?7:0;
-      gain.gain.value=index===0?.12:index===1?.055:.035;
-      osc.connect(gain);gain.connect(padFilter);osc.start();
+      osc.type=index===0?"triangle":index===3?"sine":"sine";
+      gain.gain.value=[.11,.045,.038,.025][index];
+      osc.connect(gain);gain.connect(scoreFilter);osc.start();
       return {osc,gain};
     });
-    const musicLfo=ctx.createOscillator(),musicLfoGain=ctx.createGain();
-    musicLfo.type="sine";musicLfo.frequency.value=.04;musicLfoGain.gain.value=110;
-    musicLfo.connect(musicLfoGain);musicLfoGain.connect(padFilter.frequency);musicLfo.start();
+    let chordStep=0;
+    const setChord=(immediate=false)=>{
+      const now=ctx.currentTime,notes=chordSets[chordStep++%chordSets.length];
+      padOscillators.forEach(({osc},i)=>{
+        const target=notes[i];
+        if(immediate)osc.frequency.setValueAtTime(target,now);
+        else osc.frequency.exponentialRampToValueAtTime(target,now+2.8);
+      });
+    };
+    setChord(true);
+    const chordTimer=setInterval(()=>{if(ctx.state==="running"&&audioEnabled())setChord(false);},12000);
 
-    const horrorMotif=[220.00,233.08,174.61,164.81,277.18,220.00,null,146.83];
+    // Subtle movement so the soundtrack breathes rather than drones flat.
+    const scoreLfo=ctx.createOscillator(),scoreLfoGain=ctx.createGain();
+    scoreLfo.type="sine";scoreLfo.frequency.value=.035;scoreLfoGain.gain.value=160;
+    scoreLfo.connect(scoreLfoGain);scoreLfoGain.connect(scoreFilter.frequency);scoreLfo.start();
+
+    // Sparse bell/piano-like motif above the chord bed.
+    const horrorMotif=[220.00,233.08,null,174.61,164.81,null,277.18,146.83];
     let horrorMotifStep=0;
     const playHorrorNote=()=>{
       if(!audioEnabled()||ctx.state!=="running")return;
       const freq=horrorMotif[horrorMotifStep++%horrorMotif.length];
       if(!freq)return;
-      const now=ctx.currentTime,osc=ctx.createOscillator(),noteGain=ctx.createGain(),noteFilter=ctx.createBiquadFilter();
-      osc.type="sine";osc.frequency.setValueAtTime(freq,now);
-      osc.detune.setValueAtTime((Math.random()-.5)*10,now);
-      noteFilter.type="bandpass";noteFilter.frequency.value=1100;noteFilter.Q.value=.8;
-      noteGain.gain.setValueAtTime(.0001,now);
-      noteGain.gain.exponentialRampToValueAtTime(.028,now+.12);
-      noteGain.gain.exponentialRampToValueAtTime(.0001,now+2.8);
-      osc.connect(noteFilter);noteFilter.connect(noteGain);noteGain.connect(music);
-      osc.start(now);osc.stop(now+3);
+      const now=ctx.currentTime;
+      [1,2.01].forEach((mult,harmonic)=>{
+        const osc=ctx.createOscillator(),noteGain=ctx.createGain(),noteFilter=ctx.createBiquadFilter();
+        osc.type=harmonic?"sine":"triangle";
+        osc.frequency.setValueAtTime(freq*mult,now);
+        noteFilter.type="bandpass";noteFilter.frequency.value=harmonic?1800:900;noteFilter.Q.value=1.1;
+        noteGain.gain.setValueAtTime(.0001,now);
+        noteGain.gain.exponentialRampToValueAtTime(harmonic?.008:.022,now+.035);
+        noteGain.gain.exponentialRampToValueAtTime(.0001,now+(harmonic?2.2:3.6));
+        osc.connect(noteFilter);noteFilter.connect(noteGain);noteGain.connect(music);
+        osc.start(now);osc.stop(now+(harmonic?2.3:3.7));
+      });
     };
-    const motifTimer=setInterval(playHorrorNote,4200);
+    const motifTimer=setInterval(playHorrorNote,4700);
 
-    // Wind ambience: filtered, slowly moving noise with a faint distant howl.
-    const noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),noiseData=noiseBuffer.getChannelData(0);
-    let last=0;
-    for(let i=0;i<noiseData.length;i++){
-      const white=Math.random()*2-1;
-      last=last*.985+white*.015;
-      noiseData[i]=last*.8;
-    }
-    const wind=ctx.createBufferSource(),windFilter=ctx.createBiquadFilter(),windGain=ctx.createGain();
-    wind.buffer=noiseBuffer;wind.loop=true;windFilter.type="bandpass";windFilter.frequency.value=520;windFilter.Q.value=.55;windGain.gain.value=.48;
-    wind.connect(windFilter);windFilter.connect(windGain);windGain.connect(ambience);wind.start();
-    const windLfo=ctx.createOscillator(),windLfoGain=ctx.createGain();
-    windLfo.type="sine";windLfo.frequency.value=.11;windLfoGain.gain.value=.18;
-    windLfo.connect(windLfoGain);windLfoGain.connect(windGain.gain);windLfo.start();
-    const howl=ctx.createOscillator(),howlGain=ctx.createGain(),howlLfo=ctx.createOscillator(),howlPitch=ctx.createGain();
-    howl.type="sine";howl.frequency.value=185;howlGain.gain.value=.025;
-    howlLfo.type="sine";howlLfo.frequency.value=.07;howlPitch.gain.value=22;
-    howlLfo.connect(howlPitch);howlPitch.connect(howl.frequency);howl.connect(howlGain);howlGain.connect(ambience);howl.start();howlLfo.start();
+    // Tonal environmental layer: distant low hum + wandering upper moan.
+    // This replaces the previous generated noise buffer that could sound like static.
+    const roomFilter=ctx.createBiquadFilter();
+    roomFilter.type="lowpass";roomFilter.frequency.value=420;roomFilter.Q.value=.45;roomFilter.connect(ambience);
+    const roomTones=[43.65,65.41].map((freq,index)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type=index?"sine":"triangle";osc.frequency.value=freq;gain.gain.value=index?.025:.035;
+      osc.connect(gain);gain.connect(roomFilter);osc.start();return {osc,gain};
+    });
+    const moan=ctx.createOscillator(),moanGain=ctx.createGain(),moanLfo=ctx.createOscillator(),moanPitch=ctx.createGain();
+    moan.type="sine";moan.frequency.value=174.61;moanGain.gain.value=.012;
+    moanLfo.type="sine";moanLfo.frequency.value=.045;moanPitch.gain.value=16;
+    moanLfo.connect(moanPitch);moanPitch.connect(moan.frequency);moan.connect(moanGain);moanGain.connect(ambience);moan.start();moanLfo.start();
 
-    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,motifTimer,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};
+    horrorAudio={ctx,master,music,ambience,effects,padOscillators,scoreFilter,scoreLfo,chordTimer,motifTimer,roomTones,roomFilter,moan,moanGain,moanLfo};
   }
   if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
   updateAudioMix();
   return horrorAudio;
 }
-function updateAudioMix(){if(!horrorAudio)return;const now=horrorAudio.ctx.currentTime;horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.55:0,now,.08);horrorAudio.music.gain.setTargetAtTime(audioLevel("music",25)/100*.16,now,.12);horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.07,now,.12);horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);}
+function updateAudioMix(){
+  if(!horrorAudio)return;
+  const now=horrorAudio.ctx.currentTime;
+  horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.62:0,now,.08);
+  horrorAudio.music.gain.setTargetAtTime(audioLevel("music",25)/100*.28,now,.12);
+  horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.11,now,.12);
+  horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);
+}
 function setAudioEnabled(value){localStorage.setItem("theLastNightSetting_audio",String(value));if(value)ensureHorrorAudio();else updateAudioMix();showToast(value?"Atmospheric audio enabled":"Atmospheric audio muted");}
 function setAudioLevel(channel,value){localStorage.setItem("theLastNightAudio_"+channel,String(value));const label=document.getElementById("audio_"+channel+"_value");if(label)label.textContent=value+"%";updateAudioMix();}
 function horrorTone(kind="hit"){
