@@ -1,0 +1,36 @@
+name: Fix update overlay stacking
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/fix-update-overlay-zindex.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch update overlay stacking
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          old='#updateDetailsPanel{position:fixed;inset:0;z-index:17000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px)}'
+          new='#updateDetailsPanel{position:fixed;inset:0;z-index:26000;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.9);backdrop-filter:blur(9px);pointer-events:auto}'
+          if old not in text:
+              raise SystemExit('Expected updateDetailsPanel CSS not found')
+          text=text.replace(old,new,1)
+          text=text.replace('<a class="update-details-back" href="#">← Back to Library</a>','<a class="update-details-back" href="#gameLibrary">← Back to Library</a>',1)
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix New Update panel appearing behind library"
+          git push origin dev
