@@ -1,0 +1,41 @@
+name: V0.5 Transformation Duration
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-transform-duration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Apply three-night transformation duration
+        run: python3 .github/scripts/v05-transform-duration.py
+
+      - name: Verify transformation duration patch
+        run: |
+          grep -q 'p.transformedThroughNight=G.night+2' index.html
+          grep -q 'three-Night transformation has expired' index.html
+          grep -q 'lasts 3 Nights' index.html
+          if grep -q 'resetCombatTransformations(){.*revertTransformationState' index.html; then
+            echo 'Combat reset still reverts transformations'
+            exit 1
+          fi
+
+      - name: Commit V0.5 transformation duration
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Keep survivor transformations active for three nights' || exit 0
+          git push origin dev
