@@ -65,3 +65,5 @@ jobs:
           git add index.html
           git commit -m 'Add Root Gate fusion cutscene and Triune Maw boss' || exit 0
           git push origin dev
+
+# integration run 2
