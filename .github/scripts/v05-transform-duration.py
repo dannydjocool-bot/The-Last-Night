@@ -86,17 +86,12 @@ replace(
     p.actions=nightActionCount(p);''',
 1)
 
-# Add a visible duration readout and remove any suggestion that combat end forces a revert.
-replace(
-'''${sp.transform?`<button onclick="toggleTransformation(${index})">${sp.transformed?'🌘 Revert to '+sp.originalName:'✨ Transform into '+sp.transform.name}</button><div class="muted">${sp.transformed?'Transformation active':'Unlocks during combat at '+Math.round(transformationThreshold(sp)*100)+'% HP or lower'}</div><br>`:''}''',
-'''${sp.transform?`<button onclick="toggleTransformation(${index})">${sp.transformed?'🌘 Revert to '+sp.originalName:'✨ Transform into '+sp.transform.name}</button><div class="muted">${sp.transformed?`Transformation active · ${Math.max(1,(sp.transformedThroughNight||G.night)-G.night+1)} Night${Math.max(1,(sp.transformedThroughNight||G.night)-G.night+1)===1?'':'s'} remaining`:'Unlocks during combat at '+Math.round(transformationThreshold(sp)*100)+'% HP or lower · lasts 3 Nights'}</div><br>`:''}''',
-1)
-
-# Update menu guidance if present.
+# Update player-facing guidance where the exact text exists, without making the patch depend on it.
 text = text.replace(
 'The Moonbound and The Ashen Saint transform only during combat after reaching their health threshold, and each transformation can activate once per encounter.',
 'The Moonbound and The Ashen Saint transform only during combat after reaching their health threshold. Once activated, the transformed form can remain active for three total Nights, including the activation Night.'
 )
+text = text.replace('Transformation active</div>', 'Transformation active · lasts up to 3 Nights</div>')
 
 path.write_text(text)
 print('V0.5 three-night transformation duration patch applied.')
