@@ -1,0 +1,42 @@
+name: V0.5 Library Update
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-update-library.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Apply V0.5 library update
+        run: python3 .github/scripts/v05-update-library.py
+
+      - name: Verify V0.5 library update
+        run: |
+          grep -q 'V-0.5 Beta — New Update' index.html
+          grep -q 'V-0.4 Beta — Previous Update' index.html
+          grep -q '>V-0.5 Beta</button>' index.html
+          grep -q 'Previous Update</a>' index.html
+          if grep -q 'V-0.4 Beta information:' index.html; then
+            echo 'Developer-facing V0.4 information bullet still present'
+            exit 1
+          fi
+
+      - name: Commit V0.5 library update
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Update library and patch notes for V-0.5 Beta' || exit 0
+          git push origin dev
