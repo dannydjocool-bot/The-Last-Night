@@ -19,8 +19,8 @@ jobs:
           ref: dev
           fetch-depth: 0
 
-      - name: Apply fusion cutscene update
-        run: python3 .github/scripts/v05-root-fusion-cutscene.py
+      - name: Apply final fusion cutscene update
+        run: python3 .github/scripts/v05-root-fusion-finalize.py
 
       - name: Syntax check game JavaScript
         run: |
@@ -42,8 +42,12 @@ jobs:
           grep -q '120 HP' index.html
           grep -q '80 ARMOR' index.html
           grep -q 'TRIUNE BERSERK' index.html
+          grep -q 'ROOTSTORM' index.html
           grep -q 'rootFusionDefeated' index.html
+          grep -q 'root-fusion-overlay' index.html
           grep -q '@media(max-width:600px)' index.html
+          grep -q 'root-fusion-1.webp' index.html
+          grep -q 'root-fusion-4.webp' index.html
           python3 - <<'PY'
           from pathlib import Path
           t=Path('index.html').read_text()
@@ -53,9 +57,10 @@ jobs:
           assert 'G.rootGateUnlocked=true' in t
           assert 'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t
           assert 'combat.rootFusionBoss && (combat.armor||0)>0' in t
-          assert 'root-fusion-overlay' in t and 'root-fusion-scene' in t
           assert 'Objective 15 — Defeat The Triune Maw' in t
-          print('Fusion story, combat, syntax hooks, and mobile UI checks passed.')
+          assert 'Objective 16 — Destroy the Root of Blackwood' in t
+          assert 'thornbound.webp' in t and 'veinmaw.webp' in t and 'ashwraith.webp' in t
+          print('Fusion story, combat, save hooks, desktop and mobile static checks passed.')
           PY
 
       - name: Commit fusion gameplay
@@ -63,7 +68,7 @@ jobs:
           git config user.name 'V0.5 Beta Bot'
           git config user.email 'actions@github.com'
           git add index.html
-          git commit -m 'Add Root Gate fusion cutscene and Triune Maw boss' || exit 0
+          git commit -m 'Finalize Root Gate fusion cutscene and Triune Maw boss' || exit 0
           git push origin dev
 
-# integration run 2
+# finalizer run 1
