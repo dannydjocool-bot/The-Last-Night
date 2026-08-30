@@ -22,6 +22,9 @@ jobs:
       - name: Apply final fusion cutscene update
         run: python3 .github/scripts/v05-root-fusion-finalize.py
 
+      - name: Ensure Rootstorm ability
+        run: python3 .github/scripts/v05-rootstorm-patch.py
+
       - name: Syntax check game JavaScript
         run: |
           python3 - <<'PY'
@@ -48,7 +51,7 @@ jobs:
             '120 HP':'120 HP' in t,
             '80 Armor':'80 ARMOR' in t,
             'Triune Berserk':'TRIUNE BERSERK' in t,
-            'Rootstorm':'ROOTSTORM' in t,
+            'Rootstorm':'ROOTSTORM coils around' in t,
             'armor absorption':'combat.rootFusionBoss && (combat.armor||0)>0' in t,
             'save state':'rootFusionTriggered' in t and 'rootFusionDefeated' in t,
             'Root lock':'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t,
@@ -75,4 +78,4 @@ jobs:
           git commit -m 'Finalize Root Gate fusion cutscene and Triune Maw boss' || exit 0
           git push origin dev
 
-# diagnostic finalizer run 2
+# rootstorm finalizer run 3
