@@ -18,8 +18,8 @@ jobs:
         with:
           ref: dev
       - name: Patch mobile layout and card flipping
-        shell: python
         run: |
+          python - <<'PY'
           from pathlib import Path
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
@@ -27,166 +27,70 @@ jobs:
           if marker in text:
               raise SystemExit('Patch already applied')
           css = r'''
-/* MOBILE_UI_FIX_V1 */
-/* iOS/Safari: prevent the hidden side of transforming cards from bleeding through. */
-.flip-card-inner{
-  -webkit-transform-style:preserve-3d;
-  transform-style:preserve-3d;
-}
-.flip-face{
-  -webkit-backface-visibility:hidden;
-  backface-visibility:hidden;
-  -webkit-transform:translateZ(0);
-  transform:translateZ(0);
-}
-.flip-face.back{
-  -webkit-transform:rotateY(180deg) translateZ(1px);
-  transform:rotateY(180deg) translateZ(1px);
-}
-.flip-card.flipped .flip-card-inner{
-  -webkit-transform:rotateY(180deg);
-  transform:rotateY(180deg);
-}
-.flip-info{
-  max-width:calc(100% - 28px);
-}
-.flip-info b,.flip-info span{
-  overflow-wrap:anywhere;
-  word-break:normal;
-}
-
-/* Phone-only Main Pack: compact bottom drawer instead of a huge block above the game. */
-@media(max-width:850px){
-  body:not(.menu-mode) #extraPocketsPanel{
-    position:fixed!important;
-    left:10px!important;
-    right:10px!important;
-    top:auto!important;
-    bottom:10px!important;
-    width:auto!important;
-    margin:0!important;
-    max-height:min(64vh,520px)!important;
-    overflow:hidden!important;
-    z-index:10020!important;
-    padding:9px 10px!important;
-    border-radius:14px!important;
-    box-shadow:0 14px 44px rgba(0,0,0,.82),0 0 0 1px rgba(126,49,57,.18)!important;
-  }
-  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed{
-    max-height:58px!important;
-  }
-  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed > *:not(#extraPocketsHandle):not(#mobilePackToggle){
-    display:none!important;
-  }
-  #extraPocketsHandle{
-    margin:0!important;
-    min-height:40px;
-    display:flex;
-    align-items:center;
-    padding-right:106px;
-    cursor:default!important;
-    font-size:16px;
-  }
-  #mobilePackToggle{
-    position:absolute;
-    right:8px;
-    top:7px;
-    min-width:92px;
-    min-height:42px;
-    margin:0;
-    z-index:2;
-    font-weight:800;
-    touch-action:manipulation;
-  }
-  #extraPocketsPanel:not(.mobile-pack-collapsed){
-    overflow-y:auto!important;
-    -webkit-overflow-scrolling:touch;
-  }
-  #resetExtraPocketsPosition{
-    display:none!important;
-  }
-  #gameSite.wrap{
-    padding-bottom:82px;
-  }
-  .new-goat-showcase{
-    padding:14px 10px;
-  }
-  .new-goat-grid{
-    grid-template-columns:1fr!important;
-    gap:16px;
-  }
-  .flip-card{
-    min-height:440px;
-    width:100%;
-    max-width:330px;
-    margin-inline:auto;
-  }
-  .flip-info b{
-    font-size:clamp(18px,6vw,22px);
-    line-height:1.08;
-  }
-  .flip-info span{
-    font-size:11px;
-    line-height:1.45;
-  }
-  .flip-hint,.new-badge{
-    max-width:46%;
-    white-space:normal;
-    line-height:1.2;
-    text-align:center;
-  }
-}
-'''
+          /* MOBILE_UI_FIX_V1 */
+          .flip-card-inner{-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
+          .flip-face{-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+          .flip-face.back{-webkit-transform:rotateY(180deg) translateZ(1px);transform:rotateY(180deg) translateZ(1px)}
+          .flip-card.flipped .flip-card-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
+          .flip-info{max-width:calc(100% - 28px)}
+          .flip-info b,.flip-info span{overflow-wrap:anywhere;word-break:normal}
+          @media(max-width:850px){
+            body:not(.menu-mode) #extraPocketsPanel{position:fixed!important;left:10px!important;right:10px!important;top:auto!important;bottom:10px!important;width:auto!important;margin:0!important;max-height:min(64vh,520px)!important;overflow:hidden!important;z-index:10020!important;padding:9px 10px!important;border-radius:14px!important;box-shadow:0 14px 44px rgba(0,0,0,.82),0 0 0 1px rgba(126,49,57,.18)!important}
+            body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed{max-height:58px!important}
+            body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed > *:not(#extraPocketsHandle):not(#mobilePackToggle){display:none!important}
+            #extraPocketsHandle{margin:0!important;min-height:40px;display:flex;align-items:center;padding-right:106px;cursor:default!important;font-size:16px}
+            #mobilePackToggle{position:absolute;right:8px;top:7px;min-width:92px;min-height:42px;margin:0;z-index:2;font-weight:800;touch-action:manipulation}
+            #extraPocketsPanel:not(.mobile-pack-collapsed){overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+            #resetExtraPocketsPosition{display:none!important}
+            #gameSite.wrap{padding-bottom:82px}
+            .new-goat-showcase{padding:14px 10px}
+            .new-goat-grid{grid-template-columns:1fr!important;gap:16px}
+            .flip-card{min-height:440px;width:100%;max-width:330px;margin-inline:auto}
+            .flip-info b{font-size:clamp(18px,6vw,22px);line-height:1.08}
+            .flip-info span{font-size:11px;line-height:1.45}
+            .flip-hint,.new-badge{max-width:46%;white-space:normal;line-height:1.2;text-align:center}
+          }
+          '''
           js = r'''
-<script>
-/* MOBILE_UI_FIX_V1_JS */
-(function(){
-  const mq=window.matchMedia('(max-width: 850px)');
-  const panel=document.getElementById('extraPocketsPanel');
-  if(!panel)return;
-
-  let toggle=document.getElementById('mobilePackToggle');
-  if(!toggle){
-    toggle=document.createElement('button');
-    toggle.id='mobilePackToggle';
-    toggle.type='button';
-    toggle.setAttribute('aria-controls','extraPocketsPanel');
-    toggle.setAttribute('aria-expanded','false');
-    panel.appendChild(toggle);
-  }
-
-  function applyPhonePack(){
-    if(mq.matches){
-      panel.style.left='';
-      panel.style.top='';
-      panel.style.right='';
-      panel.style.bottom='';
-      panel.classList.add('mobile-pack-collapsed');
-      toggle.hidden=false;
-      toggle.textContent='🎒 OPEN';
-      toggle.setAttribute('aria-expanded','false');
-    }else{
-      panel.classList.remove('mobile-pack-collapsed');
-      toggle.hidden=true;
-    }
-  }
-
-  toggle.addEventListener('click',function(e){
-    e.stopPropagation();
-    const collapsed=panel.classList.toggle('mobile-pack-collapsed');
-    toggle.textContent=collapsed?'🎒 OPEN':'✕ CLOSE';
-    toggle.setAttribute('aria-expanded',String(!collapsed));
-  });
-
-  if(mq.addEventListener)mq.addEventListener('change',applyPhonePack);
-  else if(mq.addListener)mq.addListener(applyPhonePack);
-  applyPhonePack();
-})();
-</script>
-'''
+          <script>
+          /* MOBILE_UI_FIX_V1_JS */
+          (function(){
+            const mq=window.matchMedia('(max-width: 850px)');
+            const panel=document.getElementById('extraPocketsPanel');
+            if(!panel)return;
+            let toggle=document.getElementById('mobilePackToggle');
+            if(!toggle){
+              toggle=document.createElement('button');
+              toggle.id='mobilePackToggle';
+              toggle.type='button';
+              toggle.setAttribute('aria-controls','extraPocketsPanel');
+              toggle.setAttribute('aria-expanded','false');
+              panel.appendChild(toggle);
+            }
+            function applyPhonePack(){
+              if(mq.matches){
+                panel.style.left='';panel.style.top='';panel.style.right='';panel.style.bottom='';
+                panel.classList.add('mobile-pack-collapsed');
+                toggle.hidden=false;toggle.textContent='🎒 OPEN';toggle.setAttribute('aria-expanded','false');
+              }else{
+                panel.classList.remove('mobile-pack-collapsed');toggle.hidden=true;
+              }
+            }
+            toggle.addEventListener('click',function(e){
+              e.stopPropagation();
+              const collapsed=panel.classList.toggle('mobile-pack-collapsed');
+              toggle.textContent=collapsed?'🎒 OPEN':'✕ CLOSE';
+              toggle.setAttribute('aria-expanded',String(!collapsed));
+            });
+            if(mq.addEventListener)mq.addEventListener('change',applyPhonePack);else if(mq.addListener)mq.addListener(applyPhonePack);
+            applyPhonePack();
+          })();
+          </script>
+          '''
           text = text.replace('</style>', css + '\n</style>', 1)
           text = text.replace('</body>', js + '\n</body>', 1)
           p.write_text(text, encoding='utf-8')
+          PY
       - name: Commit patch to dev
         run: |
           git config user.name "github-actions[bot]"
