@@ -1448,9 +1448,44 @@ function ensureHorrorAudio(){
   if(!horrorAudio){
     const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
     master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
-    const drone=ctx.createOscillator(),droneFilter=ctx.createBiquadFilter();drone.type="sine";drone.frequency.value=42;droneFilter.type="lowpass";droneFilter.frequency.value=130;drone.connect(droneFilter);droneFilter.connect(music);drone.start();
-    const wind=ctx.createOscillator(),windFilter=ctx.createBiquadFilter();wind.type="triangle";wind.frequency.value=71;windFilter.type="lowpass";windFilter.frequency.value=95;wind.connect(windFilter);windFilter.connect(ambience);wind.start();
-    horrorAudio={ctx,master,music,ambience,effects,drone,wind};
+
+    // Dark cinematic pad: layered musical intervals instead of a single static tone.
+    const padFilter=ctx.createBiquadFilter();
+    padFilter.type="lowpass";padFilter.frequency.value=420;padFilter.Q.value=.7;padFilter.connect(music);
+    const padNotes=[43.65,65.41,87.31];
+    const padOscillators=padNotes.map((freq,index)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type=index===0?"sine":"triangle";
+      osc.frequency.value=freq;
+      osc.detune.value=index===1?-7:index===2?5:0;
+      gain.gain.value=index===0?.46:index===1?.16:.10;
+      osc.connect(gain);gain.connect(padFilter);osc.start();
+      return {osc,gain};
+    });
+    const musicLfo=ctx.createOscillator(),musicLfoGain=ctx.createGain();
+    musicLfo.type="sine";musicLfo.frequency.value=.055;musicLfoGain.gain.value=75;
+    musicLfo.connect(musicLfoGain);musicLfoGain.connect(padFilter.frequency);musicLfo.start();
+
+    // Wind ambience: filtered, slowly moving noise with a faint distant howl.
+    const noiseBuffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),noiseData=noiseBuffer.getChannelData(0);
+    let last=0;
+    for(let i=0;i<noiseData.length;i++){
+      const white=Math.random()*2-1;
+      last=last*.985+white*.015;
+      noiseData[i]=last*.8;
+    }
+    const wind=ctx.createBufferSource(),windFilter=ctx.createBiquadFilter(),windGain=ctx.createGain();
+    wind.buffer=noiseBuffer;wind.loop=true;windFilter.type="bandpass";windFilter.frequency.value=520;windFilter.Q.value=.55;windGain.gain.value=.48;
+    wind.connect(windFilter);windFilter.connect(windGain);windGain.connect(ambience);wind.start();
+    const windLfo=ctx.createOscillator(),windLfoGain=ctx.createGain();
+    windLfo.type="sine";windLfo.frequency.value=.11;windLfoGain.gain.value=.18;
+    windLfo.connect(windLfoGain);windLfoGain.connect(windGain.gain);windLfo.start();
+    const howl=ctx.createOscillator(),howlGain=ctx.createGain(),howlLfo=ctx.createOscillator(),howlPitch=ctx.createGain();
+    howl.type="sine";howl.frequency.value=185;howlGain.gain.value=.025;
+    howlLfo.type="sine";howlLfo.frequency.value=.07;howlPitch.gain.value=22;
+    howlLfo.connect(howlPitch);howlPitch.connect(howl.frequency);howl.connect(howlGain);howlGain.connect(ambience);howl.start();howlLfo.start();
+
+    horrorAudio={ctx,master,music,ambience,effects,padOscillators,padFilter,musicLfo,wind,windFilter,windGain,windLfo,howl,howlGain,howlLfo};
   }
   if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
   updateAudioMix();
@@ -5172,6 +5207,8 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
     <h2 id="updateDetailsTitle">V-0.4 Beta — New Update</h2>
     <p>This update adds new polish and fixes several issues reported during testing.</p>
     <ul class="update-details-list">
+      <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>
+      <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>
       <li><strong>Save Progress Protection:</strong> Existing save progress is preserved across future game updates, with automatic compatibility recovery and a backup copy for each save slot.</li>
       <li><strong>Item images:</strong> fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
       <li><strong>Transforming survivor cards:</strong> fixed inverted card text stacking and overlapping.</li>
