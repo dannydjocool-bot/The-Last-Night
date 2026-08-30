@@ -1278,6 +1278,7 @@ function renderMenuArtStrip(){
   renderNewGoatShowcase();
   renderNewSurvivorShowcase();
   renderRootGateGuardianShowcase();
+  const gateShowcase=document.getElementById("newGateGuardianShowcase");if(gateShowcase)gateShowcase.style.display="none";
 }
 
 function renderNewGoatShowcase(){
@@ -1302,7 +1303,17 @@ function renderNewSurvivorShowcase(){
   const showcase=document.getElementById("newSurvivorShowcase");
   if(!showcase)return;
   const recruits=S.filter(s=>s.recruitOnly);
-  showcase.innerHTML=`<h2>NEW SURVIVORS</h2><p>Seven flashlight-exclusive recruits. Click a card for coded rarity, stats, weapon, and ability information.</p><div class="recruit-grid">${recruits.map((s,i)=>`<button class="recruit-card" onclick="openRecruitDetail(${i})"><img src="${s.image}" alt="${s.name}"><span class="new-badge">NEW</span><span class="recruit-card-info"><b>${s.name}</b><small>${s.rarity} · ❤️ ${s.hp} · 🧠 ${s.san} · ⚔️ ${s.damage}</small></span></button>`).join("")}</div>`;
+  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW SURVIVORS</h2><p>Seven flashlight-exclusive recruits. Click a card for rarity, stats, weapon, and ability information.</p></div><button class="gate-guardian-nav showcase-next" onclick="showNewGuardianSection()" aria-label="View new Root Gate creatures">NEXT: NEW CREATURES ›</button></div><div class="recruit-grid">${recruits.map((s,i)=>`<button class="recruit-card" onclick="openRecruitDetail(${i})"><img src="${s.image}" alt="${s.name}"><span class="new-badge">NEW</span><span class="recruit-card-info"><b>${s.name}</b><small>${s.rarity} · ❤️ ${s.hp} · 🧠 ${s.san} · ⚔️ ${s.damage}</small></span></button>`).join("")}</div>`;
+}
+function showNewGuardianSection(){
+  const survivors=document.getElementById("newSurvivorShowcase"),guardians=document.getElementById("newGateGuardianShowcase");
+  if(survivors)survivors.style.display="none";
+  if(guardians){guardians.style.display="block";renderRootGateGuardianShowcase();guardians.scrollIntoView({behavior:document.body.classList.contains("reduce-motion")?"auto":"smooth",block:"center"});}
+}
+function showNewSurvivorSection(){
+  const survivors=document.getElementById("newSurvivorShowcase"),guardians=document.getElementById("newGateGuardianShowcase");
+  if(guardians)guardians.style.display="none";
+  if(survivors){survivors.style.display="block";survivors.scrollIntoView({behavior:document.body.classList.contains("reduce-motion")?"auto":"smooth",block:"center"});}
 }
 
 let rootGuardianShowcaseIndex=0;
@@ -1314,17 +1325,38 @@ function renderRootGateGuardianShowcase(){
   if(!guardians.length){showcase.innerHTML="";return;}
   rootGuardianShowcaseIndex=(rootGuardianShowcaseIndex+guardians.length)%guardians.length;
   const c=guardians[rootGuardianShowcaseIndex];
-  showcase.innerHTML=`<h2>NEW ROOT GATE GUARDIANS</h2><p>Three creatures seal the entrance to the final chamber. Defeat all three before The Root of Blackwood can awaken.</p><div class="gate-guardian-stage"><button class="gate-guardian-nav" onclick="nextRootGateGuardian(-1)" aria-label="Previous Root Gate guardian">‹</button><button class="gate-guardian-card" onclick="openRootGuardianDetail(${rootGuardianShowcaseIndex})"><img src="${c.image}" alt="${c.name}"><span class="new-badge">NEW</span><span class="gate-guardian-info"><small>ROOT GATE GUARDIAN ${c.gateOrder}/3 · ${c.rarity}</small><b>${c.name}</b><small>❤️ ${c.hp} · ⚔️ ${c.atk}</small><p>${c.ability}</p></span></button><button class="gate-guardian-nav" onclick="nextRootGateGuardian(1)" aria-label="Next Root Gate guardian">›</button></div><div class="gate-guardian-dots">${guardians.map((_,i)=>`<button class="gate-guardian-dot ${i===rootGuardianShowcaseIndex?'active':''}" onclick="showRootGateGuardian(${i})" aria-label="Show guardian ${i+1}"></button>`).join("")}</div>`;
+  showcase.innerHTML=`<div class="new-goat-head"><div><h2>NEW ROOT GATE GUARDIANS</h2><p>Three creatures seal the entrance to the final chamber. Defeat all three to reveal the fusion threat guarding The Root.</p></div><button class="gate-guardian-nav showcase-next" onclick="showNewSurvivorSection()" aria-label="Back to new survivors">‹ NEW SURVIVORS</button></div><div class="gate-guardian-stage"><button class="gate-guardian-nav" onclick="nextRootGateGuardian(-1)" aria-label="Previous Root Gate guardian">‹</button><button class="gate-guardian-card" onclick="openRootGuardianDetail(${rootGuardianShowcaseIndex})"><img src="${c.image}" alt="${c.name}"><span class="new-badge">NEW</span><span class="gate-guardian-info"><small>ROOT GATE GUARDIAN ${c.gateOrder}/3 · ${c.rarity}</small><b>${c.name}</b><small>❤️ ${c.hp} · ⚔️ ${c.atk}</small><p>${c.ability}</p></span></button><button class="gate-guardian-nav" onclick="nextRootGateGuardian(1)" aria-label="Next Root Gate guardian">›</button></div><div class="gate-guardian-dots">${guardians.map((_,i)=>`<button class="gate-guardian-dot ${i===rootGuardianShowcaseIndex?'active':''}" onclick="showRootGateGuardian(${i})" aria-label="Show guardian ${i+1}"></button>`).join("")}</div>`;
 }
 function nextRootGateGuardian(direction){rootGuardianShowcaseIndex+=direction;renderRootGateGuardianShowcase();}
 function showRootGateGuardian(index){rootGuardianShowcaseIndex=index;renderRootGateGuardianShowcase();}
 function openRootGuardianDetail(index){
   const c=rootGateGuardians()[index];if(!c)return;
   document.getElementById("menuDialogTitle").textContent=c.name;
-  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail"><img src="${c.image}" alt="${c.name}"><div><span class="recruit-only-badge">NEW · ROOT GATE GUARDIAN</span><h2>${c.name}</h2><div class="codex-stats"><span>${c.rarity}</span><span>❤️ ${c.hp}</span><span>⚔️ ${c.atk}</span></div><p><b>Creature Ability:</b> ${c.ability}</p><p>${c.lore}</p><p class="muted">Story Encounter: Root of Blackwood entrance. All three Gate Guardians must be defeated before the final boss can awaken.</p></div></div>`;
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail"><img src="${c.image}" alt="${c.name}"><div><span class="recruit-only-badge">NEW · ROOT GATE GUARDIAN</span><h2>${c.name}</h2><div class="codex-stats"><span>${c.rarity}</span><span>❤️ ${c.hp}</span><span>⚔️ ${c.atk}</span></div><p><b>Creature Ability:</b> ${c.ability}</p><p>${c.lore}</p><p class="muted">Story Encounter: Root of Blackwood entrance. All three Gate Guardians must be defeated before the fusion threat awakens.</p><button onclick="viewRootFusionTransformation()">VIEW TRANSFORMATION</button></div></div>`;
   document.getElementById("menuOverlay").classList.add("open");document.body.style.overflow="hidden";
 }
 
+const ROOT_FUSION_CODEX={
+  name:"The Triune Maw",rarity:"Abyssal Fusion",hp:120,atk:14,armor:80,image:"root-fusion-4.webp",
+  ability:"Triune Berserk — grows more dangerous below half health; every third strike surges with crushing power. Rootstorm can drain a survivor's remaining Combat Action.",
+  lore:"Born when the three fallen Root Gate Guardians collapse into one impossible body. It is the final lock between the party and The Root of Blackwood."
+};
+function viewRootFusionTransformation(){
+  document.getElementById("menuDialogTitle").textContent="Root Gate Transformation";
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail"><img src="root-fusion-4.webp" alt="The Triune Maw"><div><span class="recruit-only-badge">NEW · FUSION TRANSFORMATION</span><h2>The Triune Maw</h2><div class="codex-stats"><span>Abyssal Fusion</span><span>❤️ 120</span><span>🛡️ 80</span><span>⚔️ 14</span></div><p><b>Transformation:</b> The Thornbound, The Veinmaw, and The Ash Wraith fall together, then their remaining Root power combines into a single enemy.</p><p><b>Triune Berserk:</b> Its attacks intensify below 50% HP and every third strike unleashes a heavier blow.</p><p><b>Rootstorm:</b> Can drain Combat Actions, forcing the party to adapt mid-fight.</p><button onclick="previewRootFusionScene(0)">VIEW TRANSFORMATION CUTSCENE</button></div></div>`;
+  document.getElementById("menuOverlay").classList.add("open");document.body.style.overflow="hidden";
+}
+function previewRootFusionScene(index){
+  const scenes=[
+    ["root-fusion-1.webp","THE THREE FALL","The Root Gate Guardians collapse at the sealed entrance. The gate remains shut."],
+    ["root-fusion-2.webp","THE ROOT ANSWERS","Blackwood's buried power reaches through the fallen creatures and begins pulling them together."],
+    ["root-fusion-3.webp","ONE BODY","Three ruined forms combine into a single impossible silhouette as the chamber shakes."],
+    ["root-fusion-4.webp","THE TRIUNE MAW","The fusion rises with 120 Health, 80 Armor, and greatly increased power."]
+  ];
+  const i=Math.max(0,Math.min(index,scenes.length-1)),scene=scenes[i];
+  document.getElementById("menuDialogTitle").textContent="Transformation Preview · "+(i+1)+"/4";
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail root-preview"><img src="${scene[0]}" alt="${scene[1]}"><div><span class="recruit-only-badge">NIGHT OF THE DEAD · CUTSCENE PREVIEW</span><h2>${scene[1]}</h2><p>${scene[2]}</p><div class="single-start-row">${i>0?`<button onclick="previewRootFusionScene(${i-1})">‹ PREVIOUS</button>`:"<span></span>"}${i<scenes.length-1?`<button onclick="previewRootFusionScene(${i+1})">NEXT ›</button>`:`<button onclick="viewRootFusionTransformation()">VIEW FINAL FORM</button>`}</div></div></div>`;
+}
 function openRecruitDetail(index){
   const s=S.filter(x=>x.recruitOnly)[index];
   if(!s)return;
@@ -1359,13 +1391,13 @@ const MENU_GUIDES={
 };
 
 function codexCards(list,type){
-  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit?'NEW · ':''}${type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT")}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span><span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
+  return `<div class="codex-grid">${list.map(entry=>`<article class="codex-card"><img src="${entry.image}" alt="${entry.name}"><div><span class="codex-availability">${entry.isNew||entry.isNewRecruit?'NEW · ':''}${type==="survivors"?(entry.recruitOnly?"FLASHLIGHT RECRUIT ONLY":"AVAILABLE SURVIVOR"):(entry.fusionPreview?"FUSION THREAT":entry.gateGuardian?"ROOT GATE GUARDIAN":"KNOWN THREAT")}</span><h3>${entry.name}</h3><div class="codex-stats"><span>${entry.rarity}</span>${type==="survivors"?`<span>❤️ ${entry.hp}</span><span>🧠 ${entry.san}</span><span>⚔️ ${entry.damage}</span>`:`<span>❤️ ${entry.hp}</span>${entry.armor?`<span>🛡️ ${entry.armor}</span>`:""}<span>⚔️ ${entry.atk}</span>`}</div>${type==="survivors"?`<p><b>${entry.weapon}</b> — ${entry.weaponAbility}</p><p><b>Ability:</b> ${entry.ability}</p>${entry.recruitOnly?`<p class="recruit-only-badge">Found only through Flashlight exploration; joins at 30% HP.</p>`:""}${entry.transform?`<div class="wisdom-summary"><b>Transforms: ${entry.transform.name}</b><br>❤️ ${entry.hp+entry.transform.hpBonus} · ⚔️ ${entry.damage+entry.transform.damageBonus}<br>${entry.transform.weapon} — ${entry.transform.ability}</div>`:''}`:`<p><b>Creature Ability:</b> ${entry.ability}</p>${entry.bossZone?`<p><b>Story Location:</b> ${LM[entry.bossZone][1]}</p>`:""}`}</div></article>`).join("")}</div>`;
 }
 
 function showCodex(type){
   document.getElementById("codexSurvivors").classList.toggle("load-save",type==="survivors");
   document.getElementById("codexCreatures").classList.toggle("load-save",type==="creatures");
-  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:CRE,type);
+  document.getElementById("codexContent").innerHTML=codexCards(type==="survivors"?S:[...CRE,{...ROOT_FUSION_CODEX,isNew:true,fusionPreview:true}],type);
 }
 
 function settingsHtml(){
@@ -1462,7 +1494,7 @@ function openMenuPanel(type){
   const content=document.getElementById("menuDialogContent");
   if(type==="info"){
     document.getElementById("menuDialogTitle").textContent="Blackwood Survivor & Creature Codex";
-    content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+CRE.length+')</button></div><div id="codexContent"></div>';
+    content.innerHTML='<div class="codex-tabs"><button id="codexSurvivors" onclick="showCodex(\'survivors\')">Survivors ('+S.length+')</button><button id="codexCreatures" onclick="showCodex(\'creatures\')">Creatures ('+(CRE.length+1)+')</button></div><div id="codexContent"></div>';
     showCodex("survivors");
   }else if(type==="items"){
     document.getElementById("menuDialogTitle").textContent="Blackwood Obtainable Item Codex";
@@ -5491,7 +5523,7 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
       <li>Transformed forms can remain active for up to three Nights.</li>
       <li>Party members can rotate into combat after the active survivor runs out of Combat AP.</li>
       <li>Combat swaps carry a 30% chance for the creature to strike the retreating survivor.</li>
-      <li>New quieter horror music and environmental ambience replaces the old bass-heavy test sound.</li>
+      <li>New tonal horror soundtrack replaces the old bass-heavy/static-style test ambience.</li>
       <li>Improved multi-survivor combat flow while preserving creature health and battle state.</li>
     </ul>
     <button class="update-info-close" type="button" onclick="closeUpdateInfo()">Close</button>
@@ -5505,13 +5537,14 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
     <h2 id="updateDetailsTitle">V-0.5 Beta — New Update</h2>
     <p>Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.</p>
     <ul class="update-details-list">
-      <li><strong>Transformation Thresholds:</strong> The Moonbound and The Ashen Saint can no longer transform freely. Their transformed forms now unlock only after reaching their low-health combat requirements.</li>
-      <li><strong>Three-Night Transformations:</strong> Once a transformation is activated, that survivor can remain in the transformed form for up to three Nights before automatically returning to normal.</li>
-      <li><strong>Party Combat Switching:</strong> When the active survivor runs out of Combat AP, another living party member with Combat AP can step in and continue the same fight.</li>
-      <li><strong>Dangerous Retreats:</strong> Combat swaps carry a 30% chance for the creature to strike the survivor attempting to fall back, making every switch a risk.</li>
-      <li><strong>Horror Audio Overhaul:</strong> The old bass-heavy test sound has been replaced with quieter atmospheric horror music, eerie tones, wind, and environmental ambience designed to sit beneath gameplay.</li>
-      <li><strong>Root Gate Guardians:</strong> Three NEW creatures now protect the entrance to the final chamber. The Thornbound, The Veinmaw, and The Ash Wraith must all be defeated before The Root of Blackwood can awaken.</li>
-      <li><strong>Combat Flow Improvements:</strong> Multi-survivor encounters now preserve creature health and battle state while the party rotates fighters, giving larger teams a more tactical role.</li>
+      <li><strong>Low-Health Transformations:</strong> The Moonbound and The Ashen Saint now earn their transformation during combat by reaching their required low-health threshold instead of transforming freely.</li>
+      <li><strong>Three-Night Forms:</strong> Once transformed, a survivor can keep that form across fights for up to three Nights before returning to normal.</li>
+      <li><strong>Party Combat Switching:</strong> When the active survivor runs out of Combat Actions, another living party member can enter and continue the same battle without resetting the enemy.</li>
+      <li><strong>Risky Combat Swaps:</strong> Switching fighters is not free—the creature has a 30% chance to punish the retreating survivor.</li>
+      <li><strong>Root Gate Gauntlet:</strong> The Thornbound, The Veinmaw, and The Ash Wraith now guard the entrance to The Root. All three must fall before the path can continue.</li>
+      <li><strong>New Fusion Encounter:</strong> Defeating all three Gate Guardians triggers a four-scene Night of the Dead transformation sequence and unleashes The Triune Maw with 120 HP, 80 Armor, Berserk attacks, and Rootstorm.</li>
+      <li><strong>Horror Soundtrack:</strong> The old static/bass-style test ambience has been replaced by a quieter tonal horror score with evolving dark chords, distant notes, low drones, and separate combat effects.</li>
+      <li><strong>Safer Boss Progression:</strong> Root Gate and fusion progress now survives save/load correctly, including recovery if a run is saved during the transition into The Triune Maw encounter.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
