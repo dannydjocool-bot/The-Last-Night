@@ -5,6 +5,8 @@ on:
     branches: [dev]
     paths:
       - '.github/workflows/v05-final-verification.yml'
+      - 'index.html'
+      - '*.webp'
 
 jobs:
   verify:
@@ -56,6 +58,10 @@ jobs:
             'three-night transformations': 'p.transformedThroughNight=G.night+2' in t and 'if(G.night>p.transformedThroughNight)' in t,
             'party combat switching': 's.combatActions=combatActionCount(s)' in t,
             'mobile cutscene': '@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
+            'new update player notes': 'New Fusion Encounter:' in t and 'Safer Boss Progression:' in t and 'Horror Soundtrack:' in t,
+            'main menu creature paging': 'NEXT: NEW CREATURES' in t and 'showNewGuardianSection' in t and 'showNewSurvivorSection' in t,
+            'transformation preview': 'VIEW TRANSFORMATION' in t and 'previewRootFusionScene' in t and 'Transformation Preview' in t,
+            'full codex fusion roster': 'ROOT_FUSION_CODEX' in t and "CRE.length+1" in t and 'FUSION THREAT' in t,
             'tonal horror soundtrack': 'const chordSets=[' in t and 'playHorrorNote' in t and 'const roomTones=' in t,
             'no static noise buffer': 'createBufferSource' not in t and 'noiseBuffer' not in t and 'noiseData' not in t,
           }
