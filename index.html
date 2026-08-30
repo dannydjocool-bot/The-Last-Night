@@ -363,6 +363,18 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   .flip-hint,.new-badge{max-width:46%;white-space:normal;line-height:1.2;text-align:center}
 }
 
+
+/* MOBILE_ITEM_CODEX_FIX_V1 */
+@media(max-width:600px){
+  .codex-card.item-codex-card{grid-template-columns:1fr!important;gap:12px!important;padding:14px!important}
+  .item-codex-card .item-codex-art{width:100%!important;height:auto!important;aspect-ratio:16/9!important;margin:0!important;border-radius:10px!important;background-size:400% 400%!important}
+  .item-codex-card > div:last-child{min-width:0!important;width:100%!important}
+  .item-codex-card h3{margin:4px 0 8px!important;font-size:clamp(24px,8vw,34px)!important;line-height:1.05!important;overflow-wrap:anywhere}
+  .item-codex-card p{margin:10px 0 0!important;font-size:14px!important;line-height:1.55!important;overflow-wrap:anywhere}
+  .item-codex-card .codex-stats{margin:6px 0 8px!important}
+  .item-codex-card .item-type-badge{display:block!important;margin-top:2px!important}
+}
+
 </style>
 </head>
 <body class="menu-mode">
