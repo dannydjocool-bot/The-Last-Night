@@ -338,6 +338,31 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 
 .location-codex-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 16px;padding:13px 15px;border-left:3px solid #8c454f;background:#101214;color:#b9bec3}.location-codex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.location-codex-card{overflow:hidden;border:1px solid #3d4247;border-radius:12px;background:#101214}.location-codex-art{height:150px;background-repeat:no-repeat;box-shadow:inset 0 -55px 60px rgba(0,0,0,.55)}.location-codex-info{padding:12px}.location-codex-info h3{margin:2px 0 7px;font-family:Georgia,serif;color:#e4c9cc}.location-codex-info p{margin:5px 0;color:#adb2b7;font-size:12px;line-height:1.45}.location-codex-status{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fd18f}.location-codex-card.locked{border-color:#292c2f}.location-codex-card.locked .location-codex-art{filter:grayscale(1) brightness(.18) blur(3px)}.location-codex-card.locked .location-codex-info h3{color:#777b7f}.location-codex-card.locked .location-codex-status{color:#777b7f}.location-codex-card.locked .location-codex-info p{color:#676b6f}@media(max-width:1050px){.location-codex-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.location-codex-grid{grid-template-columns:1fr}.location-codex-summary{align-items:flex-start;flex-direction:column}}
 .audio-setting input[type="range"]{width:min(260px,45vw);accent-color:#b94c57}.audio-value{min-width:40px;color:#d6aeb2;font-size:11px;text-align:right}.night-transition{position:fixed;inset:0;z-index:19000;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 42%,rgba(114,24,38,.24),transparent 42%),#020304;transition:opacity .35s}.night-transition.open{opacity:1}.night-transition-card{text-align:center;transform:scale(.9);transition:transform .5s}.night-transition.open .night-transition-card{transform:scale(1)}.night-transition-kicker{color:#bd5a65;font-size:10px;font-weight:900;letter-spacing:5px}.night-transition h2{margin:10px 0;font-family:Georgia,serif;font-size:clamp(52px,12vw,120px);letter-spacing:7px}.night-transition p{color:#adb2b7;letter-spacing:2px}.combat-intro{position:fixed;inset:0;z-index:18500;display:grid;place-items:center;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(115,21,34,.32),rgba(0,0,0,.94) 68%);transition:opacity .2s}.combat-intro.open{opacity:1}.combat-intro-card{position:relative;width:min(340px,72vw);aspect-ratio:2/3;overflow:hidden;border:1px solid #9b4651;border-radius:18px;box-shadow:0 0 80px rgba(193,51,66,.35);transform:scale(.65) rotate(-3deg);transition:transform .45s}.combat-intro.open .combat-intro-card{transform:scale(1) rotate(0)}.combat-intro-card img{width:100%;height:100%;object-fit:cover}.combat-intro-card:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#050607)}.combat-intro-copy{position:absolute;z-index:2;inset:auto 18px 18px;text-align:center}.combat-intro-copy span{display:block;color:#da6671;font-size:9px;font-weight:900;letter-spacing:4px}.combat-intro-copy strong{display:block;margin-top:7px;font-family:Georgia,serif;font-size:27px;letter-spacing:2px}.combat-fx-layer{position:fixed;inset:0;z-index:18000;pointer-events:none;overflow:hidden}.combat-float{position:absolute;left:50%;top:42%;padding:8px 13px;border-radius:9px;background:rgba(5,6,7,.88);color:#fff;font-size:clamp(24px,5vw,48px);font-weight:900;text-shadow:0 0 18px currentColor;animation:combatFloat .85s ease-out forwards}.combat-float.enemy{color:#ff6673}.combat-float.heavy{color:#ffc65e}.combat-float.miss{color:#b2b7bc}.combat-counter-warning{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:12px 18px;border:1px solid #b94a55;border-radius:10px;background:rgba(40,10,15,.94);color:#ffd9dc;font-weight:900;letter-spacing:2px;animation:counterPulse .8s ease both}.combat-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,244,211,.48),transparent 34%);animation:flashOut .28s ease-out forwards}body.combat-impact #game{animation:gameShake .28s linear}body.reduce-motion .night-transition,body.reduce-motion .night-transition-card,body.reduce-motion .combat-intro,body.reduce-motion .combat-intro-card{transition:none}body.reduce-motion .combat-float,body.reduce-motion .combat-counter-warning,body.reduce-motion #game{animation:none!important}@keyframes combatFloat{0%{transform:translate(-50%,20px);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-75px);opacity:0}}@keyframes counterPulse{0%{opacity:0;transform:translateX(-50%) scale(.8)}45%{opacity:1;transform:translateX(-50%) scale(1.05)}100%{opacity:0;transform:translateX(-50%) scale(1)}}@keyframes flashOut{to{opacity:0}}@keyframes gameShake{0%,100%{transform:none}25%{transform:translate(-5px,2px)}50%{transform:translate(5px,-2px)}75%{transform:translate(-3px,1px)}}
+
+/* MOBILE_UI_FIX_V1 */
+.flip-card-inner{-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
+.flip-face{-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.flip-face.back{-webkit-transform:rotateY(180deg) translateZ(1px);transform:rotateY(180deg) translateZ(1px)}
+.flip-card.flipped .flip-card-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
+.flip-info{max-width:calc(100% - 28px)}
+.flip-info b,.flip-info span{overflow-wrap:anywhere;word-break:normal}
+@media(max-width:850px){
+  body:not(.menu-mode) #extraPocketsPanel{position:fixed!important;left:10px!important;right:10px!important;top:auto!important;bottom:10px!important;width:auto!important;margin:0!important;max-height:min(64vh,520px)!important;overflow:hidden!important;z-index:10020!important;padding:9px 10px!important;border-radius:14px!important;box-shadow:0 14px 44px rgba(0,0,0,.82),0 0 0 1px rgba(126,49,57,.18)!important}
+  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed{max-height:58px!important}
+  body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed > *:not(#extraPocketsHandle):not(#mobilePackToggle){display:none!important}
+  #extraPocketsHandle{margin:0!important;min-height:40px;display:flex;align-items:center;padding-right:106px;cursor:default!important;font-size:16px}
+  #mobilePackToggle{position:absolute;right:8px;top:7px;min-width:92px;min-height:42px;margin:0;z-index:2;font-weight:800;touch-action:manipulation}
+  #extraPocketsPanel:not(.mobile-pack-collapsed){overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+  #resetExtraPocketsPosition{display:none!important}
+  #gameSite.wrap{padding-bottom:82px}
+  .new-goat-showcase{padding:14px 10px}
+  .new-goat-grid{grid-template-columns:1fr!important;gap:16px}
+  .flip-card{min-height:440px;width:100%;max-width:330px;margin-inline:auto}
+  .flip-info b{font-size:clamp(18px,6vw,22px);line-height:1.08}
+  .flip-info span{font-size:11px;line-height:1.45}
+  .flip-hint,.new-badge{max-width:46%;white-space:normal;line-height:1.2;text-align:center}
+}
+
 </style>
 </head>
 <body class="menu-mode">
@@ -4947,6 +4972,42 @@ document.addEventListener("mouseup",function(){
   extraPocketsPanel.style.bottom="auto";
 
 });
+</script>
+
+
+<script>
+/* MOBILE_UI_FIX_V1_JS */
+(function(){
+  const mq=window.matchMedia('(max-width: 850px)');
+  const panel=document.getElementById('extraPocketsPanel');
+  if(!panel)return;
+  let toggle=document.getElementById('mobilePackToggle');
+  if(!toggle){
+    toggle=document.createElement('button');
+    toggle.id='mobilePackToggle';
+    toggle.type='button';
+    toggle.setAttribute('aria-controls','extraPocketsPanel');
+    toggle.setAttribute('aria-expanded','false');
+    panel.appendChild(toggle);
+  }
+  function applyPhonePack(){
+    if(mq.matches){
+      panel.style.left='';panel.style.top='';panel.style.right='';panel.style.bottom='';
+      panel.classList.add('mobile-pack-collapsed');
+      toggle.hidden=false;toggle.textContent='🎒 OPEN';toggle.setAttribute('aria-expanded','false');
+    }else{
+      panel.classList.remove('mobile-pack-collapsed');toggle.hidden=true;
+    }
+  }
+  toggle.addEventListener('click',function(e){
+    e.stopPropagation();
+    const collapsed=panel.classList.toggle('mobile-pack-collapsed');
+    toggle.textContent=collapsed?'🎒 OPEN':'✕ CLOSE';
+    toggle.setAttribute('aria-expanded',String(!collapsed));
+  });
+  if(mq.addEventListener)mq.addEventListener('change',applyPhonePack);else if(mq.addListener)mq.addListener(applyPhonePack);
+  applyPhonePack();
+})();
 </script>
 
 </body>
