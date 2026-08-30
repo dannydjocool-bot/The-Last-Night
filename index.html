@@ -1638,6 +1638,7 @@ function transformationThreshold(p){
 function revertTransformationState(p,announce=false){
   if(!p||!p.transformed)return;
   p.transformed=false;
+  p.transformedThroughNight=null;
   p.name=p.originalName;
   p.image=p.normalImage;
   p.maxHp=p.normalMaxHp;
@@ -1656,7 +1657,6 @@ function revertTransformationState(p,announce=false){
 function resetCombatTransformations(){
   if(!G)return;
   G.ps.forEach(p=>{
-    revertTransformationState(p,false);
     p.transformationUsedThisCombat=false;
   });
 }
@@ -1681,6 +1681,7 @@ function toggleTransformation(index){
     }
     p.transformationUsedThisCombat=true;
     p.transformed=true;
+    p.transformedThroughNight=G.night+2;
     p.name=t.name;
     p.image=t.image;
     p.maxHp=p.normalMaxHp+t.hpBonus;
@@ -1694,7 +1695,7 @@ function toggleTransformation(index){
     p.maxShield=p.normalMaxShield+(t.shieldBonus||0);
     p.shield=Math.min(p.maxShield,(p.shield||0)+(t.shieldBonus||0));
     if(index===G.active)p.combatActions+=t.combatActionBonus||0;
-    log(`✨ ${p.originalName} transforms into ${p.name} at critical health!`,"good");
+    log(`✨ ${p.originalName} transforms into ${p.name} at critical health! The transformation can remain active through Night ${p.transformedThroughNight}.`,"good");
   }else{
     revertTransformationState(p,true);
   }
@@ -3575,6 +3576,16 @@ function canEndNight(){
   G.ps.forEach(p=>{
 
     if(p.dead)return;
+
+    // V0.5: transformations last for three total Nights, including the activation Night.
+    if(p.transformed){
+      if(!Number.isFinite(p.transformedThroughNight))p.transformedThroughNight=G.night+1;
+      if(G.night>p.transformedThroughNight){
+        const transformedName=p.name;
+        revertTransformationState(p,false);
+        log(`🌘 ${transformedName}'s three-Night transformation has expired. ${p.originalName} returns to normal.`,"good");
+      }
+    }
 
     p.actions=nightActionCount(p);
     p.restsThisNight=0;
