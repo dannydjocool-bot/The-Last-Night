@@ -1,0 +1,67 @@
+name: V0.5 Root Fusion Cutscene
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-root-fusion-cutscene.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Apply fusion cutscene update
+        run: python3 .github/scripts/v05-root-fusion-cutscene.py
+
+      - name: Syntax check game JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text=Path('index.html').read_text()
+          scripts=re.findall(r'<script>(.*?)</script>',text,re.S)
+          Path('/tmp/the-last-night.js').write_text('\n'.join(scripts))
+          PY
+          node --check /tmp/the-last-night.js
+
+      - name: Verify fusion progression and responsive cutscene
+        run: |
+          grep -q 'The Triune Maw' index.html
+          grep -q 'rootFusionOverlay' index.html
+          grep -q 'ROOT_FUSION_SCENES' index.html
+          grep -q 'nextRootFusionScene' index.html
+          grep -q '120 HP' index.html
+          grep -q '80 ARMOR' index.html
+          grep -q 'TRIUNE BERSERK' index.html
+          grep -q 'rootFusionDefeated' index.html
+          grep -q '@media(max-width:600px)' index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          t=Path('index.html').read_text()
+          assert 'if(defeated>=3 && !G.rootFusionTriggered)' in t
+          assert 'showRootFusionCutscene()' in t
+          assert 'spawnTriuneMaw()' in t
+          assert 'G.rootGateUnlocked=true' in t
+          assert 'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t
+          assert 'combat.rootFusionBoss && (combat.armor||0)>0' in t
+          assert 'root-fusion-overlay' in t and 'root-fusion-scene' in t
+          assert 'Objective 15 — Defeat The Triune Maw' in t
+          print('Fusion story, combat, syntax hooks, and mobile UI checks passed.')
+          PY
+
+      - name: Commit fusion gameplay
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Add Root Gate fusion cutscene and Triune Maw boss' || exit 0
+          git push origin dev
