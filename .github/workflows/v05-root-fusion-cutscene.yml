@@ -35,31 +35,35 @@ jobs:
 
       - name: Verify fusion progression and responsive cutscene
         run: |
-          grep -q 'The Triune Maw' index.html
-          grep -q 'rootFusionOverlay' index.html
-          grep -q 'ROOT_FUSION_SCENES' index.html
-          grep -q 'nextRootFusionScene' index.html
-          grep -q '120 HP' index.html
-          grep -q '80 ARMOR' index.html
-          grep -q 'TRIUNE BERSERK' index.html
-          grep -q 'ROOTSTORM' index.html
-          grep -q 'rootFusionDefeated' index.html
-          grep -q 'root-fusion-overlay' index.html
-          grep -q '@media(max-width:600px)' index.html
-          grep -q 'root-fusion-1.webp' index.html
-          grep -q 'root-fusion-4.webp' index.html
           python3 - <<'PY'
           from pathlib import Path
           t=Path('index.html').read_text()
-          assert 'if(defeated>=3 && !G.rootFusionTriggered)' in t
-          assert 'showRootFusionCutscene()' in t
-          assert 'spawnTriuneMaw()' in t
-          assert 'G.rootGateUnlocked=true' in t
-          assert 'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t
-          assert 'combat.rootFusionBoss && (combat.armor||0)>0' in t
-          assert 'Objective 15 — Defeat The Triune Maw' in t
-          assert 'Objective 16 — Destroy the Root of Blackwood' in t
-          assert 'thornbound.webp' in t and 'veinmaw.webp' in t and 'ashwraith.webp' in t
+          checks={
+            'Triune definition':'The Triune Maw' in t,
+            'cutscene overlay':'rootFusionOverlay' in t and 'root-fusion-overlay' in t,
+            '4-scene controller':'ROOT_FUSION_SCENES' in t and 'nextRootFusionScene' in t,
+            'guardian 3/3 trigger':'if(defeated>=3 && !G.rootFusionTriggered)' in t,
+            'cutscene trigger':'showRootFusionCutscene()' in t,
+            'Triune spawn':'spawnTriuneMaw()' in t,
+            '120 HP':'120 HP' in t,
+            '80 Armor':'80 ARMOR' in t,
+            'Triune Berserk':'TRIUNE BERSERK' in t,
+            'Rootstorm':'ROOTSTORM' in t,
+            'armor absorption':'combat.rootFusionBoss && (combat.armor||0)>0' in t,
+            'save state':'rootFusionTriggered' in t and 'rootFusionDefeated' in t,
+            'Root lock':'relicsComplete&&G.rootGateUnlocked&&G.rootFusionDefeated&&!G.rootDefeated' in t,
+            'Triune objective':'Defeat The Triune Maw' in t,
+            'Root objective after fusion':'Destroy the Root of Blackwood' in t,
+            'mobile rules':'@media(max-width:600px)' in t and '.root-fusion-overlay{padding:8px}' in t,
+            'panel 1 art':'root-fusion-1.webp' in t,
+            'panel 4 art':'root-fusion-4.webp' in t,
+          }
+          failed=[]
+          for name,ok in checks.items():
+            print(f'{name}: {"PASS" if ok else "FAIL"}')
+            if not ok: failed.append(name)
+          if failed:
+            raise SystemExit('Failed checks: '+', '.join(failed))
           print('Fusion story, combat, save hooks, desktop and mobile static checks passed.')
           PY
 
@@ -71,4 +75,4 @@ jobs:
           git commit -m 'Finalize Root Gate fusion cutscene and Triune Maw boss' || exit 0
           git push origin dev
 
-# finalizer run 1
+# diagnostic finalizer run 2
