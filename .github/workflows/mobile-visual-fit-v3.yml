@@ -1,0 +1,73 @@
+name: Apply mobile visual fit v3
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '.github/workflows/mobile-visual-fit-v3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch mobile item and menu image fit
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          marker='/* MOBILE_VISUAL_FIT_V3 */'
+          if marker not in text:
+              css=r'''
+/* MOBILE_VISUAL_FIT_V3 */
+@media(max-width:600px){
+  /* Keep codex sprite art framed correctly on phones. */
+  .item-codex-card .item-codex-art{
+    height:180px!important;
+    background-repeat:no-repeat!important;
+    background-color:#090a0b!important;
+  }
+  .item-codex-card .item-codex-art[style*="weapon-items.png"]{
+    background-size:300% 200%!important;
+  }
+  .item-codex-card .item-codex-art[style*="item-atlas.png"]{
+    background-size:400% 400%!important;
+  }
+
+  /* Mobile-only main-menu survivor portraits: show the full portrait instead of cropping heads. */
+  #newSurvivorShowcase .recruit-card{
+    min-height:0!important;
+    background:#090a0b!important;
+  }
+  #newSurvivorShowcase .recruit-card img{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:2/3!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+    background:#090a0b!important;
+  }
+  #newSurvivorShowcase .recruit-card:after{
+    inset:42% 0 0!important;
+  }
+}
+'''
+              text=text.replace('</style>',css+'\n</style>',1)
+              p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix mobile item art and menu portrait cropping"
+          git push origin dev
