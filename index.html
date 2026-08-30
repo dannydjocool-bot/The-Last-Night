@@ -3411,9 +3411,9 @@ if(c.name==="The Ash Wraith" && Math.random()<0.35){
 
   if(c.name==="The Triune Maw"){
   c.triuneAttackCount=(c.triuneAttackCount||0)+1;
-  if(c.hp<=c.maxHp*0.5)dmg+=3;
-  if(c.triuneAttackCount%3===0){dmg+=6;p.san=Math.max(0,p.san-2);log(`🔥 TRIUNE BERSERK! ${p.name} loses 2 Sanity as the fused guardian unleashes a crushing strike.`,"bad");}
-  if(Math.random()<0.25){p.combatAp=Math.max(0,(p.combatAp||0)-1);log(`🌿 ROOTSTORM coils around ${p.name}, draining 1 Combat AP.`,"bad");}
+  if(c.hp<=c.maxHp*0.5)damage+=3;
+  if(c.triuneAttackCount%3===0){damage+=6;p.san=Math.max(0,p.san-2);log(`🔥 TRIUNE BERSERK! ${p.name} loses 2 Sanity as the fused guardian unleashes a crushing strike.`,"bad");}
+  if(Math.random()<0.25){const drained=Math.min(1,p.combatActions||0);p.combatActions=Math.max(0,(p.combatActions||0)-drained);log(`🌿 ROOTSTORM coils around ${p.name}, draining ${drained} Combat Action${drained===1?"":"s"}.`,"bad");}
 }
 
 // ===============================
