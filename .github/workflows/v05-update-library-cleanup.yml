@@ -1,0 +1,39 @@
+name: V0.5 Update Modal Cleanup
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v05-update-library-cleanup.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Clean legacy update modal
+        run: python3 .github/scripts/v05-update-library-cleanup.py
+
+      - name: Verify cleanup
+        run: |
+          grep -q 'V-0.5 Beta — New Update' index.html
+          if grep -q 'Added the clickable V-0.4 Beta development message' index.html; then
+            echo 'Legacy developer-facing text remains'
+            exit 1
+          fi
+
+      - name: Commit cleanup
+        run: |
+          git config user.name 'V0.5 Beta Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git commit -m 'Clean remaining V0.4 update modal text' || exit 0
+          git push origin dev
