@@ -64,3 +64,5 @@ jobs:
           if bad: raise SystemExit('Failed: '+', '.join(bad))
           print('All V0.5 regression checks passed.')
           PY
+
+# verification run after final artwork upload
