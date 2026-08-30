@@ -1,0 +1,44 @@
+name: Add main menu version label
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/add-version-label.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Add version label
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
+          if 'V-0.4 Beta' in text:
+              raise SystemExit('Version label already present')
+          text=text.replace(
+              '.menu-subtitle{max-width:600px;color:#b6b9bd;font-size:15px;line-height:1.7}',
+              '.menu-subtitle{max-width:600px;color:#b6b9bd;font-size:15px;line-height:1.7}.menu-version{display:inline-block;margin-top:12px;padding:6px 10px;border:1px solid #6b444a;border-radius:999px;background:rgba(116,39,48,.18);color:#d88a91;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}'
+          )
+          text=text.replace(
+              '<p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood\'s buried truth, destroy the Root, and escape. Your investigation has no night limit.</p>',
+              '<p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood\'s buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><div class="menu-version">V-0.4 Beta</div>'
+          )
+          p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit version label
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show V-0.4 Beta on main menu"
+          git push origin dev
