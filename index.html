@@ -3225,14 +3225,6 @@ log(
 
   updateStoryObjective();
 }
-    if(combat.name==="The Root of Blackwood"){
-  G.rootDefeated=true;
-
-  log(
-    `🌑 FINAL BOSS DEFEATED! The Root of Blackwood has fallen.`,
-    "good"
-  );
-}
 G.creatures=G.creatures.filter(c=>c!==combat);
 G.ps.forEach(s=>{
 
@@ -5288,6 +5280,11 @@ function loadGameFromSlot(slot){
   G.rootGateUnlocked=Boolean(G.rootGateUnlocked||G.rootFusionDefeated||G.rootDefeated);
   G.rootFusionTriggered=Boolean(G.rootFusionTriggered||G.rootFusionDefeated);
   G.rootFusionDefeated=Boolean(G.rootFusionDefeated);
+  // Recovery: a save made after the fusion trigger must never strand the Root gate.
+  if(G.rootFusionTriggered&&!G.rootFusionDefeated&&(G.rootGateMinionsDefeated||[]).length>=3&&!G.creatures.some(c=>c.name==="The Triune Maw"&&c.hp>0)){
+    combat=null;
+    spawnTriuneMaw();
+  }
   G.extraPocketMax=30;
   G.extraPockets=(G.extraPockets||[]).map(refreshItemMeta);
   (G.ps||[]).forEach(player=>player.items=(player.items||[]).map(refreshItemMeta));
