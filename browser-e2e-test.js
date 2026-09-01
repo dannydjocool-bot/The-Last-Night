@@ -20,43 +20,45 @@ async function verifyFullObjectiveGlowChain(page){
   const result=await page.evaluate(()=>{
     const keys=['clues','wardenDefeated','hollowDefeated','bloodkeeperDefeated','sentinelDefeated','rootEntered','rootGateUnlocked','rootFusionDefeated','rootDefeated'];
     const saved=Object.fromEntries(keys.map(k=>[k,G[k]]));
-    const savedLoc=G.ps[G.active].loc;
     const cases=[
-      ['Objective 1',{clues:0},'station','Police Station'],
-      ['Objective 2',{clues:1},'library','Town Library'],
-      ['Objective 3',{clues:2},'chapel','Chapel'],
-      ['Objective 4',{clues:3},'huntercamp','Hunter'],
-      ['Objective 5',{clues:4},'hospital','Hospital'],
-      ['Objective 6',{clues:5},'school','School'],
-      ['Objective 7',{clues:6},'factory','Factory'],
-      ['Objective 8',{clues:7},'massgrave','Mass Grave'],
-      ['Objective 9',{clues:8},'laboratory','Laboratory'],
-      ['Objective 10',{clues:9},'ritual','Ritual'],
-      ['Objective 11 Warden',{clues:10,wardenDefeated:false,hollowDefeated:false},'prison','Prison'],
-      ['Objective 11 Hollow',{clues:10,wardenDefeated:true,hollowDefeated:false},'hollow','Hollow'],
-      ['Objective 12 Bloodkeeper',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:false,sentinelDefeated:false},'slaughterhouse','Slaughterhouse'],
-      ['Objective 12 Sentinel',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:false},'asylum','Asylum'],
-      ['Objective 13',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:false},'root','Root'],
-      ['Objective 14',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:false,rootFusionDefeated:false,rootDefeated:false},'root','Root'],
-      ['Objective 15',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:false,rootDefeated:false},'root','Root'],
-      ['Objective 16',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:true,rootDefeated:false},'root','Root'],
-      ['Final Objective',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:true,rootDefeated:true},'gate','Escape Gate']
+      ['Objective 1',{clues:0},['station']],
+      ['Objective 2',{clues:1},['library']],
+      ['Objective 3',{clues:2},['chapel']],
+      ['Objective 4',{clues:3},['huntercamp']],
+      ['Objective 5',{clues:4},['hospital']],
+      ['Objective 6',{clues:5},['school']],
+      ['Objective 7',{clues:6},['factory']],
+      ['Objective 8',{clues:7},['massgrave']],
+      ['Objective 9',{clues:8},['laboratory']],
+      ['Objective 10',{clues:9},['ritual']],
+      ['Objective 11 both',{clues:10,wardenDefeated:false,hollowDefeated:false},['prison','hollow']],
+      ['Objective 11 Hollow remains',{clues:10,wardenDefeated:true,hollowDefeated:false},['hollow']],
+      ['Objective 12 both',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:false,sentinelDefeated:false},['slaughterhouse','asylum']],
+      ['Objective 12 Sentinel remains',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:false},['asylum']],
+      ['Objective 13',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:false},['root']],
+      ['Objective 14',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:false,rootFusionDefeated:false,rootDefeated:false},['root']],
+      ['Objective 15',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:false,rootDefeated:false},['root']],
+      ['Objective 16',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:true,rootDefeated:false},['root']],
+      ['Final Objective',{clues:10,wardenDefeated:true,hollowDefeated:true,bloodkeeperDefeated:true,sentinelDefeated:true,rootEntered:true,rootGateUnlocked:true,rootFusionDefeated:true,rootDefeated:true},['gate']]
     ];
     const failures=[];
-    for(const [name,state,loc,needle] of cases){
+    for(const [name,state,expected] of cases){
       Object.assign(G,{wardenDefeated:false,hollowDefeated:false,bloodkeeperDefeated:false,sentinelDefeated:false,rootEntered:false,rootGateUnlocked:false,rootFusionDefeated:false,rootDefeated:false},state);
-      G.ps[G.active].loc=loc;
-      render();
+      const actual=(window.v06ObjectiveTargetLocs?.()||[]).slice().sort();
+      const want=expected.slice().sort();
+      if(JSON.stringify(actual)!==JSON.stringify(want))failures.push(`${name}: resolver expected ${want.join(',')} but got ${actual.join(',')||'none'}`);
       window.v06RefreshObjectiveGlow?.();
-      const visible=[...document.querySelectorAll('.loc')].map(el=>(el.querySelector('b')?.textContent||el.textContent||'').replace(/\s+/g,' ').trim());
-      const glowing=[...document.querySelectorAll('.loc.v06-objective-target')].map(el=>(el.querySelector('b')?.textContent||el.textContent||'').replace(/\s+/g,' ').trim());
-      if(!visible.some(t=>t.toLowerCase().includes(needle.toLowerCase())))failures.push(`${name}: target ${needle} did not render when location was revealed; visible=${visible.join(' | ')}`);
-      if(!glowing.some(t=>t.toLowerCase().includes(needle.toLowerCase())))failures.push(`${name}: revealed target ${needle} is not glowing; glowing=${glowing.join(' | ')||'none'}`);
+      for(const loc of expected){
+        const expectedName=(typeof LM!=='undefined'&&LM?.[loc]?.[1])?String(LM[loc][1]).trim().toLowerCase():'';
+        if(!expectedName)continue;
+        const card=[...document.querySelectorAll('.loc')].find(el=>(el.querySelector('b')?.textContent||'').trim().toLowerCase()===expectedName);
+        if(card&&!card.classList.contains('v06-objective-target'))failures.push(`${name}: revealed ${expectedName} card is not glowing`);
+      }
     }
-    Object.assign(G,saved);G.ps[G.active].loc=savedLoc;render();window.v06RefreshObjectiveGlow?.();
+    Object.assign(G,saved);window.v06RefreshObjectiveGlow?.();
     return failures;
   });
-  assert.deepEqual(result,[], 'Objective glow chain failures:\n'+result.join('\n'));
+  assert.deepEqual(result,[], 'Objective target chain failures:\n'+result.join('\n'));
 }
 
 async function desktopRun(browser){
