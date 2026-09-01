@@ -16,15 +16,16 @@ current = '''<section id="updateDetailsPanel" aria-labelledby="updateDetailsTitl
   <div class="update-details-card">
     <div class="update-details-kicker">Latest Build</div>
     <h2 id="updateDetailsTitle">V-0.6 Beta — New Update</h2>
-    <p>Blackwood feels more alive and unpredictable. V-0.6 focuses on deeper horror atmosphere, more reactive nights, and stronger endgame reliability.</p>
+    <p>V-0.6 makes Blackwood easier to understand, more atmospheric, and more dangerous while improving the experience on both desktop and phones.</p>
     <ul class="update-details-list">
+      <li><strong>New Player Guidance:</strong> Added a NEXT STEP panel that follows the current situation, explains what to do next, shows important AP information, and helps players understand when they are blocked.</li>
+      <li><strong>Objective Direction:</strong> Story locations can now glow on the map when the current objective points to them, helping players stay on track without removing exploration.</li>
+      <li><strong>Better Phone Controls:</strong> Journal, Game Log, and Main Pack now use a cleaner mobile quick-control bar so important buttons no longer compete for the same screen space.</li>
       <li><strong>Blackwood Feels Alive:</strong> Added Night Modifiers, location-specific horror events, rare anomalies, Fear/Sanity hallucinations, and more reactive exploration moments.</li>
-      <li><strong>Blackwood Journal:</strong> Important discoveries, warnings, boss encounters, relationship moments, and strange events can now be recorded during a run.</li>
-      <li><strong>Survivor Relationships:</strong> Survivors can build Trust by surviving battles together, creating meaningful party bonuses over time.</li>
+      <li><strong>Journal &amp; Survivor Trust:</strong> Important events are recorded in the Blackwood Journal, while survivors can build Trust by surviving battles together and earn party benefits.</li>
       <li><strong>Expanded Encounters:</strong> Added exploration choices, dramatic high-rarity creature introductions, and escalating creature phases as enemies become wounded.</li>
-      <li><strong>Horror Soundtrack Overhaul:</strong> Replaced the engine-like ambience with a darker cinematic horror score using sparse music, distant tones, heartbeat-like impacts, and atmospheric movement.</li>
-      <li><strong>Root Gate Reliability:</strong> Fixed Special Ability kills so Root Gate Guardians and The Triune Maw correctly advance the story, respect Triune Armor, and unlock the final Root encounter.</li>
-      <li><strong>UI &amp; Mobile Polish:</strong> Improved V-0.6 overlay placement and prevented the Blackwood Journal from covering important game controls.</li>
+      <li><strong>Horror Soundtrack Overhaul:</strong> Replaced the engine-like ambience with a darker cinematic horror soundtrack featuring sparse music, distant tones, heartbeat-like impacts, and atmospheric movement.</li>
+      <li><strong>Endgame Reliability:</strong> Improved Root Gate Guardian and Triune Maw progression so Special Ability kills, Triune Armor, and the final Root unlock work correctly.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
