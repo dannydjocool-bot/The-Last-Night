@@ -48,4 +48,5 @@ assert(run(`G.clues===1&&G.ps[0].freeInvestigateUsed===false&&G.ps[0].actions===
 // Compatibility alias must still work for old internal calls.
 assert(run(`typeof investigate==='function'`), 'Investigate compatibility alias is missing');
 
+// This test intentionally validates player-facing story feedback, not developer counters.
 console.log('Visible Investigate button/Search authority and immersive story feedback test passed.');
