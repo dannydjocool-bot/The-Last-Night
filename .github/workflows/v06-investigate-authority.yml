@@ -1,0 +1,57 @@
+name: V0.6 Investigate Authority
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-investigate-authority.py'
+      - '.github/workflows/v06-investigate-authority.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply Investigate authority repair
+        run: python .github/scripts/v06-investigate-authority.py
+      - name: Validate Search and Investigate separation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          js=Path('v06-enhancements.js').read_text(encoding='utf-8')
+          m=re.search(r'function search\(\)\{(.*?)\n\}',html,re.S)
+          if not m: raise SystemExit('search function missing')
+          if 'gainClue(' in m.group(1): raise SystemExit('Search still advances story clues')
+          if '📜 INVESTIGATE TARGET:' not in html: raise SystemExit('Investigate objective target check missing')
+          if "if(typeof search==='function')" not in js: raise SystemExit('V0.6 Search exploration wrapper missing')
+          if "if(typeof investigate==='function')" not in js: raise SystemExit('V0.6 Investigate wrapper missing')
+          print('Search/Investigate separation validated')
+          PY
+          node --check v06-enhancements.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/core.js').write_text(scripts,encoding='utf-8')
+          PY
+          node --check /tmp/core.js
+      - name: Commit gameplay repair
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html v06-enhancements.js
+          git commit -m "V0.6: make Investigate authoritative for objectives"
+          git push origin dev
