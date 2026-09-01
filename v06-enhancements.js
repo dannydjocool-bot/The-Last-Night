@@ -41,8 +41,8 @@ function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.
 ui();syncUi();
 if(typeof move==='function'){const o=move;window.move=async function(){const before=hasGame()?G.ps[G.active]?.loc:null;const r=await o.apply(this,arguments);if(hasGame()&&G.ps[G.active]?.loc!==before){atmosphere(G.ps[G.active].loc);travelMod();hallucinate();anomaly();badge()}return r}}
 if(typeof investigate==='function'){const o=investigate;window.investigate=function(){
-  const p0=hasGame()?G.ps[G.active]:null,obj0=objectiveText().trim().toLowerCase(),loc0=p0?.loc,ap0=Number(p0?.actions||0);
-  const finish=()=>{if(!hasGame())return;const p1=G.ps[G.active],ap1=Number(p1?.actions||0);if(p1?.loc===loc0&&ap1<ap0&&obj0){const card=[...document.querySelectorAll('.loc')].find(c=>{const title=(c.querySelector('b')?.textContent||'').trim().toLowerCase();return title&&obj0.includes(title)});if(card){const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();const key=card.dataset?.loc||card.getAttribute('data-location')||title;G.v06ClearedObjectiveTarget={objective:obj0,loc:key,title};}}window.v06SyncGuidance?.()};
+  const p0=hasGame()?G.ps[G.active]:null,obj0=objectiveText().trim().toLowerCase(),loc0=p0?.loc,clues0=Number(G?.clues||0);
+  const finish=()=>{if(!hasGame())return;const p1=G.ps[G.active],clues1=Number(G?.clues||0);if(p1?.loc===loc0&&clues1>clues0&&obj0){const card=[...document.querySelectorAll('.loc')].find(c=>{const title=(c.querySelector('b')?.textContent||'').trim().toLowerCase();return title&&obj0.includes(title)});if(card){const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();const key=card.dataset?.loc||card.getAttribute('data-location')||title;G.v06ClearedObjectiveTarget={objective:obj0,loc:key,title};}}window.v06SyncGuidance?.()};
   if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(function(){const r=o.apply(this,arguments);setTimeout(finish,0);setTimeout(finish,120);return r},arguments);return}
   const r=o.apply(this,arguments);setTimeout(finish,0);setTimeout(finish,120);hallucinate();anomaly();return r
 }}
