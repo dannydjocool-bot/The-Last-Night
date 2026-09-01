@@ -24,6 +24,21 @@ jobs:
           grep -q "Guardians .*Triune .*Root" v06-enhancements.js
           grep -q "!currentCombat()&&Math.random()<.55" v06-enhancements.js
           grep -q "v06LastEffect" v06-enhancements.js
+          grep -q "clues1>clues0" v06-enhancements.js
+          grep -q "function ensureStoryProgress()" index.html
+          grep -q "const advanced=gainClue();" index.html
+          grep -q "Objective advanced:" index.html
+      - name: Check JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/the-last-night-core.js').write_text(scripts,encoding='utf-8')
+          PY
+          node --check /tmp/the-last-night-core.js
+          node --check v06-enhancements.js
       - name: Commit changes
         run: |
           if git diff --quiet; then
@@ -32,6 +47,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add v06-enhancements.js
-          git commit -m "V0.6: improve exploration and player clarity"
+          git add index.html v06-enhancements.js
+          git commit -m "V0.6: repair investigate objective progression"
           git push origin dev
