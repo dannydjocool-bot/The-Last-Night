@@ -9,17 +9,18 @@ function node(){
     style:{},innerHTML:"",textContent:"",value:"",disabled:false,offsetWidth:220,offsetHeight:180,
     classList:{add(){},remove(){},toggle(){},contains(){return false;}},
     addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},appendChild(){},remove(){},
+    querySelector(){return null;},querySelectorAll(){return [];},
     getBoundingClientRect(){return {left:0,top:0,width:220,height:180};}
   };
 }
 const document={
-  body:node(),
+  body:node(),documentElement:node(),head:node(),readyState:"complete",
   getElementById(id){if(!nodes.has(id))nodes.set(id,node());return nodes.get(id);},
-  querySelectorAll(){return [];},addEventListener(){},createElement(){return node();}
+  querySelector(){return null;},querySelectorAll(){return [];},addEventListener(){},createElement(){return node();},createTextNode(){return node();}
 };
 const storage=new Map();
 const localStorage={getItem:k=>storage.has(k)?storage.get(k):null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
-const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math,JSON,Set,Infinity,window:null,location:{reload(){throw new Error("Unexpected reload");}}};
+const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math,JSON,Set,Infinity,window:null,location:{reload(){throw new Error("Unexpected reload");}},navigator:{userAgent:"CI"},requestAnimationFrame:fn=>{fn();return 1;},cancelAnimationFrame(){},getComputedStyle(){return {};},matchMedia(){return {matches:false,addEventListener(){},removeEventListener(){}}}};
 context.window=context;context.innerWidth=1400;context.innerHeight=900;context.addEventListener=()=>{};
 vm.createContext(context);
 vm.runInContext(script,context);
