@@ -49,5 +49,72 @@ jobs:
       - name: Release candidate static audit
         run: |
           python3 - <<'PY'
-          from pathlib import import Path
+          from pathlib import Path
+          import re
+          from collections import Counter
+          html=Path('index.html').read_text(encoding='utf-8')
+          markup=re.sub(r'<script\b.*?</script>|<style\b.*?</style>','',html,flags=re.S|re.I)
+          ids=re.findall(r'\bid=["\']([^"\']+)["\']',markup)
+          dup=[x for x,n in Counter(ids).items() if n>1]
+          if dup: raise SystemExit('Duplicate static HTML ids: '+', '.join(dup))
+          refs=set()
+          refs.update(re.findall(r'(?:src|href)=["\']([^"\']+)["\']',html))
+          refs.update(re.findall(r'url\(["\']?([^"\')]+)',html))
+          exts=('.png','.jpg','.jpeg','.webp','.svg','.css','.js','.webmanifest')
+          missing=[]
+          for ref in refs:
+            clean=ref.split('?',1)[0].split('#',1)[0]
+            if not clean or clean.startswith(('http://','https://','data:','mailto:')): continue
+            if clean.lower().endswith(exts) and not Path(clean).exists(): missing.append(clean)
+          if missing: raise SystemExit('Missing referenced assets: '+', '.join(sorted(set(missing))))
+          print(f'Static audit passed: {len(ids)} static ids, {len(refs)} local/reference candidates checked.')
+          PY
+
+      - name: Verify V0.6 player-facing regression markers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          js=Path('v06-enhancements.js').read_text(encoding='utf-8')
+          css=Path('v06-enhancements.css').read_text(encoding='utf-8')
+          search_match=re.search(r'function search\(\)\{(.*?)\n\}',html,re.S)
+          checks={
+            'V0.6 menu version':'V-0.6 Beta' in html,
+            'polished beta thanks':'experience Blackwood County for yourself.' in html and 'experience The Last Night.</p>' not in html,
+            'three independent save slots':all(f'Save Slot {i}' in html for i in (1,2,3)),
+            'combat-only transformations':"transformation can only be activated during combat" in html,
+            'Moonbound 35 percent threshold':'transformThreshold:0.35' in html,
+            'Ashen Saint 40 percent threshold':'transformThreshold:0.40' in html,
+            'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
+            'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
+            'active objective glow source':'function activeObjectiveText()' in js and 'STORY_OBJECTIVES[G.clues]' in js,
+            'ordered story progress repair':'function ensureStoryProgress()' in html,
+            'investigate requires actual advancement':'const advanced=gainClue();' in html,
+            'investigate target check':'📜 INVESTIGATE TARGET:' in html,
+            'Search cannot advance clues':bool(search_match) and 'gainClue(' not in search_match.group(1),
+            'Search owns exploration wrapper':"if(typeof search==='function'){const o=search;window.search=function()" in js,
+            'Investigate button direct handler':'onclick="window.performObjectiveInvestigate()"' in html and 'window.performObjectiveInvestigate=performObjectiveInvestigate;' in html,
+            'Investigate not shadowed by V0.6':'window.investigate=function' not in js,
+            'objective fallback syntax':"txt.split('\\n')[0]" in js,
+            'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
+            'mobile dock CSS':'v06-mobile-dock' in css,
+            'desktop art quality pass':'V0.6 DESKTOP CARD ART QUALITY PASS' in css,
+            'combined Fear Sanity filter':'body.v06-fear-high.v06-sanity-low #game' in css,
+            'desktop music release gain':'V0.6_AUDIO_MUSIC_GAIN_RC' in html and 'audioLevel("music",25)/100*.82' in html,
+            'phone-only music boost':'(max-width:850px)' in html and 'desktopMusicGain*1.22' in html,
+            'separate ambience mix':'audioLevel("ambience",30)/100*.16' in html,
+            'separate effects mix':'audioLevel("effects",55)/100' in html,
+            'Root Gate progression':all(x in html for x in ('The Thornbound','The Veinmaw','The Ash Wraith','The Triune Maw','The Root of Blackwood')),
+            'special Triune armor support':'V0.6_SPECIAL_TRIUNE_ARMOR' in html,
+            'special boss progression':'V0.6_SPECIAL_BOSS_PROGRESSION' in html,
+            'immersive V0.6 release title':'V-0.6 Beta — Blackwood Feels Alive' in html,
+            'player-facing Investigate guidance':'Investigate is now the action that pushes the case forward' in html,
+            'player-facing Search guidance':'Search does not advance story clues' in html,
+            'save-local Journal release copy':'Each save keeps its own Journal' in html,
+          }
+          bad=[name for name,ok in checks.items() if not ok]
+          for name,ok in checks.items(): print(f'{name}: {"PASS" if ok else "FAIL"}')
+          if bad: raise SystemExit('Regression checks failed: '+', '.join(bad))
+          print('All V0.6 regression markers passed.')
           PY
