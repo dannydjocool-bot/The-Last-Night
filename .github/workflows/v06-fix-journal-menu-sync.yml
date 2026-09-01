@@ -17,21 +17,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dev
-      - name: Patch Journal visibility sync
+      - name: Patch Journal and mobile dock visibility sync
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('v06-enhancements.js')
           s=p.read_text(encoding='utf-8')
-          old="ui();syncUi();\nif(typeof move==='function')"
-          new="ui();syncUi();\nnew MutationObserver(syncUi).observe(document.body,{attributes:true,attributeFilter:['class']});\nif(typeof move==='function')"
+          old="new MutationObserver(syncUi).observe(document.body,{attributes:true,attributeFilter:['class']});"
+          new="new MutationObserver(()=>{syncUi();syncDock();}).observe(document.body,{attributes:true,attributeFilter:['class']});"
           if new in s:
-              print('Journal menu sync already present')
+              print('Journal/mobile dock menu sync already present')
           elif old in s:
               s=s.replace(old,new,1)
               p.write_text(s,encoding='utf-8')
           else:
-              raise SystemExit('Journal sync patch target not found')
+              raise SystemExit('Journal/mobile dock sync patch target not found')
           PY
           node --check v06-enhancements.js
       - name: Commit fix
@@ -40,5 +40,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add v06-enhancements.js
-          git commit -m "V0.6: hide Journal immediately on menu exit"
+          git commit -m "V0.6: sync mobile dock with gameplay state"
           git push origin dev
