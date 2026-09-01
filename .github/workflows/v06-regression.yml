@@ -8,6 +8,7 @@ on:
       - 'v06-enhancements.js'
       - 'v06-enhancements.css'
       - 'story-smoke-test.js'
+      - 'objective-investigate-smoke-test.js'
       - '.github/scripts/v06-player-clarity.py'
       - '.github/workflows/v06-regression.yml'
   workflow_dispatch:
@@ -37,6 +38,9 @@ jobs:
 
       - name: Run story and combat smoke test
         run: node story-smoke-test.js
+
+      - name: Run objective Investigate interaction test
+        run: node objective-investigate-smoke-test.js
 
       - name: Release candidate static audit
         run: |
@@ -79,6 +83,9 @@ jobs:
             'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
             'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
             'objective glow completion memory':'G.v06ClearedObjectiveTarget' in js,
+            'objective glow follows clue progress':'clues1>clues0' in js,
+            'ordered story progress repair':'function ensureStoryProgress()' in html,
+            'investigate requires actual advancement':'const advanced=gainClue();' in html,
             'objective fallback syntax':"txt.split('\\n')[0]" in js,
             'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
             'mobile dock CSS':'v06-mobile-dock' in css,
