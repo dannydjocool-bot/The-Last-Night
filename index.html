@@ -2351,15 +2351,8 @@ encounter();
 else if(r<=3){
 log("Nothing useful.");
 }
-else if(r===4){
-gainItem();
-}
-else if(r===5){
-gainClue();
-}
 else{
 gainItem();
-gainClue();
 }
 }
 
@@ -2449,6 +2442,13 @@ function investigate(){
   }
 
   const before=G.clues;
+  const currentObjective=STORY_OBJECTIVES[G.clues];
+  if(currentObjective&&p.loc!==currentObjective.loc){
+    log(`📜 INVESTIGATE TARGET: ${currentObjective.text}`,"bad");
+    updateStoryObjective();
+    render();
+    return false;
+  }
   const advanced=gainClue();
   if(!advanced){
     updateStoryObjective();
