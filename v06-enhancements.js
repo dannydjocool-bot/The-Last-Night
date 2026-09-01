@@ -41,12 +41,6 @@ function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.
 ui();syncUi();
 if(typeof move==='function'){const o=move;window.move=async function(){const before=hasGame()?G.ps[G.active]?.loc:null;const r=await o.apply(this,arguments);if(hasGame()&&G.ps[G.active]?.loc!==before){atmosphere(G.ps[G.active].loc);travelMod();hallucinate();anomaly();badge()}return r}}
 if(typeof search==='function'){const o=search;window.search=function(){if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(o,arguments);return}const r=o.apply(this,arguments);hallucinate();anomaly();return r}}
-if(typeof investigate==='function'){const o=investigate;window.investigate=function(){
-  const p0=hasGame()?G.ps[G.active]:null,obj0=objectiveText().trim().toLowerCase(),loc0=p0?.loc,clues0=Number(G?.clues||0);
-  const r=o.apply(this,arguments);
-  if(hasGame()&&Number(G?.clues||0)>clues0&&G.ps[G.active]?.loc===loc0){G.v06ClearedObjectiveTarget=null;window.v06SyncGuidance?.();highlightObjective();j(`Objective advanced after investigating ${LM?.[loc0]?.[1]||loc0}.`,'INVESTIGATION')}
-  hallucinate();anomaly();return r
-}}
 if(typeof endNight==='function'){const o=endNight;window.endNight=function(){const old=hasGame()?G.night:null;const r=o.apply(this,arguments);if(hasGame()&&G.night!==old)setTimeout(newNightMod,1650);return r}}
 if(typeof startCombat==='function'){const o=startCombat;window.__v06StartCombat=o;window.startCombat=function(id){const c=hasGame()?G.creatures?.find(x=>String(x.id)===String(id)):null;if(c&&BOSS.has(c.rarity)&&!c.v06Introduced){bossIntro(c,id);return}const r=o.apply(this,arguments);const p=hasGame()?G.ps[G.active]:null;if(p&&bestBond(p)>=3&&currentCombat()){p.combatActions=(p.combatActions||0)+1;lg(`🤝 TRUST BONUS: ${p.name} gains +1 Combat Action.`,'good')}return r}}
 if(typeof creatureAttack==='function'){const o=creatureAttack;window.creatureAttack=function(c){phase(c);const blood=mod()?.kind==='blood';if(blood&&c){c.atk+=2;try{return o.apply(this,arguments)}finally{c.atk-=2}}return o.apply(this,arguments)}}
@@ -142,6 +136,7 @@ function explainLocks(){
     if(!btn.title)btn.title=label.toLowerCase().includes('end night')?'Cannot end the Night while a hostile creature is unresolved here.':'This action is unavailable right now. Check NEXT STEP for the current requirement.';
   });
 }
+window.v06RefreshObjectiveGlow=highlightObjective;
 function visibleLockReason(){
   if(!hasGame())return '';
   const p=activeSurvivor(),c=combatNow();

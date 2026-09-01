@@ -2425,7 +2425,7 @@ function ensureStoryProgress(){
   return ordered;
 }
 
-function investigate(){
+function performObjectiveInvestigate(){
   const p=G.ps[G.active];
   if(combat||hostileAtCurrentLocation(p)){
     log(`⚔️ ${p.name} cannot Investigate while a creature controls this location.`,"bad");
@@ -2466,8 +2466,12 @@ function investigate(){
   updateStoryObjective();
   log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");
   render();
+  window.v06SyncGuidance?.();
+  window.v06RefreshObjectiveGlow?.();
   return true;
 }
+window.performObjectiveInvestigate=performObjectiveInvestigate;
+function investigate(){return performObjectiveInvestigate();}
 function flashlightSceneFor(loc){
   return {art:locationArt(loc),areas:LOCATION_AREAS[loc]||[`Illuminate the nearest dark passage`,`Sweep the far edge of ${LM[loc][1]}`]};
 }
@@ -4480,7 +4484,7 @@ document.getElementById("location").innerHTML=
 Search (1 Action)
 </button>
 
-<button ${combat||hostileAtCurrentLocation(p)?'disabled class="combat-locked"':''} onclick="investigate()">
+<button ${combat||hostileAtCurrentLocation(p)?'disabled class="combat-locked"':''} onclick="window.performObjectiveInvestigate()">
   🔎 Investigate
 </button>
 
