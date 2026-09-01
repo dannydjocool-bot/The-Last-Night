@@ -29,15 +29,17 @@ jobs:
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Wait for Vercel dev preview
+      - name: Serve exact dev build locally
         run: |
-          for i in {1..30}; do
-            if curl -fsS https://the-last-night-git-dev-nada-f420.vercel.app >/dev/null; then exit 0; fi
-            sleep 5
+          python3 -m http.server 4173 >/tmp/the-last-night-http.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/index.html >/dev/null; then exit 0; fi
+            sleep 1
           done
+          cat /tmp/the-last-night-http.log || true
           exit 1
 
       - name: Run desktop and mobile real-browser playthrough
         env:
-          TEST_URL: https://the-last-night-git-dev-nada-f420.vercel.app
+          TEST_URL: http://127.0.0.1:4173/index.html
         run: node browser-e2e-test.js
