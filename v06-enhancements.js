@@ -34,10 +34,10 @@ function bonds(){if(!hasGame())return{};G.v06Bonds=G.v06Bonds||{};return G.v06Bo
 function bk(a,b){return [a,b].sort().join('::')}
 function grow(){if(!hasGame())return;const live=G.ps.filter(p=>!p.dead);for(let i=0;i<live.length;i++)for(let k=i+1;k<live.length;k++){const key=bk(live[i].originalName||live[i].name,live[k].originalName||live[k].name);bonds()[key]=(bonds()[key]||0)+1;if(bonds()[key]===3)lg(`🤝 ${live[i].name} and ${live[k].name} have developed Trust.`,'good')}}
 function bestBond(p){let best=0;if(!hasGame())return 0;for(const o of G.ps){if(o===p||o.dead)continue;best=Math.max(best,bonds()[bk(p.originalName||p.name,o.originalName||o.name)]||0)}return best}
-function travelMod(){const m=mod();if(!m||!hasGame())return;const p=G.ps[G.active];if(m.kind==='fog'&&Math.random()<.28){p.fear=Math.min(5,(p.fear||0)+1);lg(`🌫️ Heavy Fog closes around ${p.name}. +1 Fear.`,'bad')}if(m.kind==='silence'&&Math.random()<.25){p.san=Math.max(0,(p.san||0)-1);lg(`🔇 Dead Silence presses against ${p.name}. -1 Sanity.`,'bad');validateMind(p)}if(m.kind==='storm'&&p.actions>0&&Math.random()<.25){p.actions--;lg('⛈️ The Blackwood Storm steals 1 extra Night AP.','bad')}if(m.kind==='restless'&&Math.random()<.22&&typeof spawn==='function'){spawn(p.loc);lg(`☠️ Restless Dead follow the party into ${LM[p.loc][1]}.`,'bad')}psych()}
+function travelMod(){const m=mod();if(!m||!hasGame())return;const p=G.ps[G.active];if(m.kind==='fog'&&Math.random()<.28){p.fear=Math.min(5,(p.fear||0)+1);lg(`🌫️ Heavy Fog closes around ${p.name}. +1 Fear.`,'bad');G.v06LastEffect='Heavy Fog: +1 Fear';G.v06LastEffectAt=Date.now();window.v06SyncGuidance?.()}if(m.kind==='silence'&&Math.random()<.25){p.san=Math.max(0,(p.san||0)-1);lg(`🔇 Dead Silence presses against ${p.name}. -1 Sanity.`,'bad');G.v06LastEffect='Dead Silence: -1 Sanity';G.v06LastEffectAt=Date.now();window.v06SyncGuidance?.();validateMind(p)}if(m.kind==='storm'&&p.actions>0&&Math.random()<.25){p.actions--;lg('⛈️ The Blackwood Storm steals 1 extra Night AP.','bad');G.v06LastEffect='Blackwood Storm: -1 Night AP';G.v06LastEffectAt=Date.now();window.v06SyncGuidance?.()}if(m.kind==='restless'&&Math.random()<.22&&typeof spawn==='function'){spawn(p.loc);lg(`☠️ Restless Dead follow the party into ${LM[p.loc][1]}.`,'bad');G.v06LastEffect='Restless Dead: another creature was attracted';G.v06LastEffectAt=Date.now();window.v06SyncGuidance?.()}psych()}
 function phase(c){if(!c?.maxHp||c.hp<=0)return;const r=c.hp/c.maxHp,ph=r<=.25?3:r<=.5?2:r<=.75?1:0;c.v06Phase=c.v06Phase||0;if(ph<=c.v06Phase)return;while(c.v06Phase<ph){c.v06Phase++;const b=c.v06Phase===3?2:1;c.atk+=b;lg(`🩸 ${c.name} enters PHASE ${c.v06Phase+1}: wounded and more dangerous (+${b} ATK).`,'bad');j(`${c.name} entered phase ${c.v06Phase+1}.`,'CREATURE PHASE')}}
 function bossIntro(c,id){c.v06Introduced=true;show(`<div class="v06-kicker">${c.rarity.toUpperCase()} ENCOUNTER</div><div class="v06-title">${c.name}</div><img src="${c.image}" alt="${c.name}" style="width:min(360px,80vw);max-height:44vh;object-fit:contain;background:#060708;border-radius:12px;border:1px solid #63333a"><p class="v06-copy">${c.ability||'Blackwood has sent something terrible.'}</p><button id="v06FaceBoss">FACE ${c.name.toUpperCase()}</button>`);document.getElementById('v06FaceBoss').onclick=()=>{close();if(typeof horrorTone==='function'){horrorTone('warning');setTimeout(()=>horrorTone('enemy'),250)}window.__v06StartCombat(String(id));const p=hasGame()?G.ps[G.active]:null;if(p&&bestBond(p)>=3&&currentCombat()){p.combatActions=(p.combatActions||0)+1;lg(`🤝 TRUST BONUS: ${p.name} gains +1 Combat Action.`,'good')}};j(`${c.name} revealed itself.`,'BOSS')}
-function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.loc;show(`<div class="v06-kicker">EXPLORATION CHOICE</div><div class="v06-title">${name}</div><p class="v06-copy">How does ${p.name} search?</p><div class="v06-choices"><button id="v06Careful">CAREFUL SEARCH<br><small>Steady investigation</small></button><button id="v06Deep">SEARCH DEEPER<br><small>Risk Fear for extra loot</small></button><button id="v06Listen">STOP & LISTEN<br><small>Risk Sanity for warning</small></button></div>`);document.getElementById('v06Careful').onclick=()=>{close();original.apply(window,args)};document.getElementById('v06Deep').onclick=()=>{close();p.fear=Math.min(5,(p.fear||0)+1);original.apply(window,args);if(Math.random()<.55&&typeof gainItem==='function'){gainItem();lg(`🎒 ${p.name}'s deeper search uncovers an additional item.`,'good')}psych()};document.getElementById('v06Listen').onclick=()=>{close();p.san=Math.max(0,(p.san||0)-1);validateMind(p);original.apply(window,args);if(Math.random()<.5)lg(`👂 ${p.name} hears movement before it reaches the room.`,'good');psych()}}
+function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.loc;show(`<div class="v06-kicker">EXPLORATION CHOICE</div><div class="v06-title">${name}</div><p class="v06-copy">How does ${p.name} search?</p><div class="v06-choices"><button id="v06Careful">CAREFUL SEARCH<br><small>Steady investigation</small></button><button id="v06Deep">SEARCH DEEPER<br><small>Risk Fear for extra loot</small></button><button id="v06Listen">STOP & LISTEN<br><small>Risk Sanity for warning</small></button></div>`);document.getElementById('v06Careful').onclick=()=>{close();original.apply(window,args)};document.getElementById('v06Deep').onclick=()=>{close();p.fear=Math.min(5,(p.fear||0)+1);original.apply(window,args);if(!currentCombat()&&Math.random()<.55&&typeof gainItem==='function'){gainItem();lg(`🎒 ${p.name}'s deeper search uncovers an additional item.`,'good')}psych()};document.getElementById('v06Listen').onclick=()=>{close();p.san=Math.max(0,(p.san||0)-1);validateMind(p);original.apply(window,args);if(!currentCombat()&&Math.random()<.5)lg(`👂 ${p.name} hears movement before it reaches the room.`,'good');psych()}}
 ui();syncUi();
 if(typeof move==='function'){const o=move;window.move=async function(){const before=hasGame()?G.ps[G.active]?.loc:null;const r=await o.apply(this,arguments);if(hasGame()&&G.ps[G.active]?.loc!==before){atmosphere(G.ps[G.active].loc);travelMod();hallucinate();anomaly();badge()}return r}}
 if(typeof investigate==='function'){const o=investigate;window.investigate=function(){if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(o,arguments);return}const r=o.apply(this,arguments);hallucinate();anomaly();return r}}
@@ -84,7 +84,7 @@ function ensureGuidanceUi(){
 }
 function showHelp(){
   const title='HOW TO SURVIVE BLACKWOOD';
-  const body='<div class="v06-help-grid"><div><b>Night AP</b><span>Used for travel, investigation, resting, and exploration.</span></div><div><b>Combat AP</b><span>Used only during fights. It is separate from Night AP.</span></div><div><b>Fear & Sanity</b><span>High Fear and low Sanity make the night more dangerous.</span></div><div><b>Story Objective</b><span>Follow the objective and the glowing map target when one is available.</span></div><div><b>Transformations</b><span>Transforming survivors unlock their form only at low health during combat.</span></div><div><b>Blocked?</b><span>If a creature is alive at your location, defeat it before traveling or ending the Night.</span></div></div>';
+  const body='<div class="v06-help-grid"><div><b>Night AP</b><span>Used for travel, investigation, resting, and exploration.</span></div><div><b>Combat AP</b><span>Used only during fights. It is separate from Night AP.</span></div><div><b>Fear & Sanity</b><span>High Fear and low Sanity make the night more dangerous.</span></div><div><b>Story Objective</b><span>Follow the objective and the glowing map target when one is available.</span></div><div><b>Transformations</b><span>Transforming survivors unlock their form only at low health during combat.</span></div><div><b>Blocked?</b><span>If a creature is alive at your location, defeat it before traveling or ending the Night.</span></div></div><button type="button" class="v06-show-tips" onclick="v06ResetTips()">Show Tips Again</button>';
   if(typeof v06CloseOverlay==='function'&&document.getElementById('v06Overlay')){
     const card=document.getElementById('v06Card');
     if(card){card.innerHTML=`<div class="v06-kicker">FIELD GUIDE</div><div class="v06-title">${title}</div>${body}<button onclick="v06CloseOverlay()">Close</button>`;document.getElementById('v06Overlay').classList.add('open');document.body.style.overflow='hidden';}
@@ -141,6 +141,26 @@ function visibleLockReason(){
   if(p&&Number(p.actions||0)<=0)return '🔒 Exploration actions are locked because this survivor has no Night AP left.';
   return '';
 }
+function trustStatus(p){
+  if(!p||!hasGame())return '';
+  const names=[p.originalName||p.name,p.name].filter(Boolean),b=G.v06Bonds||{};let best=0;
+  for(const [key,val] of Object.entries(b)){if(names.some(n=>key.split('::').includes(n)))best=Math.max(best,Number(val)||0)}
+  return `🤝 Trust: ${Math.min(3,best)}/3`;
+}
+function rootProgress(){
+  if(!hasGame())return '';
+  const obj=objectiveText().toLowerCase(),n=Math.min(3,Array.isArray(G.rootGateMinionsDefeated)?G.rootGateMinionsDefeated.length:0);
+  const relevant=n>0||G.rootFusionTriggered||G.rootFusionPending||G.rootFusionDefeated||G.rootGateUnlocked||obj.includes('root')||obj.includes('guardian')||obj.includes('triune');
+  if(!relevant)return '';
+  const triune=G.rootFusionDefeated?'✅':(G.rootFusionTriggered||G.rootFusionPending||n>=3?'⚔️':'🔒');
+  const root=G.rootGateUnlocked?'⚔️':'🔒';
+  return `🗝️ Guardians ${n}/3 · Triune ${triune} · Root ${root}`;
+}
+function resetNewRunTips(){
+  if(!hasGame()||Number(G.night||1)!==1||G.v06GuidanceRunStarted)return;
+  G.v06GuidanceRunStarted=true;
+  const seen=getSeen();['start','ap','modifier','transform'].forEach(k=>seen.delete(k));localStorage.setItem(TIP_KEY,JSON.stringify([...seen]));
+}
 function coach(key,title,text){
   if(getSeen().has(key))return;
   const el=document.getElementById('v06Coach');if(!el)return;
@@ -166,7 +186,7 @@ function syncDock(){
   const ingame=hasGame()&&!document.body.classList.contains('menu-mode');dock.hidden=!ingame;
 }
 function syncGuidance(){
-  ensureGuidanceUi();syncDock();
+  ensureGuidanceUi();syncDock();resetNewRunTips();
   const box=document.getElementById('v06Guidance');
   if(!box)return;
   const ingame=hasGame()&&!document.body.classList.contains('menu-mode');box.hidden=!ingame;if(!ingame)return;
@@ -175,11 +195,16 @@ function syncGuidance(){
   if(combatNow()&&p)meta.push(`Combat AP: ${Math.max(0,Number(p.combatActions||0))}`);
   const ts=transformStatus(p);if(ts)meta.push(ts);
   if(G.v06NightModifier)meta.push(`${G.v06NightModifier.icon||'🌙'} ${G.v06NightModifier.name}`);
+  const trust=trustStatus(p);if(trust)meta.push(trust);
+  const root=rootProgress();if(root)meta.push(root);
+  if(G.v06LastEffect&&Date.now()-Number(G.v06LastEffectAt||0)<10000)meta.push(`⚠️ ${G.v06LastEffect}`);
   const t=document.getElementById('v06GuidanceText');if(t){t.className=`v06-guidance-text ${step.kind||''}`;t.textContent=step.text}
   const lock=document.getElementById('v06GuidanceLock'),reason=visibleLockReason();if(lock){lock.hidden=!reason;lock.textContent=reason}
   const m=document.getElementById('v06GuidanceMeta');if(m)m.innerHTML=meta.map(x=>`<span>${x}</span>`).join('');
   highlightObjective();explainLocks();contextualTips();journalDot();
 }
+window.v06SyncGuidance=syncGuidance;
+window.v06ResetTips=()=>{localStorage.removeItem(TIP_KEY);const c=document.getElementById('v06Coach');if(c)c.hidden=true;if(typeof v06CloseOverlay==='function')v06CloseOverlay();syncGuidance();};
 ensureGuidanceUi();
 setInterval(syncGuidance,700);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncGuidance()});
