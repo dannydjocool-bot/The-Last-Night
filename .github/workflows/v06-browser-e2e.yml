@@ -1,0 +1,43 @@
+name: V0.6 Real Browser Playthrough
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+    paths:
+      - 'index.html'
+      - 'v06-enhancements.js'
+      - 'v06-enhancements.css'
+      - 'browser-e2e-test.js'
+      - '.github/workflows/v06-browser-e2e.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-playthrough:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Wait for Vercel dev preview
+        run: |
+          for i in {1..30}; do
+            if curl -fsS https://the-last-night-git-dev-nada-f420.vercel.app >/dev/null; then exit 0; fi
+            sleep 5
+          done
+          exit 1
+
+      - name: Run desktop and mobile real-browser playthrough
+        env:
+          TEST_URL: https://the-last-night-git-dev-nada-f420.vercel.app
+        run: node browser-e2e-test.js
