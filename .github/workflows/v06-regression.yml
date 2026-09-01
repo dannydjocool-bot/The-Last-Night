@@ -1,0 +1,68 @@
+name: V0.6 Regression
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'index.html'
+      - 'v06-enhancements.js'
+      - 'v06-enhancements.css'
+      - 'story-smoke-test.js'
+      - '.github/workflows/v06-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Check core JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/the-last-night-core.js').write_text(scripts,encoding='utf-8')
+          PY
+          node --check /tmp/the-last-night-core.js
+          node --check v06-enhancements.js
+
+      - name: Run story and combat smoke test
+        run: node story-smoke-test.js
+
+      - name: Verify V0.6 player-facing regression markers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          js=Path('v06-enhancements.js').read_text(encoding='utf-8')
+          css=Path('v06-enhancements.css').read_text(encoding='utf-8')
+          checks={
+            'V0.6 menu version':'V-0.6 Beta' in html,
+            'three independent save slots':all(f'Save Slot {i}' in html for i in (1,2,3)),
+            'combat-only transformations':"transformation can only be activated during combat" in html,
+            'Moonbound 35 percent threshold':'transformThreshold:0.35' in html,
+            'Ashen Saint 40 percent threshold':'transformThreshold:0.40' in html,
+            'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
+            'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
+            'objective glow completion memory':'v06CompletedObjectiveGlows' in js,
+            'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
+            'mobile dock CSS':'v06-mobile-dock' in css,
+            'desktop art quality pass':'V0.6 DESKTOP CARD ART QUALITY PASS' in css,
+            'combined Fear Sanity filter':'body.v06-fear-high.v06-sanity-low #game' in css,
+            'Root Gate progression':all(x in html for x in ('The Thornbound','The Veinmaw','The Ash Wraith','The Triune Maw','The Root of Blackwood')),
+            'special Triune armor support':'V0.6_SPECIAL_TRIUNE_ARMOR' in html,
+            'special boss progression':'V0.6_SPECIAL_BOSS_PROGRESSION' in html,
+          }
+          bad=[name for name,ok in checks.items() if not ok]
+          for name,ok in checks.items(): print(f'{name}: {"PASS" if ok else "FAIL"}')
+          if bad: raise SystemExit('Regression checks failed: '+', '.join(bad))
+          print('All V0.6 regression markers passed.')
+          PY
