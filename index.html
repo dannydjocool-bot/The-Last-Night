@@ -2464,7 +2464,7 @@ function performObjectiveInvestigate(){
     log(`🔎 ${p.name} Investigates for 1 Action.`,"good");
   }
   updateStoryObjective();
-  log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");
+  log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");
   render();
   window.v06SyncGuidance?.();
   window.v06RefreshObjectiveGlow?.();
