@@ -6,6 +6,16 @@ const BASE = process.env.TEST_URL || 'https://the-last-night-git-dev-nada-f420.v
 async function settle(page, ms=250){ await page.waitForTimeout(ms); }
 async function safeText(locator){ return ((await locator.textContent()) || '').replace(/\s+/g,' ').trim(); }
 
+async function touchCenter(page,selector){
+  const point=await page.locator(selector).evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
+    if(!(target===el||el.contains(target)))throw new Error(`${selector} touch center is covered by ${target?.tagName||'UNKNOWN'}#${target?.id||''}`);
+    return {x,y};
+  });
+  await page.touchscreen.tap(point.x,point.y);
+  await page.waitForTimeout(120);
+}
+
 async function desktopRun(browser){
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
@@ -117,11 +127,11 @@ async function mobileRun(browser){
     assert(hit.id===id||hit.parentId===id, `${id} touch center is covered by ${hit.tag}#${hit.id}`);
   }
 
-  await page.locator('#v06DockLog').tap();
+  await touchCenter(page,'#v06DockLog');
   assert(await page.locator('#logPanel').evaluate(el=>el.classList.contains('log-open')), 'Mobile Log should open from dock');
-  await page.locator('#logClose').tap();
+  await touchCenter(page,'#logClose');
 
-  await page.locator('#v06DockJournal').tap();
+  await touchCenter(page,'#v06DockJournal');
   assert(await page.locator('#v06Overlay').evaluate(el=>el.classList.contains('open')), 'Mobile Journal should open from dock');
   await page.getByRole('button',{name:'Close'}).tap();
 
@@ -129,9 +139,9 @@ async function mobileRun(browser){
   const toggle=page.locator('#mobilePackToggle');
   assert(await toggle.isVisible(), 'Mobile pack toggle should be visible');
   assert(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed')), 'Mobile pack should begin collapsed');
-  await page.locator('#v06DockPack').tap();
+  await touchCenter(page,'#v06DockPack');
   assert(!(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed'))), 'Mobile pack should expand from dock');
-  await toggle.tap();
+  await touchCenter(page,'#mobilePackToggle');
   assert(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed')), 'Mobile pack should collapse');
 
   if(pageErrors.length) throw new Error('Mobile browser errors: '+pageErrors.join(' | '));
