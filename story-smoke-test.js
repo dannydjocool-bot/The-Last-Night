@@ -9,17 +9,18 @@ function node(){
     style:{},innerHTML:"",textContent:"",value:"",disabled:false,offsetWidth:220,offsetHeight:180,
     classList:{add(){},remove(){},toggle(){},contains(){return false;}},
     addEventListener(){},focus(){},setAttribute(){},getAttribute(){return null;},appendChild(){},remove(){},
+    querySelector(){return null;},querySelectorAll(){return [];},
     getBoundingClientRect(){return {left:0,top:0,width:220,height:180};}
   };
 }
 const document={
-  body:node(),
+  body:node(),documentElement:node(),head:node(),readyState:"complete",
   getElementById(id){if(!nodes.has(id))nodes.set(id,node());return nodes.get(id);},
-  querySelectorAll(){return [];},addEventListener(){},createElement(){return node();}
+  querySelector(){return null;},querySelectorAll(){return [];},addEventListener(){},createElement(){return node();},createTextNode(){return node();}
 };
 const storage=new Map();
 const localStorage={getItem:k=>storage.has(k)?storage.get(k):null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
-const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math,JSON,Set,Infinity,window:null,location:{reload(){throw new Error("Unexpected reload");}}};
+const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math,JSON,Set,Infinity,window:null,location:{reload(){throw new Error("Unexpected reload");}},navigator:{userAgent:"CI"},requestAnimationFrame:fn=>{fn();return 1;},cancelAnimationFrame(){},getComputedStyle(){return {};},matchMedia(){return {matches:false,addEventListener(){},removeEventListener(){}}}};
 context.window=context;context.innerWidth=1400;context.innerHeight=900;context.addEventListener=()=>{};
 vm.createContext(context);
 vm.runInContext(script,context);
@@ -36,8 +37,8 @@ run(`G.creatures=[];G.hollowDefeated=true;G.storyItems.push("Warden-Hollow Relic
 assert(run(`spawnStoryBoss("slaughterhouse")&&G.creatures[0].name==="The Bloodkeeper"`),"Bloodkeeper was not guaranteed at Slaughterhouse");
 run(`G.creatures=[];G.bloodkeeperDefeated=true;G.storyItems.push("Bloodkeeper Relic");`);
 assert(run(`spawnStoryBoss("asylum")&&G.creatures[0].name==="The Blackwood Sentinel"`),"Sentinel was not guaranteed at Asylum");
-run(`G.creatures=[];G.sentinelDefeated=true;G.storyItems.push("Sentinel Relic");`);
-assert(run(`spawnStoryBoss("root")&&G.creatures[0].name==="The Root of Blackwood"`),"Root was not guaranteed after relics");
+run(`G.creatures=[];G.sentinelDefeated=true;G.storyItems.push("Sentinel Relic");G.rootGateUnlocked=true;G.rootFusionDefeated=true;`);
+assert(run(`spawnStoryBoss("root")&&G.creatures[0].name==="The Root of Blackwood"`),"Root was not guaranteed after Root Gate progression");
 
 run(`G.creatures=[];G.rootDefeated=true;currentSaveSlot=2;completeRun("victory");`);
 assert(run(`G.outcome==="victory"`),"Victory ending did not complete");
@@ -53,8 +54,8 @@ assert(run(`combat.testCounters===0&&combat.attacksSinceCounter===1`),"Creature 
 run(`registerCombatAttack();`);
 assert(run(`combat.testCounters===1&&combat.attacksSinceCounter===0`),"Creature did not counter after the second attack");
 
-assert(run(`combatActionCount({rarity:"Common"})===5&&combatActionCount({rarity:"G.O.A.T"})===10`),"Combat AP was not reduced by 5 across rarities");
-assert(run(`nightActionCount({rarity:"Common"})===10&&nightActionCount({rarity:"G.O.A.T"})===15`),"Night AP was not reduced by 15 and scaled by rarity");
+assert(run(`combatActionCount({rarity:"Common"})===5&&combatActionCount({rarity:"G.O.A.T"})===10`),"Combat AP rarity scale is incorrect");
+assert(run(`nightActionCount({rarity:"Common"})===10&&nightActionCount({rarity:"G.O.A.T"})===15`),"Night AP rarity scale is incorrect");
 assert(run(`counterattackDamage({rarity:"Common"},4)===3&&counterattackDamage({rarity:"Rare"},4)===4`),"Low-rarity counterattack damage was not reduced by 35%");
 run(`G=${base};G.ps[0].actions=5;G.creatures=[{name:"Roadblock",loc:"motel",hp:5}];combat=null;render=()=>{};move("gas");`);
 assert(run(`G.ps[0].loc==="motel"&&G.ps[0].actions===5`),"A living creature did not block location travel");
@@ -68,10 +69,18 @@ assert(run(`ITEMS.every(i=>i[0]!=="Armor Plate")&&SINGLE_PLAYER_ITEMS.some(i=>i[
 assert(run(`S.filter(s=>s.isNew&&s.transform).length===2&&S.some(s=>s.name==="The Moonbound")&&S.some(s=>s.name==="The Ashen Saint")`),"The two transforming G.O.A.T survivors are missing");
 run(`singleSetup={partySize:1,pool:drawSurvivors(5),selected:["x"],wisdom:"x",rollsUsed:1,maxRolls:3};renderSinglePlayerSetup=()=>{};rerollSingleCandidates();rerollSingleCandidates();rerollSingleCandidates();`);
 assert(run(`singleSetup.rollsUsed===3&&singleSetup.pool.length===5&&singleSetup.selected.length===0&&singleSetup.wisdom===null`),"Single Player survivor rolls did not stop at three");
-run(`let s=S.find(x=>x.name==="The Moonbound");G=${base};G.ps=[{name:s.name,originalName:s.name,image:s.image,normalImage:s.image,maxHp:s.hp,normalMaxHp:s.hp,baseMaxHp:s.hp,hp:s.hp,weapon:s.weapon,normalWeapon:s.weapon,weaponDamage:s.damage,normalWeaponDamage:s.damage,baseWeaponDamage:s.damage,weaponAbility:s.weaponAbility,normalWeaponAbility:s.weaponAbility,ability:s.ability,normalAbility:s.ability,transform:s.transform,transformKey:s.transformKey,transformed:false,maxShield:0,normalMaxShield:0,shield:0,dead:false}];render=()=>{};combat=null;toggleTransformation(0);`);
-assert(run(`G.ps[0].transformed&&G.ps[0].name==="The Eclipse Beast"&&G.ps[0].maxHp===70&&G.ps[0].weaponDamage===13`),"The Moonbound transformation did not apply its improved form stats");
+
+// V0.6 transformations: combat-only, critical-health gated, once per encounter.
+run(`let s=S.find(x=>x.name==="The Moonbound");G=${base};G.night=7;G.ps=[{name:s.name,originalName:s.name,image:s.image,normalImage:s.image,maxHp:s.hp,normalMaxHp:s.hp,baseMaxHp:s.hp,hp:s.hp,weapon:s.weapon,normalWeapon:s.weapon,weaponDamage:s.damage,normalWeaponDamage:s.damage,baseWeaponDamage:s.damage,weaponAbility:s.weaponAbility,normalWeaponAbility:s.weaponAbility,ability:s.ability,normalAbility:s.ability,transform:s.transform,transformKey:s.transformKey,transformThreshold:s.transformThreshold,transformed:false,transformationUsedThisCombat:false,maxShield:0,normalMaxShield:0,shield:0,dead:false,combatActions:10}];render=()=>{};combat=null;toggleTransformation(0);`);
+assert(run(`!G.ps[0].transformed`),"The Moonbound transformed outside combat");
+run(`combat={name:"Test Creature",hp:10,maxHp:10,atk:1};G.ps[0].hp=18;toggleTransformation(0);`);
+assert(run(`!G.ps[0].transformed`),"The Moonbound transformed above 35% HP");
+run(`G.ps[0].hp=17;toggleTransformation(0);`);
+assert(run(`G.ps[0].transformed&&G.ps[0].name==="The Eclipse Beast"&&G.ps[0].maxHp===70&&G.ps[0].weaponDamage===13&&G.ps[0].transformationUsedThisCombat&&G.ps[0].transformedThroughNight===9`),"The Moonbound low-health combat transformation did not apply correctly");
 run(`toggleTransformation(0);`);
-assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"&&G.ps[0].maxHp===50&&G.ps[0].weaponDamage===8`),"The Moonbound could not freely revert");
+assert(run(`!G.ps[0].transformed&&G.ps[0].name==="The Moonbound"`),"The Moonbound could not revert from its active form");
+run(`G.ps[0].hp=17;toggleTransformation(0);`);
+assert(run(`!G.ps[0].transformed`),"The Moonbound transformed twice in the same encounter");
 
 assert(run(`S.filter(s=>s.recruitOnly).length===7`),"The seven flashlight-only survivors are missing");
 assert(run(`Array.from({length:30},()=>drawSurvivors(5)).flat().every(s=>!s.recruitOnly)`),"A flashlight-only recruit appeared in a starting draw");
@@ -107,4 +116,4 @@ assert(run(`G.ps[0].hp===15&&G.ps[1].hp===17&&G.ps[2].hp===25`),"Three-survivor 
 run(`postCombatRewardOpen=true;claimCombatReward("actions");`);
 assert(run(`G.ps[0].actions===3&&G.ps[1].actions===5&&G.ps[2].actions===9`),"Three-survivor AP recovery was not applied to the full party");
 
-console.log("Story smoke test passed: story, saves, combat locks, three-roll setup, transformations, 30-slot Main Pack, complete item art and codex, flashlight recruits, and enraged encounters.");
+console.log("Story smoke test passed: story, saves, combat locks, current transformation rules, three-roll setup, 30-slot Main Pack, item art/codex, flashlight recruits, enraged encounters, and party rewards.");

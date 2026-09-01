@@ -1,0 +1,44 @@
+name: V0.6 Blackwood Feels Alive
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '.github/workflows/v06-immersive.yml'
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Install V0.6 references
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          if 'v06-enhancements.css' not in s:
+              s=s.replace('</head>','<link rel="stylesheet" href="v06-enhancements.css?v=06a">\n</head>',1)
+          if 'v06-enhancements.js' not in s:
+              s=s.replace('</body>','<script src="v06-enhancements.js?v=06a"></script>\n</body>',1)
+          s=s.replace('V-0.5 Beta — New Update','V-0.6 Beta — Blackwood Feels Alive')
+          s=s.replace('Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.','Blackwood now reacts to every night. V-0.6 adds dynamic horror events, night modifiers, psychological effects, relationships, exploration choices, creature phases, boss entrances, a journal, and a redesigned cinematic soundtrack.')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Validate install
+        run: |
+          grep -q 'v06-enhancements.css' index.html
+          grep -q 'v06-enhancements.js' index.html
+          test -s v06-enhancements.css
+          test -s v06-enhancements.js
+      - name: Commit to dev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "V0.6: Blackwood Feels Alive immersive update"
+          git push origin dev

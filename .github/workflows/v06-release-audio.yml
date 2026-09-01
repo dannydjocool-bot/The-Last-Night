@@ -1,0 +1,46 @@
+name: V0.6 Release Audio
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-release-audio.py'
+      - '.github/workflows/v06-release-audio.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply release audio gain patch
+        run: python .github/scripts/v06-release-audio.py
+      - name: Validate release audio mix
+        run: |
+          grep -q 'V0.6_AUDIO_MUSIC_GAIN_RC' index.html
+          grep -q 'audioLevel("music",25)/100\*\.82' index.html
+          grep -q 'audioLevel("ambience",30)/100\*\.16' index.html
+          grep -q 'audioLevel("effects",55)/100' index.html
+      - name: Check JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/the-last-night-core.js').write_text(scripts,encoding='utf-8')
+          PY
+          node --check /tmp/the-last-night-core.js
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "V0.6: raise horror music volume"
+          git push origin dev

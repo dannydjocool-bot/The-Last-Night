@@ -1,0 +1,54 @@
+name: V0.6 Active Objective Glow
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-active-objective-glow.py'
+      - '.github/workflows/v06-active-objective-glow.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply active objective glow repair
+        run: python3 .github/scripts/v06-active-objective-glow.py
+      - name: Validate JavaScript
+        run: node --check v06-enhancements.js
+      - name: Validate full objective targeting
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('v06-enhancements.js').read_text(encoding='utf-8')
+          required=[
+            'function activeObjectiveText()',
+            'function objectiveTargetLocs()',
+            "STORY_OBJECTIVES[Number(G.clues||0)]",
+            "if(!G.wardenDefeated)out.push('prison')",
+            "if(!G.hollowDefeated)out.push('hollow')",
+            "if(!G.bloodkeeperDefeated)out.push('slaughterhouse')",
+            "if(!G.sentinelDefeated)out.push('asylum')",
+            "if(!G.rootEntered)return ['root']",
+            "if(!G.rootDefeated)return ['root']",
+            "return ['gate']",
+            'const targets=objectiveTargetLocs()'
+          ]
+          missing=[x for x in required if x not in s]
+          if missing: raise SystemExit('Missing full-chain glow markers: '+', '.join(missing))
+          print('Full objective glow chain validation passed')
+          PY
+      - name: Commit game repair
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v06-enhancements.js
+          git commit -m "V0.6: keep objective glow through final escape"
+          git push origin dev

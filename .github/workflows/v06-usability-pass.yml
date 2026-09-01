@@ -1,0 +1,38 @@
+name: V0.6 Usability Pass
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v06-usability-pass.yml'
+      - '.github/scripts/v06-usability-pass.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+      - name: Apply guidance and mobile fixes
+        run: python3 .github/scripts/v06-usability-pass.py
+      - name: Validate files
+        run: |
+          grep -q 'V0.6 PLAYER GUIDANCE + MOBILE DOCK' v06-enhancements.js
+          grep -q 'v06-mobile-dock' v06-enhancements.css
+          grep -q 'v06-guidance' v06-enhancements.css
+      - name: Commit usability update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add v06-enhancements.js v06-enhancements.css
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git commit -m 'V0.6: improve player guidance and mobile controls'
+          git push origin dev

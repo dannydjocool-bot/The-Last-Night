@@ -1,0 +1,52 @@
+name: V0.6 Player Clarity
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-player-clarity.py'
+      - '.github/workflows/v06-player-clarity.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply player clarity patch
+        run: python .github/scripts/v06-player-clarity.py
+      - name: Validate player-facing fixes
+        run: |
+          grep -q "Show Tips Again" v06-enhancements.js
+          grep -q "Trust:" v06-enhancements.js
+          grep -q "Guardians .*Triune .*Root" v06-enhancements.js
+          grep -q "!currentCombat()&&Math.random()<.55" v06-enhancements.js
+          grep -q "v06LastEffect" v06-enhancements.js
+          grep -q "clues1>clues0" v06-enhancements.js
+          grep -q "function ensureStoryProgress()" index.html
+          grep -q "const advanced=gainClue();" index.html
+          grep -q "Objective advanced:" index.html
+      - name: Check JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/the-last-night-core.js').write_text(scripts,encoding='utf-8')
+          PY
+          node --check /tmp/the-last-night-core.js
+          node --check v06-enhancements.js
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html v06-enhancements.js
+          git commit -m "V0.6: repair investigate objective progression"
+          git push origin dev

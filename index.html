@@ -461,6 +461,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 .gate-transform-btn{min-width:210px!important;background:linear-gradient(#7f2833,#4c141b)!important;border-color:#b64b57!important;box-shadow:0 0 18px rgba(182,75,87,.18)}
 @media(max-width:600px){.gate-transform-actions{margin-top:10px}.gate-transform-btn{width:100%!important;max-width:none!important;min-width:0!important}}
 </style>
+<link rel="stylesheet" href="v06-enhancements.css?v=06a">
 </head>
 <body class="menu-mode">
 
@@ -481,7 +482,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
           <button class="library-details" onclick="enterGameSite('info')">Explore Characters</button>
         </div>
       </section>
-      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.5 Beta update details">New Update</a><a class="library-update-badge library-update-link library-previous-update-badge" href="#previousUpdatePanel" aria-label="View V-0.4 Beta previous update details">Previous Update</a></div>
+      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.6 Beta update details">New Update</a><a class="library-update-badge library-update-link library-previous-update-badge" href="#previousUpdatePanel" aria-label="View V-0.5 Beta previous update details">Previous Update</a></div>
     </article>
     <footer class="library-foot"><span><strong>1 game available</strong> · More titles can be added here later.</span><span>No download required · Progress saves in your browser</span></footer>
   </div>
@@ -514,7 +515,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   <section class="menu-hero">
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
-    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.5 Beta</button>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.6 Beta</button>
   </section>
   <nav class="menu-actions" aria-label="Game information">
     <button onclick="showGameLibrary()">← Game Library</button>
@@ -559,9 +560,9 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="betaInfoOverlay" class="beta-info-overlay" role="dialog" aria-modal="true" aria-labelledby="betaInfoTitle" onclick="closeBetaInfo(event)">
   <section class="beta-info-card" onclick="event.stopPropagation()">
-    <h2 id="betaInfoTitle">V-0.5 Beta — Early Development</h2>
+    <h2 id="betaInfoTitle">V-0.6 Beta — Early Development</h2>
     <p>The Last Night is still in early development. We will continue adding new updates, improvements, content, and quality-of-life changes as we work toward making the overall game experience as strong and enjoyable as possible.</p>
-    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience the Night of the Dead.</p>
+    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience Blackwood County for yourself.</p>
     <button class="beta-info-close" type="button" onclick="closeBetaInfo()">Close</button>
   </section>
 </div>
@@ -1372,7 +1373,7 @@ function previewRootFusionScene(index){
   ];
   const i=Math.max(0,Math.min(index,scenes.length-1)),scene=scenes[i];
   document.getElementById("menuDialogTitle").textContent="Transformation Preview · "+(i+1)+"/4";
-  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail root-preview"><img src="${scene[0]}" alt="${scene[1]}"><div><span class="recruit-only-badge">NIGHT OF THE DEAD · CUTSCENE PREVIEW</span><h2>${scene[1]}</h2><p>${scene[2]}</p><div class="single-start-row">${i>0?`<button onclick="previewRootFusionScene(${i-1})">‹ PREVIOUS</button>`:"<span></span>"}${i<scenes.length-1?`<button onclick="previewRootFusionScene(${i+1})">NEXT ›</button>`:`<button onclick="viewRootFusionTransformation()">VIEW FINAL FORM</button>`}</div></div></div>`;
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail root-preview"><img src="${scene[0]}" alt="${scene[1]}"><div><span class="recruit-only-badge">THE LAST NIGHT · CUTSCENE PREVIEW</span><h2>${scene[1]}</h2><p>${scene[2]}</p><div class="single-start-row">${i>0?`<button onclick="previewRootFusionScene(${i-1})">‹ PREVIOUS</button>`:"<span></span>"}${i<scenes.length-1?`<button onclick="previewRootFusionScene(${i+1})">NEXT ›</button>`:`<button onclick="viewRootFusionTransformation()">VIEW FINAL FORM</button>`}</div></div></div>`;
 }
 function openRecruitDetail(index){
   const s=S.filter(x=>x.recruitOnly)[index];
@@ -1391,7 +1392,7 @@ const MENU_GUIDES={
       <article class="guide-card"><h3>Build the Right Team</h3><ul><li>Single Player draws five random candidates; choose a party of 1–5 from that draw.</li><li>You may roll a maximum of three five-card survivor draws per setup.</li><li>Nominate one selected survivor for Knowledge of Wisdom: +25 Max HP and 100 regenerating Armor.</li><li>Knowledge Armor absorbs damage before HP and fully regenerates when its bearer Rests or an Armor Plate is used.</li><li>Armor Plates can only be found during a Single Player draw run.</li><li>NEW G.O.A.T survivors unlock combat transformations at critical health: The Moonbound at 35% HP and The Ashen Saint at 40% HP.</li></ul></article>
       <article class="guide-card"><h3>Master Combat</h3><ul><li>Combat Actions are separate from Night Actions; survivors begin a round with 5–10 Combat AP based on rarity.</li><li>Creatures counterattack after every two attack attempts—even when an attack misses.</li><li>Common and Uncommon creatures deal 35% less counterattack damage.</li><li>Ending a round with one unanswered attack lets the creature counter immediately.</li><li>A creature at your location blocks normal travel until it is defeated.</li><li>After every victory, choose Recover Injuries or Gain Action Points for every living survivor. Larger parties receive a smaller reward per survivor.</li><li>Watch ammunition and durability before committing to a fight.</li><li>Save charged Specials for dangerous, high-health creatures.</li><li>Flee when the party cannot safely survive another counterattack.</li></ul></article>
       <article class="guide-card"><h3>Manage Fear & Sanity</h3><ul><li>Fear is as dangerous as physical damage; reduce it before difficult zones.</li><li>Sanity loss can weaken a run even when everyone has full health.</li><li>The Priest can remove Fear from the whole party once per game.</li><li>Use Calmatives and safe rests before entering deadly territory.</li></ul></article>
-      <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective always shows the next required destination.</li><li>Collect all ten clues in order, then defeat the required story bosses.</li><li>The Warden waits at Prison and The Hollow waits inside The Hollow.</li><li>After both Guardians fall, hunt the Bloodkeeper at Slaughterhouse and the Sentinel at Asylum.</li><li>Assemble all three relics, enter the Root, defeat the three NEW Root Gate Guardians, destroy the Root, then reach the Escape Gate.</li></ul></article>
+      <article class="guide-card"><h3>Follow the Investigation</h3><ul><li>The Story Objective shows the next place the case is pulling you toward.</li><li>When you reach the objective location, use Investigate to uncover the story clue and move the case forward.</li><li>Search does not advance story clues; use it to scavenge for supplies and face exploration risks.</li><li>Story locations may glow when the current objective points there, then shift as the investigation moves on.</li><li>Collect all ten clues in order, defeat the relic guardians, break through the Root Gate, destroy the Root of Blackwood, and reach the Escape Gate.</li></ul></article>
       <article class="guide-card"><h3>Protect Your Progress</h3><ul><li>Use all three slots for different runs or rotating backups.</li><li>Save before entering a deadly zone or starting a boss fight.</li><li>Overwrite carefully—the three slots are independent.</li><li>Saves live only in this browser and device; clearing site data removes them.</li></ul></article>
     </div>`
   },
@@ -1439,7 +1440,7 @@ const LIBRARY_FEATURES={
   single:{title:"Single-Player Investigation",html:'<div class="guide-card"><h3>Your Case, Your Draw</h3><p>Draw five random survivors, build a party of 1–5 from those candidates, then grant one selected survivor Knowledge of Wisdom: +25 maximum HP and 100 regenerating Armor.</p><button onclick="beginSinglePlayerSetup()">Draw Five Survivors</button></div>'},
   strategy:{title:"Survival Strategy",html:'<div class="guide-card"><h3>Every Action Matters</h3><p>Explore connected locations, manage supplies, and survive forced encounters. Night AP starts at 10 and Combat AP starts at 5, with both rising by survivor rarity. Creatures retaliate after every two attack attempts; Common and Uncommon counterattacks deal 35% less damage.</p><button onclick="closeMenuPanel();enterGameSite(\'tips\')">Open Full Tips &amp; Tricks</button></div>'},
   story:{title:"Blackwood Story Campaign",html:'<div class="guide-card"><h3>Break the Cycle</h3><p>Follow ten investigation objectives, defeat the relic guardians, break through the three Root Gate Guardians, destroy the Root of Blackwood, and reach the Escape Gate. Runs have no night limit.</p><button onclick="closeMenuPanel();enterGameSite()">Begin the Investigation</button></div>'},
-  saves:{title:"Three Independent Save Slots",html:'<div class="guide-card"><h3>Preserve Three Separate Runs</h3><p>Each local slot stores its own party, night, inventory, discoveries, combat state, and story progress in this browser.</p><button onclick="closeMenuPanel();enterGameSite()">View Save Slots</button></div>'}
+  saves:{title:"Three Independent Save Slots",html:'<div class="guide-card"><h3>Preserve Three Separate Runs</h3><p>Each local slot stores its own party, night, inventory, discoveries, Blackwood Journal, combat state, and story progress in this browser.</p><button onclick="closeMenuPanel();enterGameSite()">View Save Slots</button></div>'}
 };
 
 let singleSetup=null;
@@ -1574,78 +1575,91 @@ function ensureHorrorAudio(){
     const ctx=new AudioCtor(),master=ctx.createGain(),music=ctx.createGain(),ambience=ctx.createGain(),effects=ctx.createGain();
     master.connect(ctx.destination);music.connect(master);ambience.connect(master);effects.connect(master);
 
-    // V0.5 horror soundtrack: fully tonal score — no white-noise/static loop.
-    const scoreFilter=ctx.createBiquadFilter();
-    scoreFilter.type="lowpass";scoreFilter.frequency.value=1350;scoreFilter.Q.value=.7;scoreFilter.connect(music);
+    // V0.6 cinematic horror score: no continuous bass/room-tone oscillators.
+    // The old always-running low frequencies could resemble an idling engine.
+    const scoreBus=ctx.createBiquadFilter();
+    scoreBus.type="lowpass";scoreBus.frequency.value=1800;scoreBus.Q.value=.55;scoreBus.connect(music);
 
-    // Slow, uneasy chord progression centered around A minor / tritone tension.
-    const chordSets=[
-      [55.00,82.41,110.00,155.56],
-      [58.27,87.31,116.54,164.81],
-      [51.91,77.78,103.83,146.83],
-      [55.00,77.78,110.00,138.59]
+    const createReverb=()=>{
+      const convolver=ctx.createConvolver(),length=Math.floor(ctx.sampleRate*2.8),impulse=ctx.createBuffer(2,length,ctx.sampleRate);
+      for(let ch=0;ch<2;ch++){
+        const data=impulse.getChannelData(ch);
+        for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.6);
+      }
+      convolver.buffer=impulse;convolver.connect(scoreBus);return convolver;
+    };
+    const reverb=createReverb();
+
+    const darkChords=[
+      [110.00,130.81,164.81],
+      [103.83,123.47,155.56],
+      [116.54,138.59,174.61],
+      [98.00,116.54,146.83]
     ];
-    const padOscillators=[0,1,2,3].map((_,index)=>{
-      const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.type=index===0?"triangle":index===3?"sine":"sine";
-      gain.gain.value=[.11,.045,.038,.025][index];
-      osc.connect(gain);gain.connect(scoreFilter);osc.start();
-      return {osc,gain};
-    });
     let chordStep=0;
-    const setChord=(immediate=false)=>{
-      const now=ctx.currentTime,notes=chordSets[chordStep++%chordSets.length];
-      padOscillators.forEach(({osc},i)=>{
-        const target=notes[i];
-        if(immediate)osc.frequency.setValueAtTime(target,now);
-        else osc.frequency.exponentialRampToValueAtTime(target,now+2.8);
+    const playDarkChord=()=>{
+      if(!audioEnabled()||ctx.state!=="running")return;
+      const now=ctx.currentTime,notes=darkChords[chordStep++%darkChords.length];
+      notes.forEach((freq,index)=>{
+        const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
+        osc.type=index===0?"triangle":"sine";
+        osc.frequency.setValueAtTime(freq,now);
+        osc.detune.setValueAtTime(index===1?-7:index===2?9:0,now);
+        filter.type="lowpass";filter.frequency.value=650+(index*180);filter.Q.value=.7;
+        gain.gain.setValueAtTime(.0001,now);
+        gain.gain.exponentialRampToValueAtTime(index===0?.032:.018,now+1.8);
+        gain.gain.setValueAtTime(index===0?.032:.018,now+3.5);
+        gain.gain.exponentialRampToValueAtTime(.0001,now+7.5);
+        osc.connect(filter);filter.connect(gain);gain.connect(scoreBus);gain.connect(reverb);
+        osc.start(now);osc.stop(now+7.7);
       });
     };
-    setChord(true);
-    const chordTimer=setInterval(()=>{if(ctx.state==="running"&&audioEnabled())setChord(false);},12000);
 
-    // Subtle movement so the soundtrack breathes rather than drones flat.
-    const scoreLfo=ctx.createOscillator(),scoreLfoGain=ctx.createGain();
-    scoreLfo.type="sine";scoreLfo.frequency.value=.035;scoreLfoGain.gain.value=160;
-    scoreLfo.connect(scoreLfoGain);scoreLfoGain.connect(scoreFilter.frequency);scoreLfo.start();
-
-    // Sparse bell/piano-like motif above the chord bed.
-    const horrorMotif=[220.00,233.08,null,174.61,164.81,null,277.18,146.83];
-    let horrorMotifStep=0;
+    const motif=[293.66,null,220.00,233.08,null,174.61,null,311.13,146.83,null];
+    let motifStep=0;
     const playHorrorNote=()=>{
       if(!audioEnabled()||ctx.state!=="running")return;
-      const freq=horrorMotif[horrorMotifStep++%horrorMotif.length];
+      const freq=motif[motifStep++%motif.length];
       if(!freq)return;
-      const now=ctx.currentTime;
-      [1,2.01].forEach((mult,harmonic)=>{
-        const osc=ctx.createOscillator(),noteGain=ctx.createGain(),noteFilter=ctx.createBiquadFilter();
-        osc.type=harmonic?"sine":"triangle";
-        osc.frequency.setValueAtTime(freq*mult,now);
-        noteFilter.type="bandpass";noteFilter.frequency.value=harmonic?1800:900;noteFilter.Q.value=1.1;
-        noteGain.gain.setValueAtTime(.0001,now);
-        noteGain.gain.exponentialRampToValueAtTime(harmonic?.008:.022,now+.035);
-        noteGain.gain.exponentialRampToValueAtTime(.0001,now+(harmonic?2.2:3.6));
-        osc.connect(noteFilter);noteFilter.connect(noteGain);noteGain.connect(music);
-        osc.start(now);osc.stop(now+(harmonic?2.3:3.7));
-      });
+      const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
+      osc.type="sine";osc.frequency.setValueAtTime(freq,now);
+      filter.type="bandpass";filter.frequency.value=1200;filter.Q.value=1.8;
+      gain.gain.setValueAtTime(.0001,now);
+      gain.gain.exponentialRampToValueAtTime(.018,now+.06);
+      gain.gain.exponentialRampToValueAtTime(.0001,now+4.4);
+      osc.connect(filter);filter.connect(gain);gain.connect(scoreBus);gain.connect(reverb);
+      osc.start(now);osc.stop(now+4.5);
     };
-    const motifTimer=setInterval(playHorrorNote,4700);
 
-    // Tonal environmental layer: distant low hum + wandering upper moan.
-    // This replaces the previous generated noise buffer that could sound like static.
-    const roomFilter=ctx.createBiquadFilter();
-    roomFilter.type="lowpass";roomFilter.frequency.value=420;roomFilter.Q.value=.45;roomFilter.connect(ambience);
-    const roomTones=[43.65,65.41].map((freq,index)=>{
-      const osc=ctx.createOscillator(),gain=ctx.createGain();
-      osc.type=index?"sine":"triangle";osc.frequency.value=freq;gain.gain.value=index?.025:.035;
-      osc.connect(gain);gain.connect(roomFilter);osc.start();return {osc,gain};
-    });
-    const moan=ctx.createOscillator(),moanGain=ctx.createGain(),moanLfo=ctx.createOscillator(),moanPitch=ctx.createGain();
-    moan.type="sine";moan.frequency.value=174.61;moanGain.gain.value=.012;
-    moanLfo.type="sine";moanLfo.frequency.value=.045;moanPitch.gain.value=16;
-    moanLfo.connect(moanPitch);moanPitch.connect(moan.frequency);moan.connect(moanGain);moanGain.connect(ambience);moan.start();moanLfo.start();
+    const heartbeat=()=>{
+      if(!audioEnabled()||ctx.state!=="running")return;
+      const pulse=(delay,level)=>{
+        const now=ctx.currentTime+delay,osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type="sine";osc.frequency.setValueAtTime(62,now);osc.frequency.exponentialRampToValueAtTime(38,now+.22);
+        gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(level,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+.28);
+        osc.connect(gain);gain.connect(ambience);osc.start(now);osc.stop(now+.3);
+      };
+      pulse(0,.045);pulse(.34,.028);
+    };
 
-    horrorAudio={ctx,master,music,ambience,effects,padOscillators,scoreFilter,scoreLfo,chordTimer,motifTimer,roomTones,roomFilter,moan,moanGain,moanLfo};
+    const windSwell=()=>{
+      if(!audioEnabled()||ctx.state!=="running")return;
+      const duration=3.8,frames=Math.floor(ctx.sampleRate*duration),buffer=ctx.createBuffer(1,frames,ctx.sampleRate),data=buffer.getChannelData(0);
+      for(let i=0;i<frames;i++)data[i]=(Math.random()*2-1);
+      const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain(),now=ctx.currentTime;
+      source.buffer=buffer;filter.type="bandpass";filter.frequency.value=520;filter.Q.value=.55;
+      gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.012,now+1.4);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+      source.connect(filter);filter.connect(gain);gain.connect(ambience);source.start(now);
+    };
+
+    playDarkChord();
+    setTimeout(playHorrorNote,2600);
+    const chordTimer=setInterval(playDarkChord,15500);
+    const motifTimer=setInterval(playHorrorNote,6800);
+    const heartbeatTimer=setInterval(()=>{if(Math.random()<.72)heartbeat();},11800);
+    const windTimer=setInterval(()=>{if(Math.random()<.62)windSwell();},17300);
+
+    horrorAudio={ctx,master,music,ambience,effects,scoreBus,reverb,chordTimer,motifTimer,heartbeatTimer,windTimer};
   }
   if(horrorAudio.ctx.state==="suspended")horrorAudio.ctx.resume();
   updateAudioMix();
@@ -1654,9 +1668,12 @@ function ensureHorrorAudio(){
 function updateAudioMix(){
   if(!horrorAudio)return;
   const now=horrorAudio.ctx.currentTime;
-  horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.62:0,now,.08);
-  horrorAudio.music.gain.setTargetAtTime(audioLevel("music",25)/100*.28,now,.12);
-  horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.11,now,.12);
+  horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.68:0,now,.08);
+  /* V0.6_AUDIO_MUSIC_GAIN_RC */
+  const desktopMusicGain=audioLevel("music",25)/100*.82;
+  const phoneMusicGain=(window.matchMedia&&window.matchMedia("(max-width:850px)").matches)?desktopMusicGain*1.22:desktopMusicGain;
+  horrorAudio.music.gain.setTargetAtTime(phoneMusicGain,now,.12);
+  horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.16,now,.12);
   horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);
 }
 function setAudioEnabled(value){localStorage.setItem("theLastNightSetting_audio",String(value));if(value)ensureHorrorAudio();else updateAudioMix();showToast(value?"Atmospheric audio enabled":"Atmospheric audio muted");}
@@ -1764,6 +1781,13 @@ function claimCombatReward(choice){
   }else return;
   postCombatRewardOpen=false;
   document.getElementById("combatRewardOverlay").classList.remove("open");
+  /* V0.6_PENDING_ROOT_FUSION */
+  if(G.rootFusionPending){
+    G.rootFusionPending=false;
+    showRootFusionCutscene();
+    render();
+    return;
+  }
   render();
 }
 
@@ -2327,15 +2351,8 @@ encounter();
 else if(r<=3){
 log("Nothing useful.");
 }
-else if(r===4){
-gainItem();
-}
-else if(r===5){
-gainClue();
-}
 else{
 gainItem();
-gainClue();
 }
 }
 
@@ -2392,52 +2409,69 @@ log(
 );
 
 }
-  function investigate(){
+function ensureStoryProgress(){
+  if(!G)return 0;
+  if(!(G.foundClues instanceof Set)){
+    const raw=Array.isArray(G.foundClues)?G.foundClues:[];
+    G.foundClues=new Set(raw);
+  }
+  const stored=Math.max(0,Math.min(10,Number(G.clues)||0));
+  if(G.foundClues.size===0&&stored>0){
+    for(let i=0;i<stored&&i<STORY_OBJECTIVES.length;i++)G.foundClues.add(STORY_OBJECTIVES[i].loc);
+  }
+  let ordered=0;
+  while(ordered<STORY_OBJECTIVES.length&&G.foundClues.has(STORY_OBJECTIVES[ordered].loc))ordered++;
+  G.clues=ordered;
+  return ordered;
+}
 
-  let p=G.ps[G.active];
-
+function performObjectiveInvestigate(){
+  const p=G.ps[G.active];
   if(combat||hostileAtCurrentLocation(p)){
     log(`⚔️ ${p.name} cannot Investigate while a creature controls this location.`,"bad");
     render();
-    return;
+    return false;
   }
 
-  // First Investigate each Night is FREE
-  if(!p.freeInvestigateUsed){
-
-    p.freeInvestigateUsed=true;
-
-    log(
-      `🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,
-      "good"
-    );
-
-    gainClue();
+  ensureStoryProgress();
+  const free=!p.freeInvestigateUsed;
+  if(!free&&p.actions<1){
+    log(`⚡ ${p.name} needs 1 Action to Investigate again.`,"bad");
     render();
-    return;
+    return false;
   }
 
-  // Later Investigates cost 1 Action
-  if(p.actions<1){
-
-    log(
-      `⚡ ${p.name} needs 1 Action to Investigate again.`,
-      "bad"
-    );
-
-    return;
+  const before=G.clues;
+  const currentObjective=STORY_OBJECTIVES[G.clues];
+  if(currentObjective&&p.loc!==currentObjective.loc){
+    log(`📜 INVESTIGATE TARGET: ${currentObjective.text}`,"bad");
+    updateStoryObjective();
+    render();
+    return false;
+  }
+  const advanced=gainClue();
+  if(!advanced){
+    updateStoryObjective();
+    render();
+    return false;
   }
 
-  p.actions-=1;
-
-  log(
-    `🔎 ${p.name} Investigates for 1 Action.`,
-    "good"
-  );
-
-  gainClue();
+  if(free){
+    p.freeInvestigateUsed=true;
+    log(`🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,"good");
+  }else{
+    p.actions-=1;
+    log(`🔎 ${p.name} Investigates for 1 Action.`,"good");
+  }
+  updateStoryObjective();
+  const nextObjective=STORY_OBJECTIVES[G.clues],objectiveEl=document.getElementById("storyObjectiveText"),nextLead=nextObjective?.text||(objectiveEl?.innerHTML||"").replace(/<br\s*\/?>(?=.)/gi," — ").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
+  window.v06SyncGuidance?.();
+  window.v06RefreshObjectiveGlow?.();
+  return true;
 }
+window.performObjectiveInvestigate=performObjectiveInvestigate;
+function investigate(){return performObjectiveInvestigate();}
 function flashlightSceneFor(loc){
   return {art:locationArt(loc),areas:LOCATION_AREAS[loc]||[`Illuminate the nearest dark passage`,`Sweep the far edge of ${LM[loc][1]}`]};
 }
@@ -2506,53 +2540,35 @@ function acceptFlashlightRecruit(replaceIndex){
 function declineFlashlightRecruit(){G.pendingRecruit=null;closeFlashlightOverlay();render();}
 
 function gainClue(){
+  const p=G.ps[G.active];
+  ensureStoryProgress();
+  const currentObjective=STORY_OBJECTIVES[G.clues];
+  const clue=STORY_CLUES[p.loc];
 
-  let p=G.ps[G.active];
-  let clue=STORY_CLUES[p.loc];
-// STORY OBJECTIVES MUST BE COMPLETED IN ORDER
-let currentObjective=STORY_OBJECTIVES[G.clues];
-
-if(
-  currentObjective &&
-  p.loc!==currentObjective.loc
-){
-  log(
-    `📜 CURRENT OBJECTIVE: ${currentObjective.text}`,
-    "bad"
-  );
-  return;
-}
+  if(currentObjective&&p.loc!==currentObjective.loc){
+    log(`📜 CURRENT OBJECTIVE: ${currentObjective.text}`,"bad");
+    return false;
+  }
   if(!clue){
     log(`🔎 There is no major story clue at ${LM[p.loc][1]}.`);
-    return;
+    return false;
   }
-
   if(G.foundClues.has(p.loc)){
-    log(`📖 You already discovered the clue at ${LM[p.loc][1]}.`);
-    return;
+    ensureStoryProgress();
+    updateStoryObjective();
+    log(`📖 ${LM[p.loc][1]} was already investigated. The next objective is now shown.`,"good");
+    return false;
   }
 
   G.foundClues.add(p.loc);
-  G.clues=G.foundClues.size;
-
-  log(
-    `📖 STORY CLUE FOUND: <b>${clue.name}</b>`,
-    "good"
-  );
-
-  log(
-    `${clue.story}`,
-    "good"
-  );
-
-updateStoryObjective();
-if(G.clues===10){
-
-  log(
-    `📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,
-    "good"
-  );
-}
+  ensureStoryProgress();
+  log(`📖 STORY CLUE FOUND: <b>${clue.name}</b>`,"good");
+  log(`${clue.story}`,"good");
+  updateStoryObjective();
+  if(G.clues===10){
+    log(`📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,"good");
+  }
+  return true;
 }
 
 function encounter(){
@@ -4468,7 +4484,7 @@ document.getElementById("location").innerHTML=
 Search (1 Action)
 </button>
 
-<button ${combat||hostileAtCurrentLocation(p)?'disabled class="combat-locked"':''} onclick="investigate()">
+<button ${combat||hostileAtCurrentLocation(p)?'disabled class="combat-locked"':''} onclick="window.performObjectiveInvestigate()">
   🔎 Investigate
 </button>
 
@@ -4719,6 +4735,13 @@ if(
 }
 
 // Any remaining Special damage hits The Hollow
+/* V0.6_SPECIAL_TRIUNE_ARMOR */
+if(combat.rootFusionBoss && (combat.armor||0)>0){
+  const blocked=Math.min(combat.armor,dmg);
+  combat.armor-=blocked;
+  dmg-=blocked;
+  if(blocked>0)log(`🛡️ TRIUNE ARMOR absorbs ${blocked} Special damage. Armor ${combat.armor}/${combat.maxArmor||80}.`,"good");
+}
 combat.hp-=dmg;
   // THE HOLLOW — activate Void Shield once at 50% HP
 if(
@@ -4751,6 +4774,25 @@ combat.hp<=combat.maxHp*0.50 &&
   p.specialUses++;
 if(combat.hp<=0){
   log(`${combat.name} is destroyed by the Special Ability!`,"good");
+/* V0.6_SPECIAL_BOSS_PROGRESSION */
+if(combat.rootGateGuardian || ROOT_GATE_GUARDIAN_NAMES.includes(combat.name)){
+  if(!Array.isArray(G.rootGateMinionsDefeated))G.rootGateMinionsDefeated=[];
+  if(!G.rootGateMinionsDefeated.includes(combat.name))G.rootGateMinionsDefeated.push(combat.name);
+  const defeated=G.rootGateMinionsDefeated.length;
+  log(`🗝️ ROOT GATE GUARDIAN FALLEN: ${combat.name}. ${defeated}/3 seals broken.`,"good");
+  if(defeated>=3 && !G.rootFusionTriggered){
+    G.rootFusionPending=true;
+    log(`🌑 THE THREE GUARDIANS FALL... the Root begins pulling their power together.`,"bad");
+  }
+  updateStoryObjective();
+}
+if(combat.name==="The Triune Maw"){
+  G.rootFusionDefeated=true;
+  G.rootGateUnlocked=true;
+  log("🗝️ THE TRIUNE MAW COLLAPSES. The fused seal breaks and the path to The Root of Blackwood finally opens.","good");
+  spawnStoryBoss("root");
+  updateStoryObjective();
+}
 if(combat.name==="The Warden"){
   G.wardenDefeated=true;
 
@@ -5539,15 +5581,15 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <div id="updateInfoOverlay" class="update-info-overlay" role="dialog" aria-modal="true" aria-labelledby="updateInfoTitle" onclick="closeUpdateInfo(event)">
   <section class="update-info-card" onclick="event.stopPropagation()">
     <div class="update-info-kicker">Latest Build</div>
-    <h2 id="updateInfoTitle">V-0.5 Beta — New Update</h2>
-    <p>Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.</p>
+    <h2 id="updateInfoTitle">V-0.6 Beta — Blackwood Feels Alive</h2>
+    <p>Blackwood feels less like a map and more like a place watching you. Nights change the county, locations react, survivors remember what happened, and the investigation now pulls you deeper into the story.</p>
     <ul class="update-info-list">
-      <li>Low-health transformation requirements for The Moonbound and The Ashen Saint.</li>
-      <li>Transformed forms can remain active for up to three Nights.</li>
-      <li>Party members can rotate into combat after the active survivor runs out of Combat AP.</li>
-      <li>Combat swaps carry a 30% chance for the creature to strike the retreating survivor.</li>
-      <li>New tonal horror soundtrack replaces the old bass-heavy/static-style test ambience.</li>
-      <li>Improved multi-survivor combat flow while preserving creature health and battle state.</li>
+      <li>Night Modifiers, location-specific horror events, strange anomalies, and Fear/Sanity hallucinations make each night feel different.</li>
+      <li>Story locations now guide the investigation more clearly: Investigate to uncover the next clue, while Search is focused on scavenging and risk.</li>
+      <li>The Blackwood Journal follows each save separately, recording discoveries, warnings, relationships, and unsettling moments from that run.</li>
+      <li>Survivors can build Trust by surviving together, creating stronger bonds and useful party benefits.</li>
+      <li>High-rarity creatures arrive with more dramatic reveals, while wounded enemies can become more dangerous as fights drag on.</li>
+      <li>A darker cinematic soundtrack, stronger phone audio, and cleaner mobile controls make Blackwood feel more present wherever you play.</li>
     </ul>
     <button class="update-info-close" type="button" onclick="closeUpdateInfo()">Close</button>
   </section>
@@ -5557,17 +5599,16 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <section id="updateDetailsPanel" aria-labelledby="updateDetailsTitle">
   <div class="update-details-card">
     <div class="update-details-kicker">Latest Build</div>
-    <h2 id="updateDetailsTitle">V-0.5 Beta — New Update</h2>
-    <p>Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.</p>
+    <h2 id="updateDetailsTitle">V-0.6 Beta — Blackwood Feels Alive</h2>
+    <p>Blackwood County now reacts to the night around you. The investigation is easier to follow without losing its mystery, while the world, creatures, survivors, and soundscape become more unpredictable.</p>
     <ul class="update-details-list">
-      <li><strong>Low-Health Transformations:</strong> The Moonbound and The Ashen Saint now earn their transformation during combat by reaching their required low-health threshold instead of transforming freely.</li>
-      <li><strong>Three-Night Forms:</strong> Once transformed, a survivor can keep that form across fights for up to three Nights before returning to normal.</li>
-      <li><strong>Party Combat Switching:</strong> When the active survivor runs out of Combat Actions, another living party member can enter and continue the same battle without resetting the enemy.</li>
-      <li><strong>Risky Combat Swaps:</strong> Switching fighters is not free—the creature has a 30% chance to punish the retreating survivor.</li>
-      <li><strong>Root Gate Gauntlet:</strong> The Thornbound, The Veinmaw, and The Ash Wraith now guard the entrance to The Root. All three must fall before the path can continue.</li>
-      <li><strong>New Fusion Encounter:</strong> Defeating all three Gate Guardians triggers a four-scene Night of the Dead transformation sequence and unleashes The Triune Maw with 120 HP, 80 Armor, Berserk attacks, and Rootstorm.</li>
-      <li><strong>Horror Soundtrack:</strong> The old static/bass-style test ambience has been replaced by a quieter tonal horror score with evolving dark chords, distant notes, low drones, and separate combat effects.</li>
-      <li><strong>Safer Boss Progression:</strong> Root Gate and fusion progress now survives save/load correctly, including recovery if a run is saved during the transition into The Triune Maw encounter.</li>
+      <li><strong>Blackwood Feels Alive:</strong> Night Modifiers, location-specific disturbances, rare anomalies, and psychological events make familiar places feel different from one night to the next.</li>
+      <li><strong>Investigation &amp; Scavenging:</strong> Investigate is now the action that pushes the case forward at the current story location. Search remains your way to hunt for supplies, trigger exploration choices, and take risks for extra rewards.</li>
+      <li><strong>Follow the Case:</strong> The current story destination can glow on the map, and the NEXT STEP guidance helps point you toward what matters without revealing the mystery ahead.</li>
+      <li><strong>Blackwood Journal &amp; Trust:</strong> Each save keeps its own Journal of discoveries and warnings, while survivors build Trust by enduring Blackwood together.</li>
+      <li><strong>Escalating Encounters:</strong> Dangerous creatures can reveal themselves more dramatically and grow more threatening as they are wounded.</li>
+      <li><strong>Horror Soundscape:</strong> The soundtrack has been rebuilt around darker music, distant tones, heartbeat-like pressure, and more space between sounds so the county can breathe.</li>
+      <li><strong>Better on Phones:</strong> Journal, Game Log, and Main Pack controls are easier to reach, with stronger music presence and cleaner mobile spacing.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
@@ -5576,21 +5617,22 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <section id="previousUpdatePanel" aria-labelledby="previousUpdateTitle">
   <div class="update-details-card">
     <div class="update-details-kicker">Previous Build</div>
-    <h2 id="previousUpdateTitle">V-0.4 Beta — Previous Update</h2>
-    <p>V-0.4 expanded the survivor roster, protected save progress, and improved mobile presentation throughout Blackwood.</p>
+    <h2 id="previousUpdateTitle">V-0.5 Beta — Previous Update</h2>
+    <p>V-0.5 expanded transformation strategy and rebuilt the Root Gate endgame into a larger multi-stage encounter.</p>
     <ul class="update-details-list">
-      <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>
-      <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>
-      <li><strong>Save Progress Protection:</strong> Existing save progress is preserved across future game updates, with automatic compatibility recovery and a backup copy for each save slot.</li>
-      <li><strong>Item Images:</strong> Fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
-      <li><strong>Transforming Survivor Cards:</strong> Fixed inverted card text stacking and overlapping.</li>
-      <li><strong>Main Pack / Extra Pockets:</strong> Improved the phone layout so it no longer crowds the top of the game.</li>
-      <li><strong>Main-Menu Portraits:</strong> Improved mobile framing so survivor heads are less likely to be cropped.</li>
-      <li><strong>Mobile Polish:</strong> Additional spacing, readability, and presentation improvements.</li>
+      <li><strong>Transformation Rules:</strong> The Moonbound and The Ashen Saint gained low-health transformation requirements, with transformed forms lasting up to three Nights.</li>
+      <li><strong>Party Combat Switching:</strong> Living party members can rotate into an ongoing fight when the active survivor runs out of Combat AP, while creature health and battle state remain intact.</li>
+      <li><strong>Dangerous Retreats:</strong> Switching survivors during combat can trigger a creature attack against the retreating survivor.</li>
+      <li><strong>Root Gate Guardians:</strong> Added The Thornbound, The Veinmaw, and The Ash Wraith as three new Legendary guardians protecting the Root.</li>
+      <li><strong>The Triune Maw:</strong> Defeating all three guardians triggers a transformation sequence that creates the Abyssal fusion boss before the final Root battle.</li>
+      <li><strong>Root Gate Story &amp; Artwork:</strong> Added guardian artwork, the multi-scene fusion cutscene, final fusion artwork, and a transformation preview from the menu.</li>
+      <li><strong>Endgame Combat Improvements:</strong> Improved Triune Maw damage/Armor behavior, Rootstorm effects, fusion save recovery, and final boss progression.</li>
+      <li><strong>Horror Audio:</strong> Replaced the original bass-heavy test audio with a quieter tonal horror soundtrack and ambience.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
 </section>
 <!-- V0.5 guardian asset refresh -->
+<script src="v06-enhancements.js?v=06a"></script>
 </body>
 </html>

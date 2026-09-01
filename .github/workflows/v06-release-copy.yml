@@ -1,0 +1,56 @@
+name: V0.6 Release Copy
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-release-copy.py'
+      - '.github/workflows/v06-release-copy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Refresh player-facing V0.6 copy
+        run: python .github/scripts/v06-release-copy.py
+      - name: Validate page syntax and release wording
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('index.html').read_text(encoding='utf-8')
+          scripts='\n'.join(re.findall(r'<script>(.*?)</script>',html,re.S))
+          Path('/tmp/the-last-night-core.js').write_text(scripts,encoding='utf-8')
+          required=[
+            'V-0.6 Beta — Blackwood Feels Alive',
+            'Investigate is now the action that pushes the case forward',
+            'Search does not advance story clues',
+            'Each save keeps its own Journal',
+            'Blackwood Journal, combat state, and story progress'
+          ]
+          missing=[x for x in required if x not in html]
+          if missing: raise SystemExit('Missing player-facing copy: '+', '.join(missing))
+          banned=['Endgame Reliability:','Low-health transformation requirements for The Moonbound and The Ashen Saint.']
+          bad=[x for x in banned if x in html]
+          if bad: raise SystemExit('Stale V0.6 copy remains: '+', '.join(bad))
+          print('Player-facing V0.6 copy validated')
+          PY
+          node --check /tmp/the-last-night-core.js
+      - name: Commit release copy
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "V0.6: refresh immersive player-facing update info"
+          git push origin dev
