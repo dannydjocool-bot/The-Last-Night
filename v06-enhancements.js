@@ -48,3 +48,132 @@ if(typeof showPostCombatReward==='function'){const o=showPostCombatReward;window
 if(typeof render==='function'){const o=render;window.render=function(){const r=o.apply(this,arguments);psych();badge();syncUi();return r}}
 setInterval(()=>{const c=currentCombat();if(c&&BOSS.has(c.rarity)&&typeof horrorTone==='function'&&Math.random()<.55)horrorTone(c.rarity==='Abyssal'?'enemy':'warning')},5200);
 })();
+
+/* V0.6 PLAYER GUIDANCE + MOBILE DOCK */
+(function(){
+const TIP_KEY='theLastNightV06GuidanceTips';
+const hasGame=()=>typeof G!=='undefined'&&G&&Array.isArray(G.ps);
+const combatNow=()=>typeof combat!=='undefined'?combat:null;
+const getSeen=()=>{try{return new Set(JSON.parse(localStorage.getItem(TIP_KEY)||'[]'))}catch{return new Set()}};
+const markSeen=k=>{const s=getSeen();s.add(k);localStorage.setItem(TIP_KEY,JSON.stringify([...s]))};
+function ensureGuidanceUi(){
+  if(!document.getElementById('v06Guidance')){
+    const objective=document.querySelector('.story-objective');
+    if(objective){
+      const box=document.createElement('section');
+      box.id='v06Guidance';box.className='v06-guidance';
+      box.innerHTML='<div class="v06-guidance-head"><b>🧭 NEXT STEP</b><button id="v06GuidanceHelp" type="button">?</button></div><div id="v06GuidanceText"></div><div id="v06GuidanceMeta"></div>';
+      objective.insertAdjacentElement('afterend',box);
+      box.querySelector('#v06GuidanceHelp').onclick=()=>showHelp();
+    }
+  }
+  if(!document.getElementById('v06MobileDock')){
+    document.body.insertAdjacentHTML('beforeend','<nav id="v06MobileDock" class="v06-mobile-dock" hidden aria-label="Quick game controls"><button id="v06DockJournal" type="button">📓<span>Journal</span><i id="v06JournalDot"></i></button><button id="v06DockLog" type="button">📜<span>Log</span></button><button id="v06DockPack" type="button">🎒<span>Pack</span></button></nav>');
+    document.getElementById('v06DockJournal').onclick=()=>document.getElementById('v06JournalBtn')?.click();
+    document.getElementById('v06DockLog').onclick=()=>document.getElementById('logButton')?.click();
+    document.getElementById('v06DockPack').onclick=()=>{
+      const toggle=document.getElementById('mobilePackToggle');
+      if(toggle){toggle.click();return}
+      document.getElementById('extraPocketsPanel')?.classList.toggle('mobile-pack-collapsed');
+    };
+  }
+  if(!document.getElementById('v06Coach')){
+    document.body.insertAdjacentHTML('beforeend','<aside id="v06Coach" class="v06-coach" hidden><button id="v06CoachClose" type="button" aria-label="Dismiss tip">×</button><b id="v06CoachTitle"></b><span id="v06CoachText"></span></aside>');
+    document.getElementById('v06CoachClose').onclick=()=>{document.getElementById('v06Coach').hidden=true};
+  }
+}
+function showHelp(){
+  const title='HOW TO SURVIVE BLACKWOOD';
+  const body='<div class="v06-help-grid"><div><b>Night AP</b><span>Used for travel, investigation, resting, and exploration.</span></div><div><b>Combat AP</b><span>Used only during fights. It is separate from Night AP.</span></div><div><b>Fear & Sanity</b><span>High Fear and low Sanity make the night more dangerous.</span></div><div><b>Story Objective</b><span>Follow the objective and the glowing map target when one is available.</span></div><div><b>Transformations</b><span>Transforming survivors unlock their form only at low health during combat.</span></div><div><b>Blocked?</b><span>If a creature is alive at your location, defeat it before traveling or ending the Night.</span></div></div>';
+  if(typeof v06CloseOverlay==='function'&&document.getElementById('v06Overlay')){
+    const card=document.getElementById('v06Card');
+    if(card){card.innerHTML=`<div class="v06-kicker">FIELD GUIDE</div><div class="v06-title">${title}</div>${body}<button onclick="v06CloseOverlay()">Close</button>`;document.getElementById('v06Overlay').classList.add('open');document.body.style.overflow='hidden';}
+  }
+}
+function objectiveText(){return (document.getElementById('storyObjectiveText')?.textContent||'').trim()}
+function activeSurvivor(){return hasGame()?(G.ps[G.active]||G.ps.find(p=>!p.dead)||G.ps[0]):null}
+function transformStatus(p){
+  if(!p||!p.transform)return '';
+  if(p.transformed)return '⚡ Transformation: ACTIVE';
+  let threshold=.4;
+  try{if(typeof transformationThreshold==='function')threshold=transformationThreshold(p)}catch{}
+  const max=Number(p.maxHp||p.baseMaxHp||1),hp=Number(p.hp||0),pct=max?hp/max:1;
+  const ready=!!combatNow()&&pct<=threshold;
+  return ready?'⚡ Transformation: READY':`⚡ Transformation: LOCKED — reach ${Math.round(threshold*100)}% HP in combat`;
+}
+function nextStep(){
+  if(!hasGame())return {text:'',kind:''};
+  const p=activeSurvivor();
+  const c=combatNow();
+  if(c)return {text:`Defeat ${c.name}. Combat AP is used for attacks and Specials.`,kind:'danger'};
+  try{if(typeof hostileAtCurrentLocation==='function'&&p&&hostileAtCurrentLocation(p))return {text:'A creature is blocking this location. Fight it before traveling or ending the Night.',kind:'danger'}}catch{}
+  if(p&&Number(p.actions||0)<=0)return {text:'You are out of Night AP. End the Night to restore Night AP and continue.',kind:'warn'};
+  const objective=objectiveText();
+  if(objective)return {text:`Follow the Story Objective: ${objective}`,kind:'story'};
+  return {text:'Choose a connected location, investigate for clues and supplies, then keep following the Story Objective.',kind:'story'};
+}
+function highlightObjective(){
+  document.querySelectorAll('.loc.v06-objective-target').forEach(el=>el.classList.remove('v06-objective-target'));
+  const objective=objectiveText().toLowerCase();
+  if(!objective)return;
+  let best=null,bestLen=0;
+  document.querySelectorAll('.loc').forEach(card=>{
+    const txt=(card.textContent||'').trim().toLowerCase();
+    if(!txt)return;
+    const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();
+    const candidate=title||txt.split('\n')[0];
+    if(candidate.length>3&&objective.includes(candidate)&&candidate.length>bestLen){best=card;bestLen=candidate.length}
+  });
+  if(best)best.classList.add('v06-objective-target');
+}
+function explainLocks(){
+  document.querySelectorAll('.loc.locked').forEach(el=>{el.title='Locked by story progression. Follow NEXT STEP / Story Objective to unlock this location.'});
+  document.querySelectorAll('button:disabled').forEach(btn=>{
+    const label=(btn.textContent||'').trim();
+    if(!btn.title)btn.title=label.toLowerCase().includes('end night')?'Cannot end the Night while a hostile creature is unresolved here.':'This action is unavailable right now. Check NEXT STEP for the current requirement.';
+  });
+}
+function coach(key,title,text){
+  if(getSeen().has(key))return;
+  const el=document.getElementById('v06Coach');if(!el)return;
+  el.querySelector('#v06CoachTitle').textContent=title;el.querySelector('#v06CoachText').textContent=text;el.hidden=false;markSeen(key);
+}
+function contextualTips(){
+  if(!hasGame()||document.body.classList.contains('menu-mode'))return;
+  const p=activeSurvivor(),seen=getSeen();
+  if(!seen.has('start')){coach('start','Start Here','Follow NEXT STEP and the Story Objective. Locations needed for an objective will glow when the game can identify them.');return}
+  if(combatNow()&&!seen.has('combat')){coach('combat','Combat AP','Combat AP is separate from Night AP. Use it for attacks and Specials; party members can rotate when needed.');return}
+  if(G.v06NightModifier&&!seen.has('modifier')){coach('modifier','Night Modifier',`${G.v06NightModifier.name} changes the rules of this Night. The badge at the top shows its effect.`);return}
+  if(p?.transform&&!seen.has('transform'))coach('transform','Transformation','Your form is health-gated. NEXT STEP shows when the active survivor is READY to transform.');
+}
+function journalDot(){
+  if(!hasGame())return;
+  const count=(G.v06Journal||[]).length,last=Number(sessionStorage.getItem('theLastNightJournalReadCount')||0),dot=document.getElementById('v06JournalDot');
+  if(dot)dot.hidden=!(count>last);
+  const journal=document.getElementById('v06JournalBtn');
+  if(journal&&!journal.dataset.v06ReadHook){journal.dataset.v06ReadHook='1';journal.addEventListener('click',()=>{sessionStorage.setItem('theLastNightJournalReadCount',String((G.v06Journal||[]).length));if(dot)dot.hidden=true})}
+}
+function syncDock(){
+  const dock=document.getElementById('v06MobileDock');if(!dock)return;
+  const ingame=hasGame()&&!document.body.classList.contains('menu-mode');dock.hidden=!ingame;
+}
+function syncGuidance(){
+  ensureGuidanceUi();syncDock();
+  const box=document.getElementById('v06Guidance');
+  if(!box)return;
+  const ingame=hasGame()&&!document.body.classList.contains('menu-mode');box.hidden=!ingame;if(!ingame)return;
+  const step=nextStep(),p=activeSurvivor(),meta=[];
+  if(p)meta.push(`Night AP: ${Math.max(0,Number(p.actions||0))}`);
+  if(combatNow()&&p)meta.push(`Combat AP: ${Math.max(0,Number(p.combatActions||0))}`);
+  const ts=transformStatus(p);if(ts)meta.push(ts);
+  if(G.v06NightModifier)meta.push(`${G.v06NightModifier.icon||'🌙'} ${G.v06NightModifier.name}`);
+  const t=document.getElementById('v06GuidanceText');if(t){t.className=`v06-guidance-text ${step.kind||''}`;t.textContent=step.text}
+  const m=document.getElementById('v06GuidanceMeta');if(m)m.innerHTML=meta.map(x=>`<span>${x}</span>`).join('');
+  highlightObjective();explainLocks();contextualTips();journalDot();
+}
+ensureGuidanceUi();
+setInterval(syncGuidance,700);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncGuidance()});
+window.addEventListener('resize',syncGuidance);
+syncGuidance();
+})();
