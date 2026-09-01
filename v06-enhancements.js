@@ -41,11 +41,11 @@ function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.
 ui();syncUi();
 if(typeof move==='function'){const o=move;window.move=async function(){const before=hasGame()?G.ps[G.active]?.loc:null;const r=await o.apply(this,arguments);if(hasGame()&&G.ps[G.active]?.loc!==before){atmosphere(G.ps[G.active].loc);travelMod();hallucinate();anomaly();badge()}return r}}
 if(typeof investigate==='function'){const o=investigate;window.investigate=function(){if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(o,arguments);return}const r=o.apply(this,arguments);hallucinate();anomaly();return r}}
-if(typeof endNight==='function'){const o=endNight;window.endNight=function(){const old=hasGame()?G.night:null;const r=o.apply(this,arguments);if(hasGame()&&G.night!==old)setTimeout(newNightMod,90);return r}}
+if(typeof endNight==='function'){const o=endNight;window.endNight=function(){const old=hasGame()?G.night:null;const r=o.apply(this,arguments);if(hasGame()&&G.night!==old)setTimeout(newNightMod,1650);return r}}
 if(typeof startCombat==='function'){const o=startCombat;window.__v06StartCombat=o;window.startCombat=function(id){const c=hasGame()?G.creatures?.find(x=>String(x.id)===String(id)):null;if(c&&BOSS.has(c.rarity)&&!c.v06Introduced){bossIntro(c,id);return}const r=o.apply(this,arguments);const p=hasGame()?G.ps[G.active]:null;if(p&&bestBond(p)>=3&&currentCombat()){p.combatActions=(p.combatActions||0)+1;lg(`🤝 TRUST BONUS: ${p.name} gains +1 Combat Action.`,'good')}return r}}
 if(typeof creatureAttack==='function'){const o=creatureAttack;window.creatureAttack=function(c){phase(c);const blood=mod()?.kind==='blood';if(blood&&c){c.atk+=2;try{return o.apply(this,arguments)}finally{c.atk-=2}}return o.apply(this,arguments)}}
 if(typeof showPostCombatReward==='function'){const o=showPostCombatReward;window.showPostCombatReward=function(){grow();return o.apply(this,arguments)}}
-if(typeof render==='function'){const o=render;window.render=function(){const r=o.apply(this,arguments);psych();badge();syncUi();return r}}
+if(typeof render==='function'){const o=render;window.render=function(){const c=currentCombat();if(c)phase(c);const r=o.apply(this,arguments);psych();badge();syncUi();return r}}
 setInterval(()=>{const c=currentCombat();if(c&&BOSS.has(c.rarity)&&typeof horrorTone==='function'&&Math.random()<.55)horrorTone(c.rarity==='Abyssal'?'enemy':'warning')},5200);
 })();
 
@@ -62,7 +62,7 @@ function ensureGuidanceUi(){
     if(objective){
       const box=document.createElement('section');
       box.id='v06Guidance';box.className='v06-guidance';
-      box.innerHTML='<div class="v06-guidance-head"><b>🧭 NEXT STEP</b><button id="v06GuidanceHelp" type="button">?</button></div><div id="v06GuidanceText"></div><div id="v06GuidanceMeta"></div>';
+      box.innerHTML='<div class="v06-guidance-head"><b>🧭 NEXT STEP</b><button id="v06GuidanceHelp" type="button">?</button></div><div id="v06GuidanceText"></div><div id="v06GuidanceLock" class="v06-guidance-lock" hidden></div><div id="v06GuidanceMeta"></div>';
       objective.insertAdjacentElement('afterend',box);
       box.querySelector('#v06GuidanceHelp').onclick=()=>showHelp();
     }
@@ -133,6 +133,15 @@ function explainLocks(){
     if(!btn.title)btn.title=label.toLowerCase().includes('end night')?'Cannot end the Night while a hostile creature is unresolved here.':'This action is unavailable right now. Check NEXT STEP for the current requirement.';
   });
 }
+function visibleLockReason(){
+  if(!hasGame())return '';
+  const p=activeSurvivor(),c=combatNow();
+  if(c)return `🔒 Travel and Night actions are locked until ${c.name} is defeated.`;
+  try{if(typeof hostileAtCurrentLocation==='function'&&p&&hostileAtCurrentLocation(p))return '🔒 Travel is locked because a hostile creature is still at this location.'}catch{}
+  if(p&&Number(p.actions||0)<=0)return '🔒 Exploration actions are locked because this survivor has no Night AP left.';
+  if(document.querySelector('.loc.locked'))return '🔒 Some locations are story-locked. Advance the Story Objective to open them.';
+  return '';
+}
 function coach(key,title,text){
   if(getSeen().has(key))return;
   const el=document.getElementById('v06Coach');if(!el)return;
@@ -168,6 +177,7 @@ function syncGuidance(){
   const ts=transformStatus(p);if(ts)meta.push(ts);
   if(G.v06NightModifier)meta.push(`${G.v06NightModifier.icon||'🌙'} ${G.v06NightModifier.name}`);
   const t=document.getElementById('v06GuidanceText');if(t){t.className=`v06-guidance-text ${step.kind||''}`;t.textContent=step.text}
+  const lock=document.getElementById('v06GuidanceLock'),reason=visibleLockReason();if(lock){lock.hidden=!reason;lock.textContent=reason}
   const m=document.getElementById('v06GuidanceMeta');if(m)m.innerHTML=meta.map(x=>`<span>${x}</span>`).join('');
   highlightObjective();explainLocks();contextualTips();journalDot();
 }

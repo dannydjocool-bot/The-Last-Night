@@ -66,3 +66,10 @@ body.reduce-motion .loc.v06-objective-target{animation:none!important}
   .v06-help-grid{grid-template-columns:1fr}
 }
 @media(max-width:420px){.v06-mobile-dock{left:6px;right:6px}.v06-mobile-dock button{min-height:46px}.v06-guidance-text{font-size:12px}}
+
+
+/* V0.6 FINAL POLISH */
+body.v06-fear-high.v06-sanity-low #game{filter:saturate(.72) contrast(1.12) brightness(.92)}
+.v06-guidance-lock{margin-top:8px;padding:7px 9px;border-left:3px solid #a96068;background:rgba(75,31,37,.34);color:#efc6ca;font-size:11px;line-height:1.45}
+.v06-guidance-lock[hidden]{display:none!important}
+@media(max-width:850px){.v06-guidance-lock{font-size:10px;padding:7px 8px}}
