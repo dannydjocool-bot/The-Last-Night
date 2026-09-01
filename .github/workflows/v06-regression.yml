@@ -10,6 +10,8 @@ on:
       - 'story-smoke-test.js'
       - 'objective-investigate-smoke-test.js'
       - '.github/scripts/v06-player-clarity.py'
+      - '.github/scripts/v06-release-copy.py'
+      - '.github/workflows/v06-release-copy.yml'
       - '.github/workflows/v06-regression.yml'
   workflow_dispatch:
 
@@ -104,6 +106,10 @@ jobs:
             'Root Gate progression':all(x in html for x in ('The Thornbound','The Veinmaw','The Ash Wraith','The Triune Maw','The Root of Blackwood')),
             'special Triune armor support':'V0.6_SPECIAL_TRIUNE_ARMOR' in html,
             'special boss progression':'V0.6_SPECIAL_BOSS_PROGRESSION' in html,
+            'immersive V0.6 release title':'V-0.6 Beta — Blackwood Feels Alive' in html,
+            'player-facing Investigate guidance':'Investigate is now the action that pushes the case forward' in html,
+            'player-facing Search guidance':'Search does not advance story clues' in html,
+            'save-local Journal release copy':'Each save keeps its own Journal' in html,
           }
           bad=[name for name,ok in checks.items() if not ok]
           for name,ok in checks.items(): print(f'{name}: {"PASS" if ok else "FAIL"}')
