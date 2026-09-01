@@ -45,9 +45,6 @@ jobs:
       - name: Release candidate static audit
         run: |
           python3 - <<'PY'
-          from pathlib import importlib import import_module
-          PY
-          python3 - <<'PY'
           from pathlib import Path
           import re
           from collections import Counter
