@@ -45,6 +45,9 @@ jobs:
       - name: Release candidate static audit
         run: |
           python3 - <<'PY'
+          from pathlib import importlib import import_module
+          PY
+          python3 - <<'PY'
           from pathlib import Path
           import re
           from collections import Counter
@@ -90,7 +93,8 @@ jobs:
             'investigate target check':'📜 INVESTIGATE TARGET:' in html,
             'Search cannot advance clues':bool(search_match) and 'gainClue(' not in search_match.group(1),
             'Search owns exploration wrapper':"if(typeof search==='function'){const o=search;window.search=function()" in js,
-            'Investigate direct progression wrapper':"if(typeof investigate==='function'){const o=investigate;window.investigate=function()" in js,
+            'Investigate button direct handler':'onclick="window.performObjectiveInvestigate()"' in html and 'window.performObjectiveInvestigate=performObjectiveInvestigate;' in html,
+            'Investigate not shadowed by V0.6':'window.investigate=function' not in js,
             'objective fallback syntax':"txt.split('\\n')[0]" in js,
             'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
             'mobile dock CSS':'v06-mobile-dock' in css,
