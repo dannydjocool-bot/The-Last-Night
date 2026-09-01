@@ -35,6 +35,10 @@ assert(run(`window.performObjectiveInvestigate()===true`), 'Visible Investigate 
 assert(run(`G.clues===1&&G.foundClues.has('station')`), 'Visible Investigate button handler did not advance clue state');
 assert(nodes.get('storyObjectiveText').innerHTML.includes('Objective 2'), 'Story Objective did not advance to Objective 2');
 assert(run(`G.ps[0].freeInvestigateUsed===true&&G.ps[0].actions===10`), 'Free first investigation did not remain free');
+const storyLog=run(`G.log.join(' ')`);
+assert(storyLog.includes('STORY CLUE FOUND'), 'Investigate did not show the discovered story clue');
+assert(storyLog.includes('NEXT LEAD:'), 'Investigate did not show the next story lead');
+assert(!storyLog.includes('Objective advanced:'), 'Developer-style numeric objective feedback leaked into player log');
 
 // Wrong location must not waste the free Investigate or AP.
 run(`G.ps[0].loc='motel';G.ps[0].freeInvestigateUsed=false;G.ps[0].actions=10;`);
@@ -44,4 +48,4 @@ assert(run(`G.clues===1&&G.ps[0].freeInvestigateUsed===false&&G.ps[0].actions===
 // Compatibility alias must still work for old internal calls.
 assert(run(`typeof investigate==='function'`), 'Investigate compatibility alias is missing');
 
-console.log('Visible Investigate button/Search authority test passed.');
+console.log('Visible Investigate button/Search authority and immersive story feedback test passed.');
