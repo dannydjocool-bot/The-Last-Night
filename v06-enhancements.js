@@ -40,7 +40,12 @@ function bossIntro(c,id){c.v06Introduced=true;show(`<div class="v06-kicker">${c.
 function explore(original,args){const p=G.ps[G.active],name=LM?.[p.loc]?.[1]||p.loc;show(`<div class="v06-kicker">EXPLORATION CHOICE</div><div class="v06-title">${name}</div><p class="v06-copy">How does ${p.name} search?</p><div class="v06-choices"><button id="v06Careful">CAREFUL SEARCH<br><small>Steady investigation</small></button><button id="v06Deep">SEARCH DEEPER<br><small>Risk Fear for extra loot</small></button><button id="v06Listen">STOP & LISTEN<br><small>Risk Sanity for warning</small></button></div>`);document.getElementById('v06Careful').onclick=()=>{close();original.apply(window,args)};document.getElementById('v06Deep').onclick=()=>{close();p.fear=Math.min(5,(p.fear||0)+1);original.apply(window,args);if(!currentCombat()&&Math.random()<.55&&typeof gainItem==='function'){gainItem();lg(`🎒 ${p.name}'s deeper search uncovers an additional item.`,'good')}psych()};document.getElementById('v06Listen').onclick=()=>{close();p.san=Math.max(0,(p.san||0)-1);validateMind(p);original.apply(window,args);if(!currentCombat()&&Math.random()<.5)lg(`👂 ${p.name} hears movement before it reaches the room.`,'good');psych()}}
 ui();syncUi();
 if(typeof move==='function'){const o=move;window.move=async function(){const before=hasGame()?G.ps[G.active]?.loc:null;const r=await o.apply(this,arguments);if(hasGame()&&G.ps[G.active]?.loc!==before){atmosphere(G.ps[G.active].loc);travelMod();hallucinate();anomaly();badge()}return r}}
-if(typeof investigate==='function'){const o=investigate;window.investigate=function(){if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(o,arguments);return}const r=o.apply(this,arguments);hallucinate();anomaly();return r}}
+if(typeof investigate==='function'){const o=investigate;window.investigate=function(){
+  const p0=hasGame()?G.ps[G.active]:null,obj0=objectiveText().trim().toLowerCase(),loc0=p0?.loc,ap0=Number(p0?.actions||0);
+  const finish=()=>{if(!hasGame())return;const p1=G.ps[G.active],ap1=Number(p1?.actions||0);if(p1?.loc===loc0&&ap1<ap0&&obj0){const card=[...document.querySelectorAll('.loc')].find(c=>{const title=(c.querySelector('b')?.textContent||'').trim().toLowerCase();return title&&obj0.includes(title)});if(card){const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();const key=card.dataset?.loc||card.getAttribute('data-location')||title;G.v06ClearedObjectiveTarget={objective:obj0,loc:key,title};}}window.v06SyncGuidance?.()};
+  if(hasGame()&&!currentCombat()&&Math.random()<.30){explore(function(){const r=o.apply(this,arguments);setTimeout(finish,0);setTimeout(finish,120);return r},arguments);return}
+  const r=o.apply(this,arguments);setTimeout(finish,0);setTimeout(finish,120);hallucinate();anomaly();return r
+}}
 if(typeof endNight==='function'){const o=endNight;window.endNight=function(){const old=hasGame()?G.night:null;const r=o.apply(this,arguments);if(hasGame()&&G.night!==old)setTimeout(newNightMod,1650);return r}}
 if(typeof startCombat==='function'){const o=startCombat;window.__v06StartCombat=o;window.startCombat=function(id){const c=hasGame()?G.creatures?.find(x=>String(x.id)===String(id)):null;if(c&&BOSS.has(c.rarity)&&!c.v06Introduced){bossIntro(c,id);return}const r=o.apply(this,arguments);const p=hasGame()?G.ps[G.active]:null;if(p&&bestBond(p)>=3&&currentCombat()){p.combatActions=(p.combatActions||0)+1;lg(`🤝 TRUST BONUS: ${p.name} gains +1 Combat Action.`,'good')}return r}}
 if(typeof creatureAttack==='function'){const o=creatureAttack;window.creatureAttack=function(c){phase(c);const blood=mod()?.kind==='blood';if(blood&&c){c.atk+=2;try{return o.apply(this,arguments)}finally{c.atk-=2}}return o.apply(this,arguments)}}
@@ -116,12 +121,16 @@ function highlightObjective(){
   document.querySelectorAll('.loc.v06-objective-target').forEach(el=>el.classList.remove('v06-objective-target'));
   const objective=objectiveText().toLowerCase();
   if(!objective)return;
+  const cleared=hasGame()?G.v06ClearedObjectiveTarget:null;
   let best=null,bestLen=0;
   document.querySelectorAll('.loc').forEach(card=>{
     const txt=(card.textContent||'').trim().toLowerCase();
     if(!txt)return;
     const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();
-    const candidate=title||txt.split('\n')[0];
+    const candidate=title||txt.split('
+')[0];
+    const locKey=card.dataset?.loc||card.getAttribute('data-location')||candidate;
+    if(cleared&&cleared.objective===objective&&(cleared.loc===locKey||cleared.title===candidate))return;
     if(candidate.length>3&&objective.includes(candidate)&&candidate.length>bestLen){best=card;bestLen=candidate.length}
   });
   if(best)best.classList.add('v06-objective-target');
