@@ -8,6 +8,7 @@ on:
       - 'v06-enhancements.js'
       - 'v06-enhancements.css'
       - 'story-smoke-test.js'
+      - '.github/scripts/v06-player-clarity.py'
       - '.github/workflows/v06-regression.yml'
   workflow_dispatch:
 
@@ -52,7 +53,8 @@ jobs:
             'Ashen Saint 40 percent threshold':'transformThreshold:0.40' in html,
             'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
             'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
-            'objective glow completion memory':'v06CompletedObjectiveGlows' in js,
+            'objective glow completion memory':'G.v06ClearedObjectiveTarget' in js,
+            'objective fallback syntax':"txt.split('\\n')[0]" in js,
             'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
             'mobile dock CSS':'v06-mobile-dock' in css,
             'desktop art quality pass':'V0.6 DESKTOP CARD ART QUALITY PASS' in css,
