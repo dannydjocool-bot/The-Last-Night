@@ -88,7 +88,7 @@ jobs:
             'Ashen Saint 40 percent threshold':'transformThreshold:0.40' in html,
             'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
             'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
-            'active objective glow source':'function activeObjectiveText()' in js and 'STORY_OBJECTIVES[G.clues]' in js,
+            'active objective glow source':'function activeObjectiveText()' in js and 'STORY_OBJECTIVES[Number(G.clues||0)]' in js and 'const objective=activeObjectiveText().toLowerCase();' in js,
             'ordered story progress repair':'function ensureStoryProgress()' in html,
             'investigate requires actual advancement':'const advanced=gainClue();' in html,
             'investigate target check':'📜 INVESTIGATE TARGET:' in html,
