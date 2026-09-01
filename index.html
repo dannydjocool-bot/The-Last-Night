@@ -2464,7 +2464,7 @@ function performObjectiveInvestigate(){
     log(`🔎 ${p.name} Investigates for 1 Action.`,"good");
   }
   updateStoryObjective();
-  const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
+  const nextObjective=STORY_OBJECTIVES[G.clues],objectiveEl=document.getElementById("storyObjectiveText"),nextLead=nextObjective?.text||(objectiveEl?.innerHTML||"").replace(/<br\s*\/?>(?=.)/gi," — ").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
   window.v06SyncGuidance?.();
   window.v06RefreshObjectiveGlow?.();
