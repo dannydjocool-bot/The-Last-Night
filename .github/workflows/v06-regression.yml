@@ -70,9 +70,11 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           html=Path('index.html').read_text(encoding='utf-8')
           js=Path('v06-enhancements.js').read_text(encoding='utf-8')
           css=Path('v06-enhancements.css').read_text(encoding='utf-8')
+          search_match=re.search(r'function search\(\)\{(.*?)\n\}',html,re.S)
           checks={
             'V0.6 menu version':'V-0.6 Beta' in html,
             'polished beta thanks':'experience Blackwood County for yourself.' in html and 'experience The Last Night.</p>' not in html,
@@ -83,9 +85,12 @@ jobs:
             'journal save-local read state':'G.v06JournalReadCount' in js and 'theLastNightJournalReadCount' not in js,
             'journal menu guard':"document.body.classList.contains('menu-mode')" in js,
             'objective glow completion memory':'G.v06ClearedObjectiveTarget' in js,
-            'objective glow follows clue progress':'clues1>clues0' in js,
             'ordered story progress repair':'function ensureStoryProgress()' in html,
             'investigate requires actual advancement':'const advanced=gainClue();' in html,
+            'investigate target check':'📜 INVESTIGATE TARGET:' in html,
+            'Search cannot advance clues':bool(search_match) and 'gainClue(' not in search_match.group(1),
+            'Search owns exploration wrapper':"if(typeof search==='function'){const o=search;window.search=function()" in js,
+            'Investigate direct progression wrapper':"if(typeof investigate==='function'){const o=investigate;window.investigate=function()" in js,
             'objective fallback syntax':"txt.split('\\n')[0]" in js,
             'mobile Journal Log Pack dock':all(x in js for x in ('v06DockJournal','v06DockLog','v06DockPack')),
             'mobile dock CSS':'v06-mobile-dock' in css,
