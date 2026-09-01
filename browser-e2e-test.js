@@ -105,7 +105,6 @@ async function mobileRun(browser){
   await page.goto(BASE, { waitUntil:'networkidle', timeout:60000 });
   await page.evaluate(()=>{ Math.random=()=>0.30; localStorage.clear(); });
   const viewport=await page.evaluate(()=>({width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio}));
-  console.log('IPHONE VIEWPORT:',JSON.stringify(viewport));
   assert(viewport.width>=360&&viewport.width<=430, `Unexpected iPhone CSS width: ${viewport.width}`);
 
   await page.getByRole('button',{name:/Play The Last Night/i}).tap();
@@ -133,7 +132,8 @@ async function mobileRun(browser){
 
   await touchCenter(page,'#v06DockJournal');
   assert(await page.locator('#v06Overlay').evaluate(el=>el.classList.contains('open')), 'Mobile Journal should open from dock');
-  await page.getByRole('button',{name:'Close'}).tap();
+  await touchCenter(page,'#v06Overlay button[onclick="v06CloseOverlay()"]');
+  assert(!(await page.locator('#v06Overlay').evaluate(el=>el.classList.contains('open'))), 'Mobile Journal should close');
 
   const pack=page.locator('#extraPocketsPanel');
   const toggle=page.locator('#mobilePackToggle');
