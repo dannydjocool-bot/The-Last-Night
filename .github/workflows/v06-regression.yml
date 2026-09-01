@@ -71,6 +71,7 @@ jobs:
           css=Path('v06-enhancements.css').read_text(encoding='utf-8')
           checks={
             'V0.6 menu version':'V-0.6 Beta' in html,
+            'polished beta thanks':'experience Blackwood County for yourself.' in html and 'experience The Last Night.</p>' not in html,
             'three independent save slots':all(f'Save Slot {i}' in html for i in (1,2,3)),
             'combat-only transformations':"transformation can only be activated during combat" in html,
             'Moonbound 35 percent threshold':'transformThreshold:0.35' in html,
