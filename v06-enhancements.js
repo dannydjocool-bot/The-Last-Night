@@ -127,8 +127,7 @@ function highlightObjective(){
     const txt=(card.textContent||'').trim().toLowerCase();
     if(!txt)return;
     const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();
-    const candidate=title||txt.split('
-')[0];
+    const candidate=title||txt.split('\n')[0];
     const locKey=card.dataset?.loc||card.getAttribute('data-location')||candidate;
     if(cleared&&cleared.objective===objective&&(cleared.loc===locKey||cleared.title===candidate))return;
     if(candidate.length>3&&objective.includes(candidate)&&candidate.length>bestLen){best=card;bestLen=candidate.length}
