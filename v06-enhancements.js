@@ -102,16 +102,6 @@ function activeObjectiveText(){
   const marker=raw.lastIndexOf('➡️');
   return marker>=0?raw.slice(marker+2).trim():raw;
 }
-function activeObjectiveText(){
-  if(hasGame()&&typeof STORY_OBJECTIVES!=='undefined'&&Array.isArray(STORY_OBJECTIVES)){
-    const current=STORY_OBJECTIVES[Number(G.clues||0)];
-    if(current?.text)return String(current.text).trim();
-  }
-  const el=document.getElementById('storyObjectiveText');
-  const raw=(el?.innerText||el?.textContent||'').trim();
-  const marker=raw.lastIndexOf('➡️');
-  return marker>=0?raw.slice(marker+2).trim():raw;
-}
 function activeSurvivor(){return hasGame()?(G.ps[G.active]||G.ps.find(p=>!p.dead)||G.ps[0]):null}
 function transformStatus(p){
   if(!p||!p.transform)return '';
@@ -157,6 +147,7 @@ function objectiveTargetLocs(){
   if(!G.rootDefeated)return ['root'];
   return ['gate'];
 }
+window.v06ObjectiveTargetLocs=objectiveTargetLocs;
 function highlightObjective(){
   document.querySelectorAll('.loc.v06-objective-target').forEach(el=>el.classList.remove('v06-objective-target'));
   const targets=objectiveTargetLocs();
