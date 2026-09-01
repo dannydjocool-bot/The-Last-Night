@@ -55,8 +55,9 @@ body.v06-fear-high #game{filter:saturate(.78) contrast(1.08)}body.v06-fear-criti
 #v06JournalDot{position:absolute;right:16px;top:7px;width:8px;height:8px;border-radius:50%;background:#e85260;box-shadow:0 0 10px #e85260}#v06JournalDot[hidden]{display:none}
 body.reduce-motion .loc.v06-objective-target{animation:none!important}
 @media(max-width:850px){
+  body:not(.menu-mode) #gameSite{position:relative!important;z-index:1!important}
   body:not(.menu-mode) #logButton,body:not(.menu-mode) .v06-journal-btn{display:none!important}
-  .v06-mobile-dock{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:30050!important;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px;border:1px solid #54343a;border-radius:14px;background:rgba(8,9,11,.96);box-shadow:0 14px 40px #000;backdrop-filter:blur(12px);pointer-events:auto!important;isolation:isolate;transform:translateZ(0)}
+  .v06-mobile-dock{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:2147483000!important;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px;border:1px solid #54343a;border-radius:14px;background:rgba(8,9,11,.96);box-shadow:0 14px 40px #000;backdrop-filter:blur(12px);pointer-events:auto!important;isolation:isolate;transform:translateZ(0)}
   .v06-mobile-dock button{position:relative;z-index:1;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;margin:0;padding:6px 4px;font-size:16px}.v06-mobile-dock button span{font-size:9px;font-weight:900;letter-spacing:.5px}
   body:not(.menu-mode) #extraPocketsPanel{bottom:74px!important;max-height:min(58vh,480px)!important}
   body:not(.menu-mode) #extraPocketsPanel.mobile-pack-collapsed{bottom:74px!important;max-height:58px!important}
