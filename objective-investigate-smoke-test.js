@@ -8,7 +8,8 @@ function node(){return {style:{},innerHTML:'',textContent:'',value:'',disabled:f
 const document={body:node(),documentElement:node(),head:node(),readyState:'complete',getElementById(id){if(!nodes.has(id))nodes.set(id,node());return nodes.get(id);},querySelector(){return null;},querySelectorAll(){return [];},addEventListener(){},createElement(){return node();},createTextNode(){return node();}};
 const storage=new Map();
 const localStorage={getItem:k=>storage.has(k)?storage.get(k):null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
-const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math,JSON,Set,Infinity,window:null,location:{reload(){}},navigator:{userAgent:'CI'},requestAnimationFrame:fn=>{fn();return 1;},cancelAnimationFrame(){},getComputedStyle(){return {};},matchMedia(){return {matches:false,addEventListener(){},removeEventListener(){}}}};
+const context={console,document,localStorage,setTimeout:fn=>{fn();return 1;},clearTimeout(){},Date,Math:Object.create(Math),JSON,Set,Infinity,window:null,location:{reload(){}},navigator:{userAgent:'CI'},requestAnimationFrame:fn=>{fn();return 1;},cancelAnimationFrame(){},getComputedStyle(){return {};},matchMedia(){return {matches:false,addEventListener(){},removeEventListener(){}}}};
+context.Math.random=Math.random;
 context.window=context;context.innerWidth=1400;context.innerHeight=900;context.addEventListener=()=>{};
 vm.createContext(context);vm.runInContext(script,context);
 function run(code){return vm.runInContext(code,context)}
@@ -20,7 +21,7 @@ function freshGame(loc='station'){
 
 // Search must NEVER advance story clues, even on its best roll.
 freshGame('station');
-run(`let oldD6=d6;d6=()=>6;search();d6=oldD6;`);
+run(`let oldRandom=Math.random;Math.random=()=>0.999999;search();Math.random=oldRandom;`);
 assert(run(`G.clues===0&&!G.foundClues.has('station')`), 'Search incorrectly advanced a story objective');
 assert(nodes.get('storyObjectiveText').innerHTML.includes('Objective 1'), 'Search incorrectly changed the Story Objective');
 
