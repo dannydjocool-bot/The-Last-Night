@@ -20,7 +20,7 @@ jobs:
           ref: dev
       - name: Apply Investigate authority repair
         run: python .github/scripts/v06-investigate-authority.py
-      - name: Validate Search and Investigate separation
+      - name: Validate direct Investigate wiring
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -30,10 +30,13 @@ jobs:
           m=re.search(r'function search\(\)\{(.*?)\n\}',html,re.S)
           if not m: raise SystemExit('search function missing')
           if 'gainClue(' in m.group(1): raise SystemExit('Search still advances story clues')
-          if '📜 INVESTIGATE TARGET:' not in html: raise SystemExit('Investigate objective target check missing')
+          if 'function performObjectiveInvestigate()' not in html: raise SystemExit('dedicated Investigate handler missing')
+          if 'onclick="window.performObjectiveInvestigate()"' not in html: raise SystemExit('visible Investigate button is not bound directly')
+          if 'window.performObjectiveInvestigate=performObjectiveInvestigate;' not in html: raise SystemExit('dedicated Investigate handler not exposed')
+          if 'window.investigate=function' in js: raise SystemExit('V0.6 still shadows Investigate')
           if "if(typeof search==='function')" not in js: raise SystemExit('V0.6 Search exploration wrapper missing')
-          if "if(typeof investigate==='function')" not in js: raise SystemExit('V0.6 Investigate wrapper missing')
-          print('Search/Investigate separation validated')
+          if 'window.v06RefreshObjectiveGlow=highlightObjective;' not in js: raise SystemExit('objective glow refresh hook missing')
+          print('Direct Investigate button wiring validated')
           PY
           node --check v06-enhancements.js
           python3 - <<'PY'
@@ -53,5 +56,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html v06-enhancements.js
-          git commit -m "V0.6: make Investigate authoritative for objectives"
+          git commit -m "V0.6: wire Investigate button directly"
           git push origin dev
