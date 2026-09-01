@@ -17,27 +17,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dev
-      - name: Patch mobile dock touch layer
+      - name: Add mobile touch hit-test diagnostic
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('v06-enhancements.css')
+          p=Path('browser-e2e-test.js')
           s=p.read_text(encoding='utf-8')
-          anchor="@media(max-width:850px){\n  body:not(.menu-mode) #logButton,body:not(.menu-mode) .v06-journal-btn{display:none!important}"
-          replacement="@media(max-width:850px){\n  body:not(.menu-mode) #gameSite{position:relative!important;z-index:1!important}\n  body:not(.menu-mode) #logButton,body:not(.menu-mode) .v06-journal-btn{display:none!important}"
-          if 'body:not(.menu-mode) #gameSite{position:relative!important;z-index:1!important}' not in s:
-              if anchor not in s: raise SystemExit('Mobile media anchor not found')
-              s=s.replace(anchor,replacement,1)
-          s=s.replace('z-index:30050!important','z-index:2147483000!important',1)
-          p.write_text(s,encoding='utf-8')
+          anchor="  await page.locator('#v06DockLog').click();"
+          diag="""  const dockHit=await page.locator('#v06DockLog').evaluate(el=>{\n    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,hit=document.elementFromPoint(x,y),dock=el.closest('#v06MobileDock'),game=document.getElementById('gameSite');\n    return {rect:{left:r.left,top:r.top,width:r.width,height:r.height},x,y,hitId:hit?.id||'',hitClass:hit?.className||'',hitTag:hit?.tagName||'',dockZ:getComputedStyle(dock).zIndex,dockPosition:getComputedStyle(dock).position,dockTransform:getComputedStyle(dock).transform,gameZ:getComputedStyle(game).zIndex,gamePosition:getComputedStyle(game).position,scrollY:window.scrollY,innerHeight:window.innerHeight};\n  });\n  console.log('MOBILE DOCK HIT TEST:',JSON.stringify(dockHit));\n  assert(['v06DockLog','SPAN'].includes(dockHit.hitId)||dockHit.hitId==='v06DockLog'||dockHit.hitTag==='SPAN', `Mobile dock Log center is covered by ${dockHit.hitTag}#${dockHit.hitId}.${dockHit.hitClass}`);\n\n  await page.locator('#v06DockLog').click();"""
+          if 'MOBILE DOCK HIT TEST:' not in s:
+              if anchor not in s: raise SystemExit('Browser E2E mobile Log click anchor not found')
+              s=s.replace(anchor,diag,1)
+              p.write_text(s,encoding='utf-8')
+          else:
+              print('Diagnostic already present')
           PY
-      - name: Validate JavaScript
-        run: node --check v06-enhancements.js
-      - name: Commit fix
+          node --check browser-e2e-test.js
+      - name: Commit diagnostic
         run: |
           if git diff --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add v06-enhancements.css
-          git commit -m "V0.6: isolate mobile dock above gameplay layer"
+          git add browser-e2e-test.js
+          git commit -m "V0.6: diagnose mobile dock touch hitbox"
           git push origin dev
