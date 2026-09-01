@@ -91,6 +91,16 @@ function showHelp(){
   }
 }
 function objectiveText(){return (document.getElementById('storyObjectiveText')?.textContent||'').trim()}
+function activeObjectiveText(){
+  if(hasGame()&&typeof STORY_OBJECTIVES!=='undefined'&&Array.isArray(STORY_OBJECTIVES)){
+    const current=STORY_OBJECTIVES[Number(G.clues||0)];
+    if(current?.text)return String(current.text).trim();
+  }
+  const el=document.getElementById('storyObjectiveText');
+  const raw=(el?.innerText||el?.textContent||'').trim();
+  const marker=raw.lastIndexOf('➡️');
+  return marker>=0?raw.slice(marker+2).trim():raw;
+}
 function activeSurvivor(){return hasGame()?(G.ps[G.active]||G.ps.find(p=>!p.dead)||G.ps[0]):null}
 function transformStatus(p){
   if(!p||!p.transform)return '';
@@ -108,23 +118,20 @@ function nextStep(){
   if(c)return {text:`Defeat ${c.name}. Combat AP is used for attacks and Specials.`,kind:'danger'};
   try{if(typeof hostileAtCurrentLocation==='function'&&p&&hostileAtCurrentLocation(p))return {text:'A creature is blocking this location. Fight it before traveling or ending the Night.',kind:'danger'}}catch{}
   if(p&&Number(p.actions||0)<=0)return {text:'You are out of Night AP. End the Night to restore Night AP and continue.',kind:'warn'};
-  const objective=objectiveText();
+  const objective=activeObjectiveText();
   if(objective)return {text:`Follow the Story Objective: ${objective}`,kind:'story'};
   return {text:'Choose a connected location, investigate for clues and supplies, then keep following the Story Objective.',kind:'story'};
 }
 function highlightObjective(){
   document.querySelectorAll('.loc.v06-objective-target').forEach(el=>el.classList.remove('v06-objective-target'));
-  const objective=objectiveText().toLowerCase();
+  const objective=activeObjectiveText().toLowerCase();
   if(!objective)return;
-  const cleared=hasGame()?G.v06ClearedObjectiveTarget:null;
   let best=null,bestLen=0;
   document.querySelectorAll('.loc').forEach(card=>{
     const txt=(card.textContent||'').trim().toLowerCase();
     if(!txt)return;
     const title=(card.querySelector('b')?.textContent||'').trim().toLowerCase();
     const candidate=title||txt.split('\n')[0];
-    const locKey=card.dataset?.loc||card.getAttribute('data-location')||candidate;
-    if(cleared&&cleared.objective===objective&&(cleared.loc===locKey||cleared.title===candidate))return;
     if(candidate.length>3&&objective.includes(candidate)&&candidate.length>bestLen){best=card;bestLen=candidate.length}
   });
   if(best)best.classList.add('v06-objective-target');
