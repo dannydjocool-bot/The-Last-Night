@@ -4,9 +4,8 @@ import re
 p=Path('v06-enhancements.js')
 s=p.read_text(encoding='utf-8')
 
-old="function objectiveText(){return (document.getElementById('storyObjectiveText')?.textContent||'').trim()}"
-new="""function objectiveText(){return (document.getElementById('storyObjectiveText')?.textContent||'').trim()}
-function activeObjectiveText(){
+objective_text="function objectiveText(){return (document.getElementById('storyObjectiveText')?.textContent||'').trim()}"
+active_fn="""function activeObjectiveText(){
   if(hasGame()&&typeof STORY_OBJECTIVES!=='undefined'&&Array.isArray(STORY_OBJECTIVES)){
     const current=STORY_OBJECTIVES[Number(G.clues||0)];
     if(current?.text)return String(current.text).trim();
@@ -16,15 +15,18 @@ function activeObjectiveText(){
   const marker=raw.lastIndexOf('➡️');
   return marker>=0?raw.slice(marker+2).trim():raw;
 }"""
-if old in s:
-    s=s.replace(old,new,1)
-elif 'function activeObjectiveText()' not in s:
+
+# Keep exactly one activeObjectiveText helper. Earlier patch reruns could duplicate it.
+s=re.sub(r"\nfunction activeObjectiveText\(\)\{.*?\n\}","",s,flags=re.S)
+if objective_text not in s:
     raise SystemExit('objectiveText function not found')
+s=s.replace(objective_text,objective_text+'\n'+active_fn,1)
 
 s=s.replace("  const objective=objectiveText();\n  if(objective)return {text:`Follow the Story Objective: ${objective}`,kind:'story'};",
             "  const objective=activeObjectiveText();\n  if(objective)return {text:`Follow the Story Objective: ${objective}`,kind:'story'};",1)
 
-# Replace the old text-matching glow with state-driven location targeting.
+# Replace prior target/glow helpers as one state-driven block.
+s=re.sub(r"\nfunction objectiveTargetLocs\(\)\{.*?\n\}\nfunction highlightObjective\(\)\{.*?\n\}","",s,flags=re.S)
 pattern=r"function highlightObjective\(\)\{.*?\n\}"
 replacement="""function objectiveTargetLocs(){
   if(!hasGame())return [];
@@ -50,6 +52,7 @@ replacement="""function objectiveTargetLocs(){
   if(!G.rootDefeated)return ['root'];
   return ['gate'];
 }
+window.v06ObjectiveTargetLocs=objectiveTargetLocs;
 function highlightObjective(){
   document.querySelectorAll('.loc.v06-objective-target').forEach(el=>el.classList.remove('v06-objective-target'));
   const targets=objectiveTargetLocs();
@@ -71,12 +74,15 @@ function highlightObjective(){
     if(best)best.classList.add('v06-objective-target');
   }
 }"""
-s,n=re.subn(pattern,lambda m:replacement,s,count=1,flags=re.S)
-if n!=1:
-    raise SystemExit('highlightObjective function not found')
+
+anchor='function explainLocks(){'
+if anchor not in s:
+    raise SystemExit('explainLocks anchor not found')
+s=s.replace(anchor,replacement+'\n'+anchor,1)
 
 required=[
   'function objectiveTargetLocs()',
+  'window.v06ObjectiveTargetLocs=objectiveTargetLocs;',
   "if(!G.wardenDefeated)out.push('prison')",
   "if(!G.hollowDefeated)out.push('hollow')",
   "if(!G.bloodkeeperDefeated)out.push('slaughterhouse')",
@@ -89,6 +95,10 @@ required=[
 for marker in required:
     if marker not in s:
         raise SystemExit('missing objective glow marker: '+marker)
+if s.count('function activeObjectiveText()')!=1:
+    raise SystemExit('activeObjectiveText must exist exactly once')
+if s.count('function objectiveTargetLocs()')!=1:
+    raise SystemExit('objectiveTargetLocs must exist exactly once')
 
 p.write_text(s,encoding='utf-8')
-print('Objective glow now follows story progression through the Escape Gate')
+print('Objective glow resolver hardened through final escape')
