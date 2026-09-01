@@ -38,6 +38,29 @@ jobs:
       - name: Run story and combat smoke test
         run: node story-smoke-test.js
 
+      - name: Release candidate static audit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          from collections import Counter
+          html=Path('index.html').read_text(encoding='utf-8')
+          ids=re.findall(r'\bid=["\']([^"\']+)["\']',html)
+          dup=[x for x,n in Counter(ids).items() if n>1]
+          if dup: raise SystemExit('Duplicate static HTML ids: '+', '.join(dup))
+          refs=set()
+          refs.update(re.findall(r'(?:src|href)=["\']([^"\']+)["\']',html))
+          refs.update(re.findall(r'url\(["\']?([^"\')]+)',html))
+          exts=('.png','.jpg','.jpeg','.webp','.svg','.css','.js','.webmanifest')
+          missing=[]
+          for ref in refs:
+            clean=ref.split('?',1)[0].split('#',1)[0]
+            if not clean or clean.startswith(('http://','https://','data:','mailto:')): continue
+            if clean.lower().endswith(exts) and not Path(clean).exists(): missing.append(clean)
+          if missing: raise SystemExit('Missing referenced assets: '+', '.join(sorted(set(missing))))
+          print(f'Static audit passed: {len(ids)} ids, {len(refs)} local/reference candidates checked.')
+          PY
+
       - name: Verify V0.6 player-facing regression markers
         run: |
           python3 - <<'PY'
@@ -59,6 +82,9 @@ jobs:
             'mobile dock CSS':'v06-mobile-dock' in css,
             'desktop art quality pass':'V0.6 DESKTOP CARD ART QUALITY PASS' in css,
             'combined Fear Sanity filter':'body.v06-fear-high.v06-sanity-low #game' in css,
+            'raised music release gain':'V0.6_AUDIO_MUSIC_GAIN_RC' in html and 'audioLevel("music",25)/100*.82' in html,
+            'separate ambience mix':'audioLevel("ambience",30)/100*.16' in html,
+            'separate effects mix':'audioLevel("effects",55)/100' in html,
             'Root Gate progression':all(x in html for x in ('The Thornbound','The Veinmaw','The Ash Wraith','The Triune Maw','The Root of Blackwood')),
             'special Triune armor support':'V0.6_SPECIAL_TRIUNE_ARMOR' in html,
             'special boss progression':'V0.6_SPECIAL_BOSS_PROGRESSION' in html,
