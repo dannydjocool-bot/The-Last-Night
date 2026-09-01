@@ -106,6 +106,13 @@ async function mobileRun(browser){
   assert(await page.locator('#v06DockLog').isVisible(), 'Mobile Log control should be visible');
   assert(await page.locator('#v06DockPack').isVisible(), 'Mobile Pack control should be visible');
 
+  const dockHit=await page.locator('#v06DockLog').evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,hit=document.elementFromPoint(x,y),dock=el.closest('#v06MobileDock'),game=document.getElementById('gameSite');
+    return {rect:{left:r.left,top:r.top,width:r.width,height:r.height},x,y,hitId:hit?.id||'',hitClass:hit?.className||'',hitTag:hit?.tagName||'',dockZ:getComputedStyle(dock).zIndex,dockPosition:getComputedStyle(dock).position,dockTransform:getComputedStyle(dock).transform,gameZ:getComputedStyle(game).zIndex,gamePosition:getComputedStyle(game).position,scrollY:window.scrollY,innerHeight:window.innerHeight};
+  });
+  console.log('MOBILE DOCK HIT TEST:',JSON.stringify(dockHit));
+  assert(['v06DockLog','SPAN'].includes(dockHit.hitId)||dockHit.hitId==='v06DockLog'||dockHit.hitTag==='SPAN', `Mobile dock Log center is covered by ${dockHit.hitTag}#${dockHit.hitId}.${dockHit.hitClass}`);
+
   await page.locator('#v06DockLog').click();
   assert(await page.locator('#logPanel').evaluate(el=>el.classList.contains('log-open')), 'Mobile Log should open from dock');
   await page.locator('#logClose').click();
