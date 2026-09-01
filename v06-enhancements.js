@@ -17,11 +17,11 @@ const currentCombat=()=>typeof combat!=='undefined'?combat:null;
 function j(text,type='EVENT'){if(!hasGame())return;G.v06Journal=G.v06Journal||[];G.v06Journal.unshift({night:G.night||1,type,text});G.v06Journal=G.v06Journal.slice(0,80)}
 function lg(text,kind=''){if(hasGame()&&typeof log==='function'){log(text,kind);j(String(text).replace(/<[^>]+>/g,''))}}
 function ui(){if(document.getElementById('v06JournalBtn'))return;document.body.insertAdjacentHTML('beforeend','<button id="v06JournalBtn" class="v06-journal-btn" hidden>📓 BLACKWOOD JOURNAL</button><div id="v06NightBadge" class="v06-night-badge" hidden></div><div id="v06Overlay" class="v06-overlay"><div id="v06Card" class="v06-card"></div></div>');document.getElementById('v06JournalBtn').onclick=openJournal}
-function syncUi(){ui();const btn=document.getElementById('v06JournalBtn');const inGame=hasGame()&&!document.body.classList.contains('menu-mode');btn.hidden=!inGame;if(!inGame){const b=document.getElementById('v06NightBadge');if(b)b.hidden=true}}
+function syncUi(){ui();const btn=document.getElementById('v06JournalBtn');const inGame=hasGame()&&!document.body.classList.contains('menu-mode');btn.hidden=!inGame;if(!inGame){const b=document.getElementById('v06NightBadge');if(b)b.hidden=true;const o=document.getElementById('v06Overlay');if(o&&o.classList.contains('open'))close()}}
 function show(html){ui();document.getElementById('v06Card').innerHTML=html;document.getElementById('v06Overlay').classList.add('open');document.body.style.overflow='hidden'}
 function close(){const o=document.getElementById('v06Overlay');if(o)o.classList.remove('open');document.body.style.overflow=''}
 window.v06CloseOverlay=close;
-function openJournal(){if(!hasGame())return;const rows=(G.v06Journal||[]).map(e=>`<div class="v06-journal-entry"><b>NIGHT ${e.night} · ${e.type}</b><br>${e.text}</div>`).join('')||'<p class="v06-copy">The journal is still empty.</p>';show(`<div class="v06-kicker">CASE NOTES</div><div class="v06-title">BLACKWOOD JOURNAL</div><p class="v06-copy">Events, hallucinations, discoveries, relationships, and warnings from this run.</p><div class="v06-journal-list">${rows}</div><button onclick="v06CloseOverlay()">Close</button>`)}
+function openJournal(){if(!hasGame()||document.body.classList.contains('menu-mode'))return;G.v06JournalReadCount=(G.v06Journal||[]).length;const rows=(G.v06Journal||[]).map(e=>`<div class="v06-journal-entry"><b>NIGHT ${e.night} · ${e.type}</b><br>${e.text}</div>`).join('')||'<p class="v06-copy">The journal is still empty.</p>';show(`<div class="v06-kicker">CASE NOTES</div><div class="v06-title">BLACKWOOD JOURNAL</div><p class="v06-copy">Events, hallucinations, discoveries, relationships, and warnings from this run.</p><div class="v06-journal-list">${rows}</div><button onclick="v06CloseOverlay()">Close</button>`)}
 function mod(){return hasGame()?G.v06NightModifier||null:null}
 function badge(){ui();const b=document.getElementById('v06NightBadge'),m=mod();if(!hasGame()||document.body.classList.contains('menu-mode')||!m){b.hidden=true;return}b.hidden=false;b.innerHTML=`<b>${m.icon} ${m.name}</b><br>${m.desc}`}
 function newNightMod(){if(!hasGame()||document.body.classList.contains('menu-mode'))return;G.v06NightModifier={...pick(MODS)};const m=G.v06NightModifier;j(`${m.name}: ${m.desc}`,'NIGHT MODIFIER');badge();show(`<div class="v06-kicker">BLACKWOOD CHANGES</div><div class="v06-title">NIGHT ${G.night}</div><p class="v06-copy"><b>${m.icon} ${m.name}</b><br>${m.desc}</p><button onclick="v06CloseOverlay()">Enter the Night</button>`)}
@@ -176,10 +176,10 @@ function contextualTips(){
 }
 function journalDot(){
   if(!hasGame())return;
-  const count=(G.v06Journal||[]).length,last=Number(sessionStorage.getItem('theLastNightJournalReadCount')||0),dot=document.getElementById('v06JournalDot');
+  const count=(G.v06Journal||[]).length,last=Number(G.v06JournalReadCount||0),dot=document.getElementById('v06JournalDot');
   if(dot)dot.hidden=!(count>last);
   const journal=document.getElementById('v06JournalBtn');
-  if(journal&&!journal.dataset.v06ReadHook){journal.dataset.v06ReadHook='1';journal.addEventListener('click',()=>{sessionStorage.setItem('theLastNightJournalReadCount',String((G.v06Journal||[]).length));if(dot)dot.hidden=true})}
+  if(journal&&!journal.dataset.v06ReadHook){journal.dataset.v06ReadHook='1';journal.addEventListener('click',()=>{G.v06JournalReadCount=(G.v06Journal||[]).length;if(dot)dot.hidden=true})}
 }
 function syncDock(){
   const dock=document.getElementById('v06MobileDock');if(!dock)return;
