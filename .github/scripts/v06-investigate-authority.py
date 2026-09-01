@@ -59,18 +59,24 @@ if old_head in s:
 elif new_head not in s:
     raise SystemExit('Investigate source did not match expected code')
 
-# Correct the player-facing objective transition. G.clues is the completed objective count,
-# so the newly active objective is G.clues + 1.
-s=s.replace('log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");','log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");')
+# Remove developer-style numeric progression and return the player to the story.
+numeric_lines=(
+    'log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");',
+    'log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");'
+)
+immersive_line='const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");'
+for line in numeric_lines:
+    if line in s:
+        s=s.replace(line,immersive_line,1)
 
 old_tail='''  updateStoryObjective();
-  log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");
+  const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
   return true;
 }
 function flashlightSceneFor(loc){'''
 new_tail='''  updateStoryObjective();
-  log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");
+  const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
   window.v06SyncGuidance?.();
   window.v06RefreshObjectiveGlow?.();
@@ -91,10 +97,10 @@ if old_button in s:
 elif new_button not in s:
     raise SystemExit('Visible Investigate button was not found')
 
-if 'Objective advanced: ${before+1} → ${G.clues}.' in s:
-    raise SystemExit('Old objective feedback is still present')
-if 'Objective advanced: ${before+1} → ${G.clues+1}.' not in s:
-    raise SystemExit('Corrected objective feedback is missing')
+if 'Objective advanced:' in s:
+    raise SystemExit('Developer-style numeric objective feedback is still present')
+if '📜 NEXT LEAD:' not in s:
+    raise SystemExit('Immersive next-lead story feedback is missing')
 
 p.write_text(s,encoding='utf-8')
 
@@ -125,4 +131,4 @@ if 'window.v06RefreshObjectiveGlow=highlightObjective;' not in js:
     js=js[:pos]+'window.v06RefreshObjectiveGlow=highlightObjective;\n'+js[pos:]
 
 p.write_text(js,encoding='utf-8')
-print('Investigate button now calls the core objective handler directly with correct objective feedback')
+print('Investigate keeps direct objective authority and now returns immersive story feedback')
