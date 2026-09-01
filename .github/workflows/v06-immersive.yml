@@ -1,0 +1,198 @@
+name: V0.6 Blackwood Feels Alive
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v06-immersive.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  immersive-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply V0.6 immersive systems
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          if 'V06_BLACKWOOD_ALIVE' in s:
+              raise SystemExit('V0.6 immersive layer already installed')
+
+          css=r'''
+<style id="v06BlackwoodAliveStyle">
+/* V06_BLACKWOOD_ALIVE */
+.v06-overlay{position:fixed;inset:0;z-index:21000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.92);backdrop-filter:blur(8px)}
+.v06-overlay.open{display:flex}.v06-card{width:min(720px,94vw);max-height:90vh;overflow:auto;border:1px solid #75323a;border-radius:18px;padding:24px;background:radial-gradient(circle at 50% 0,rgba(155,31,43,.22),transparent 42%),#090a0c;box-shadow:0 28px 90px #000;text-align:center}.v06-kicker{font-size:10px;letter-spacing:3px;font-weight:900;color:#dc6a73}.v06-title{font-family:Georgia,serif;font-size:clamp(28px,6vw,48px);letter-spacing:2px;margin:8px 0 12px}.v06-copy{color:#c3c6ca;line-height:1.65}.v06-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.v06-choices button{min-height:78px}.v06-journal-btn{position:fixed;right:14px;bottom:14px;z-index:16000;border-color:#6d3940;background:#141113;font-weight:900;box-shadow:0 8px 28px #000}.v06-journal-list{text-align:left;display:grid;gap:8px;margin-top:14px}.v06-journal-entry{padding:10px 12px;border-left:3px solid #783840;background:#111316;color:#c8ccd0;font-size:12px;line-height:1.55}.v06-night-badge{position:fixed;right:14px;top:82px;z-index:15000;max-width:260px;padding:9px 11px;border:1px solid #55333a;border-radius:10px;background:rgba(8,9,11,.9);font-size:10px;letter-spacing:.8px;box-shadow:0 8px 25px rgba(0,0,0,.55)}
+body.v06-fear-high #game{filter:saturate(.78) contrast(1.08)}body.v06-fear-critical #game{animation:v06FearPulse 2.8s infinite}body.v06-sanity-low #game{filter:contrast(1.1) brightness(.92)}body.v06-glitch #game{animation:v06Glitch .12s steps(2) 8}
+@keyframes v06FearPulse{0%,100%{transform:none}50%{transform:translateX(.5px)}}@keyframes v06Glitch{0%{transform:translate(0)}25%{transform:translate(3px,-2px)}50%{transform:translate(-3px,1px)}75%{transform:translate(2px,2px)}100%{transform:none}}
+@media(max-width:700px){.v06-choices{grid-template-columns:1fr}.v06-night-badge{top:auto;bottom:58px;right:10px;max-width:210px}.v06-journal-btn{right:10px;bottom:10px}}
+</style>
+'''
+
+          js=r'''
+<script id="v06BlackwoodAliveScript">
+/* V06_BLACKWOOD_ALIVE */
+(function(){
+const MODIFIERS=[
+ {name:'Heavy Fog',icon:'🌫️',desc:'Visibility collapses. Travel can raise Fear.',kind:'fog'},
+ {name:'Blood Moon',icon:'🩸',desc:'Creatures strike harder tonight.',kind:'blood'},
+ {name:'Dead Silence',icon:'🔇',desc:'The quiet attacks the mind. Travel can drain Sanity.',kind:'silence'},
+ {name:'Blackwood Storm',icon:'⛈️',desc:'Movement is dangerous and can consume extra Night AP.',kind:'storm'},
+ {name:'Restless Dead',icon:'☠️',desc:'Movement can attract an additional creature.',kind:'restless'}
+];
+const LOC_ATMO={
+ motel:['A room door slowly clicks shut by itself.','The vacancy sign buzzes, then goes dark.'],
+ gas:['A fuel pump starts ticking although the station has no power.','Something drags metal behind the pumps.'],
+ forest:['Branches snap in a circle around the party.','A whisper repeats a survivor’s name from deep in the trees.'],
+ station:['A dead radio spits out half a sentence, then silence.','Footsteps cross the platform with no one there.'],
+ prison:['Chains scrape behind a sealed cell door.','A distant steel door slams three times.'],
+ asylum:['A broken intercom whispers from an empty hallway.','Someone laughs softly one floor above you.'],
+ slaughter:['A hanging hook sways without wind.','Something wet drips behind the cutting room wall.'],
+ hollow:['The darkness here seems to inhale.','Your footsteps return one beat too late.'],
+ root:['The walls pulse like a buried heart.','Roots tighten beneath the floor as if listening.']
+};
+const BOSS_RARITIES=new Set(['Legendary','Mythic','Ancient','Abyssal']);
+const rand=a=>a[Math.floor(Math.random()*a.length)];
+function journal(text,type='EVENT'){
+ if(!window.G)return;
+ G.v06Journal=G.v06Journal||[];
+ G.v06Journal.unshift({night:G.night||1,type,text,ts:Date.now()});
+ G.v06Journal=G.v06Journal.slice(0,80);
+}
+function safeLog(text,kind=''){if(window.G&&typeof log==='function'){log(text,kind);journal(text.replace(/<[^>]+>/g,''));}}
+function ensureUI(){
+ if(document.getElementById('v06JournalBtn'))return;
+ document.body.insertAdjacentHTML('beforeend',`<button id="v06JournalBtn" class="v06-journal-btn" type="button">📓 BLACKWOOD JOURNAL</button><div id="v06NightBadge" class="v06-night-badge" hidden></div><div id="v06Overlay" class="v06-overlay" aria-hidden="true"><div id="v06Card" class="v06-card"></div></div>`);
+ document.getElementById('v06JournalBtn').onclick=openJournal;
+}
+function overlay(html){ensureUI();const o=document.getElementById('v06Overlay');document.getElementById('v06Card').innerHTML=html;o.classList.add('open');o.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+function closeOverlay(){const o=document.getElementById('v06Overlay');if(!o)return;o.classList.remove('open');o.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+window.v06CloseOverlay=closeOverlay;
+function openJournal(){
+ const rows=(window.G&&G.v06Journal||[]).map(e=>`<div class="v06-journal-entry"><b>NIGHT ${e.night} · ${e.type}</b><br>${e.text}</div>`).join('')||'<p class="v06-copy">The journal is still empty. Blackwood has not shown you enough yet.</p>';
+ overlay(`<div class="v06-kicker">CASE NOTES</div><div class="v06-title">BLACKWOOD JOURNAL</div><p class="v06-copy">Events, hallucinations, discoveries, relationships, and warnings recorded during this run.</p><div class="v06-journal-list">${rows}</div><button onclick="v06CloseOverlay()">Close Journal</button>`);
+}
+function currentModifier(){return window.G&&G.v06NightModifier||null;}
+function setNightModifier(){
+ if(!window.G)return;
+ const m={...rand(MODIFIERS)};G.v06NightModifier=m;journal(`${m.name}: ${m.desc}`,'NIGHT MODIFIER');
+ const badge=document.getElementById('v06NightBadge');if(badge){badge.hidden=false;badge.innerHTML=`<b>${m.icon} ${m.name}</b><br>${m.desc}`;}
+ overlay(`<div class="v06-kicker">BLACKWOOD CHANGES</div><div class="v06-title">NIGHT ${G.night}</div><p class="v06-copy"><b>${m.icon} ${m.name}</b><br>${m.desc}</p><button onclick="v06CloseOverlay()">Enter the Night</button>`);
+}
+function syncBadge(){ensureUI();const b=document.getElementById('v06NightBadge'),m=currentModifier();if(!window.G||!m){b.hidden=true;return;}b.hidden=false;b.innerHTML=`<b>${m.icon} ${m.name}</b><br>${m.desc}`;}
+function updatePsych(){
+ if(!window.G||!G.ps||!G.ps.length)return;
+ const p=G.ps[G.active]||G.ps[0];if(!p)return;
+ document.body.classList.toggle('v06-fear-high',(p.fear||0)>=3);document.body.classList.toggle('v06-fear-critical',(p.fear||0)>=5);document.body.classList.toggle('v06-sanity-low',(p.san||0)<=Math.max(2,(p.maxSan||10)*.3));
+}
+function locationAtmosphere(loc){
+ const lines=LOC_ATMO[loc]||['Something shifts just outside the edge of the light.'];
+ if(Math.random()<.72){const t=rand(lines);safeLog(`🎧 ${t}`);}
+ if(typeof ensureHorrorAudio==='function')ensureHorrorAudio();
+}
+function hallucinationCheck(){
+ if(!window.G)return;const p=G.ps[G.active];if(!p)return;
+ if((p.fear||0)>=4&&Math.random()<.22)safeLog(`👁️ ${p.name} swears someone is standing behind the party. There is nobody there.`, 'bad');
+ if((p.san||0)<=3&&Math.random()<.22)safeLog(`🧠 ${p.name} hears a familiar voice coming from somewhere impossible.`, 'bad');
+}
+function somethingWrong(){
+ if(Math.random()>=.035)return;
+ document.body.classList.add('v06-glitch');setTimeout(()=>document.body.classList.remove('v06-glitch'),1100);
+ const lines=['For one second, every location name looks wrong.','The screen flickers. A survivor portrait appears to blink.','The event log shows a sentence that vanishes before anyone can read it.','A shape appears behind the interface, then is gone.'];
+ const t=rand(lines);safeLog(`⚠️ SOMETHING IS WRONG — ${t}`,'bad');journal(t,'ANOMALY');
+}
+function bonds(){if(!G.v06Bonds)G.v06Bonds={};return G.v06Bonds;}
+function bondKey(a,b){return [a,b].sort().join('::');}
+function growBonds(){
+ if(!G||!G.ps)return;const living=G.ps.filter(p=>!p.dead);
+ for(let i=0;i<living.length;i++)for(let j=i+1;j<living.length;j++){const k=bondKey(living[i].originalName||living[i].name,living[j].originalName||living[j].name);bonds()[k]=(bonds()[k]||0)+1;if(bonds()[k]===3)safeLog(`🤝 ${living[i].name} and ${living[j].name} have developed Trust. Surviving together is changing them.`,'good');}
+}
+function bestBondFor(p){let best=0;if(!G||!G.ps)return 0;for(const other of G.ps){if(other===p||other.dead)continue;best=Math.max(best,bonds()[bondKey(p.originalName||p.name,other.originalName||other.name)]||0);}return best;}
+function bossIntro(c,id){
+ c.v06Introduced=true;const title=(c.rarity==='Abyssal'?'ABYSSAL PRESENCE':c.rarity.toUpperCase()+' ENCOUNTER');
+ overlay(`<div class="v06-kicker">${title}</div><div class="v06-title">${c.name}</div><img src="${c.image}" alt="${c.name}" style="width:min(360px,80vw);max-height:44vh;object-fit:cover;border-radius:12px;border:1px solid #63333a"><p class="v06-copy">${c.ability||'Blackwood has sent something terrible.'}</p><button id="v06FaceBoss">FACE ${c.name.toUpperCase()}</button>`);
+ document.getElementById('v06FaceBoss').onclick=()=>{closeOverlay();if(typeof horrorTone==='function'){horrorTone('warning');setTimeout(()=>horrorTone('enemy'),260);}window.__v06StartCombat(id);};
+ journal(`${c.name} revealed itself at ${window.LM&&LM[c.loc]?LM[c.loc][1]:c.loc}.`,'BOSS');
+}
+function explorationChoice(original,args){
+ const p=G.ps[G.active];const loc=p.loc,name=window.LM&&LM[loc]?LM[loc][1]:loc;
+ overlay(`<div class="v06-kicker">EXPLORATION CHOICE</div><div class="v06-title">${name}</div><p class="v06-copy">The obvious path is not the only one. How does ${p.name} search?</p><div class="v06-choices"><button id="v06Careful">CAREFUL SEARCH<br><small>Safer, steady investigation</small></button><button id="v06Deep">SEARCH DEEPER<br><small>Risk Fear for better odds</small></button><button id="v06Listen">STOP & LISTEN<br><small>Risk Sanity to sense danger</small></button></div>`);
+ document.getElementById('v06Careful').onclick=()=>{closeOverlay();original.apply(window,args);};
+ document.getElementById('v06Deep').onclick=()=>{closeOverlay();p.fear=Math.min(5,(p.fear||0)+1);original.apply(window,args);if(Math.random()<.55&&typeof gainItem==='function'){gainItem();safeLog(`🎒 ${p.name}'s deeper search uncovers an additional item.`,'good');}updatePsych();};
+ document.getElementById('v06Listen').onclick=()=>{closeOverlay();p.san=Math.max(0,(p.san||0)-1);original.apply(window,args);if(Math.random()<.5)safeLog(`👂 ${p.name} hears movement before it reaches the room, gaining a moment to prepare.`,'good');updatePsych();};
+}
+function creaturePhase(c){
+ if(!c||!c.maxHp||c.hp<=0)return;const ratio=c.hp/c.maxHp;let phase=ratio<=.25?3:ratio<=.5?2:ratio<=.75?1:0;
+ c.v06Phase=c.v06Phase||0;if(phase<=c.v06Phase)return;
+ while(c.v06Phase<phase){c.v06Phase++;const bonus=c.v06Phase===3?2:1;c.atk+=bonus;safeLog(`🩸 ${c.name} enters PHASE ${c.v06Phase+1}: wounded, faster, and more dangerous (+${bonus} ATK).`,'bad');journal(`${c.name} entered combat phase ${c.v06Phase+1}.`,'CREATURE PHASE');}
+}
+function applyModifierOnTravel(){
+ const m=currentModifier();if(!m)return;const p=G.ps[G.active];
+ if(m.kind==='fog'&&Math.random()<.28){p.fear=Math.min(5,(p.fear||0)+1);safeLog(`🌫️ Heavy Fog closes around ${p.name}. +1 Fear.`,'bad');}
+ if(m.kind==='silence'&&Math.random()<.25){p.san=Math.max(0,(p.san||0)-1);safeLog(`🔇 Dead Silence presses against ${p.name}. -1 Sanity.`,'bad');}
+ if(m.kind==='storm'&&p.actions>0&&Math.random()<.25){p.actions--;safeLog(`⛈️ The Blackwood Storm steals 1 extra Night AP during travel.`,'bad');}
+ if(m.kind==='restless'&&Math.random()<.22&&typeof spawn==='function'){spawn(p.loc);safeLog(`☠️ Restless Dead follow the party into ${LM[p.loc][1]}.`,'bad');}
+ updatePsych();
+}
+ensureUI();
+
+if(typeof move==='function'){
+ const original=move;window.move=async function(){const before=window.G&&G.ps[G.active]?G.ps[G.active].loc:null;const r=await original.apply(this,arguments);if(window.G&&G.ps[G.active]&&G.ps[G.active].loc!==before){locationAtmosphere(G.ps[G.active].loc);applyModifierOnTravel();hallucinationCheck();somethingWrong();syncBadge();}return r;};
+}
+if(typeof investigate==='function'){
+ const original=investigate;window.investigate=function(){if(window.G&&!window.combat&&Math.random()<.30){explorationChoice(original,arguments);return;}const r=original.apply(this,arguments);hallucinationCheck();somethingWrong();return r;};
+}
+if(typeof endNight==='function'){
+ const original=endNight;window.endNight=function(){const old=window.G&&G.night;const r=original.apply(this,arguments);if(window.G&&G.night!==old)setTimeout(setNightModifier,90);return r;};
+}
+if(typeof startCombat==='function'){
+ const original=startCombat;window.__v06StartCombat=original;window.startCombat=function(id){const c=window.G&&G.creatures?G.creatures.find(x=>x.id===id):null;if(c&&BOSS_RARITIES.has(c.rarity)&&!c.v06Introduced){bossIntro(c,id);return;}const r=original.apply(this,arguments);const p=window.G&&G.ps?G.ps[G.active]:null;if(p&&bestBondFor(p)>=3){p.combatActions=(p.combatActions||0)+1;safeLog(`🤝 TRUST BONUS: ${p.name}'s bond with the party grants +1 Combat Action.`,'good');}return r;};
+}
+if(typeof creatureAttack==='function'){
+ const original=creatureAttack;window.creatureAttack=function(c){creaturePhase(c);const m=currentModifier(),blood=m&&m.kind==='blood';if(blood&&c){c.atk+=2;try{return original.apply(this,arguments);}finally{c.atk-=2;}}return original.apply(this,arguments);};
+}
+if(typeof showPostCombatReward==='function'){
+ const original=showPostCombatReward;window.showPostCombatReward=function(){growBonds();return original.apply(this,arguments);};
+}
+if(typeof render==='function'){
+ const original=render;window.render=function(){const r=original.apply(this,arguments);updatePsych();syncBadge();return r;};
+}
+const bossPulse=setInterval(()=>{if(window.combat&&BOSS_RARITIES.has(combat.rarity)&&typeof horrorTone==='function'){if(Math.random()<.55)horrorTone(combat.rarity==='Abyssal'?'enemy':'warning');}},5200);
+window.addEventListener('beforeunload',()=>clearInterval(bossPulse));
+
+// First-run V0.6 initialization without disturbing existing save data.
+if(window.G){G.v06Journal=G.v06Journal||[];G.v06Bonds=G.v06Bonds||{};if(!G.v06NightModifier)G.v06NightModifier={...MODIFIERS[2]};}
+})();
+</script>
+'''
+          s=s.replace('</body>',css+js+'\n</body>',1)
+          s=s.replace('V-0.5 Beta — New Update','V-0.6 Beta — Blackwood Feels Alive')
+          s=s.replace('Blackwood grows more dangerous. V-0.5 expands survivor combat strategy, transformation rules, and the atmosphere stalking every night.','Blackwood now reacts to every night. V-0.6 adds dynamic horror events, night modifiers, psychological effects, relationships, exploration choices, creature phases, boss entrances, a journal, and a redesigned cinematic soundtrack.')
+          marker='<ul class="update-info-list">'
+          if marker in s:
+              additions='''<ul class="update-info-list"><li>Dynamic Night Modifiers: Heavy Fog, Blood Moon, Dead Silence, Blackwood Storm, and Restless Dead.</li><li>Location-specific horror atmosphere, Fear/Sanity hallucinations, rare anomaly events, and night transition reveals.</li><li>Dramatic boss introductions, escalating boss audio, multi-phase wounded creatures, and survivor Trust bonuses.</li><li>Exploration choices and a persistent Blackwood Journal for events, anomalies, relationships, and boss discoveries.</li>'''
+              s=s.replace(marker,additions,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Validate V0.6 package
+        run: |
+          grep -q 'V06_BLACKWOOD_ALIVE' index.html
+          grep -q 'cinematic horror score' index.html
+          grep -q 'Dynamic Night Modifiers' index.html
+      - name: Commit V0.6 immersive update to dev
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "V0.6: Blackwood Feels Alive immersive update"
+          git push origin dev
