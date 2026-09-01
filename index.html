@@ -1669,7 +1669,10 @@ function updateAudioMix(){
   if(!horrorAudio)return;
   const now=horrorAudio.ctx.currentTime;
   horrorAudio.master.gain.setTargetAtTime(audioEnabled()?.68:0,now,.08);
-  /* V0.6_AUDIO_MUSIC_GAIN_RC */ horrorAudio.music.gain.setTargetAtTime(audioLevel("music",25)/100*.82,now,.12);
+  /* V0.6_AUDIO_MUSIC_GAIN_RC */
+  const desktopMusicGain=audioLevel("music",25)/100*.82;
+  const phoneMusicGain=(window.matchMedia&&window.matchMedia("(max-width:850px)").matches)?desktopMusicGain*1.22:desktopMusicGain;
+  horrorAudio.music.gain.setTargetAtTime(phoneMusicGain,now,.12);
   horrorAudio.ambience.gain.setTargetAtTime(audioLevel("ambience",30)/100*.16,now,.12);
   horrorAudio.effects.gain.setTargetAtTime(audioLevel("effects",55)/100,now,.04);
 }
