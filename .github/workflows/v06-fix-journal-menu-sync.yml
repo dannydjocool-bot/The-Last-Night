@@ -23,8 +23,8 @@ jobs:
           from pathlib import Path
           p=Path('v06-enhancements.js')
           s=p.read_text(encoding='utf-8')
-          old="new MutationObserver(syncUi).observe(document.body,{attributes:true,attributeFilter:['class']});"
-          new="new MutationObserver(()=>{syncUi();syncDock();}).observe(document.body,{attributes:true,attributeFilter:['class']});"
+          old="new MutationObserver(()=>{syncUi();syncDock();}).observe(document.body,{attributes:true,attributeFilter:['class']});"
+          new="new MutationObserver(()=>{syncUi();window.v06SyncGuidance?.();}).observe(document.body,{attributes:true,attributeFilter:['class']});"
           if new in s:
               print('Journal/mobile dock menu sync already present')
           elif old in s:
@@ -40,5 +40,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add v06-enhancements.js
-          git commit -m "V0.6: sync mobile dock with gameplay state"
+          git commit -m "V0.6: repair menu and mobile dock sync"
           git push origin dev
