@@ -45,7 +45,8 @@ jobs:
           import re
           from collections import Counter
           html=Path('index.html').read_text(encoding='utf-8')
-          ids=re.findall(r'\bid=["\']([^"\']+)["\']',html)
+          markup=re.sub(r'<script\b.*?</script>|<style\b.*?</style>','',html,flags=re.S|re.I)
+          ids=re.findall(r'\bid=["\']([^"\']+)["\']',markup)
           dup=[x for x,n in Counter(ids).items() if n>1]
           if dup: raise SystemExit('Duplicate static HTML ids: '+', '.join(dup))
           refs=set()
@@ -58,7 +59,7 @@ jobs:
             if not clean or clean.startswith(('http://','https://','data:','mailto:')): continue
             if clean.lower().endswith(exts) and not Path(clean).exists(): missing.append(clean)
           if missing: raise SystemExit('Missing referenced assets: '+', '.join(sorted(set(missing))))
-          print(f'Static audit passed: {len(ids)} ids, {len(refs)} local/reference candidates checked.')
+          print(f'Static audit passed: {len(ids)} static ids, {len(refs)} local/reference candidates checked.')
           PY
 
       - name: Verify V0.6 player-facing regression markers
