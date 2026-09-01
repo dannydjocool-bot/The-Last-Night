@@ -23,16 +23,13 @@ jobs:
           from pathlib import Path
           p=Path('v06-enhancements.css')
           s=p.read_text(encoding='utf-8')
-          old=".v06-mobile-dock{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:10060;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px;border:1px solid #54343a;border-radius:14px;background:rgba(8,9,11,.96);box-shadow:0 14px 40px #000;backdrop-filter:blur(12px)}"
-          new=".v06-mobile-dock{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:30050!important;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px;border:1px solid #54343a;border-radius:14px;background:rgba(8,9,11,.96);box-shadow:0 14px 40px #000;backdrop-filter:blur(12px);pointer-events:auto!important;isolation:isolate;transform:translateZ(0)}"
-          if new in s:
-              print('Mobile dock touch layer already patched')
-          elif old in s:
-              s=s.replace(old,new,1)
-              s=s.replace('.v06-mobile-dock button{position:relative;', '.v06-mobile-dock button{position:relative;z-index:1;pointer-events:auto;',1)
-              p.write_text(s,encoding='utf-8')
-          else:
-              raise SystemExit('Mobile dock CSS patch target not found')
+          anchor="@media(max-width:850px){\n  body:not(.menu-mode) #logButton,body:not(.menu-mode) .v06-journal-btn{display:none!important}"
+          replacement="@media(max-width:850px){\n  body:not(.menu-mode) #gameSite{position:relative!important;z-index:1!important}\n  body:not(.menu-mode) #logButton,body:not(.menu-mode) .v06-journal-btn{display:none!important}"
+          if 'body:not(.menu-mode) #gameSite{position:relative!important;z-index:1!important}' not in s:
+              if anchor not in s: raise SystemExit('Mobile media anchor not found')
+              s=s.replace(anchor,replacement,1)
+          s=s.replace('z-index:30050!important','z-index:2147483000!important',1)
+          p.write_text(s,encoding='utf-8')
           PY
       - name: Validate JavaScript
         run: node --check v06-enhancements.js
@@ -42,5 +39,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add v06-enhancements.css
-          git commit -m "V0.6: keep mobile dock above map touch targets"
+          git commit -m "V0.6: isolate mobile dock above gameplay layer"
           git push origin dev
