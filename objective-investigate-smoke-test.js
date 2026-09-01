@@ -14,8 +14,18 @@ vm.createContext(context);vm.runInContext(script,context);
 function run(code){return vm.runInContext(code,context)}
 function assert(v,msg){if(!v)throw new Error(msg)}
 
+function freshGame(loc='station'){
+  run(`render=()=>{};renderLog=()=>{};combat=null;G={ps:[{name:'Tester',dead:false,actions:10,loc:'${loc}',freeInvestigateUsed:false,items:[]}],active:0,night:1,clues:0,foundClues:new Set(),discovered:new Set(['motel','gas','forest','station']),wardenDefeated:false,hollowDefeated:false,bloodkeeperDefeated:false,sentinelDefeated:false,rootEntered:false,rootGateMinionsDefeated:[],rootGateUnlocked:false,rootFusionDefeated:false,rootDefeated:false,storyItems:[],creatures:[],extraPockets:[],extraPocketMax:30,flashlightUsedLocations:new Set(),ammo:{pistol:0,shotgun:0,smg:0,rifle:0},log:[]};updateStoryObjective();`);
+}
+
+// Search must NEVER advance story clues, even on its best roll.
+freshGame('station');
+run(`let oldD6=d6;d6=()=>6;search();d6=oldD6;`);
+assert(run(`G.clues===0&&!G.foundClues.has('station')`), 'Search incorrectly advanced a story objective');
+assert(nodes.get('storyObjectiveText').innerHTML.includes('Objective 1'), 'Search incorrectly changed the Story Objective');
+
 // Exact player flow: Objective 1 -> Police Station -> Investigate.
-run(`render=()=>{};renderLog=()=>{};combat=null;G={ps:[{name:'Tester',dead:false,actions:10,loc:'station',freeInvestigateUsed:false}],active:0,night:1,clues:0,foundClues:new Set(),discovered:new Set(['motel','gas','forest','station']),wardenDefeated:false,hollowDefeated:false,bloodkeeperDefeated:false,sentinelDefeated:false,rootEntered:false,rootGateMinionsDefeated:[],rootGateUnlocked:false,rootFusionDefeated:false,rootDefeated:false,storyItems:[],creatures:[],extraPockets:[],extraPocketMax:30,flashlightUsedLocations:new Set(),ammo:{pistol:0,shotgun:0,smg:0,rifle:0},log:[]};updateStoryObjective();`);
+freshGame('station');
 assert(nodes.get('storyObjectiveText').innerHTML.includes('Objective 1'), 'Objective 1 was not shown before investigation');
 assert(run(`investigate()===true`), 'Investigate did not report a successful objective investigation');
 assert(run(`G.clues===1&&G.foundClues.has('station')`), 'Investigate did not advance clue state');
@@ -32,4 +42,4 @@ run(`G.foundClues=new Set(['station']);G.clues=0;G.ps[0].loc='station';updateSto
 assert(run(`G.clues===1`), 'Stale save clue count was not repaired');
 assert(nodes.get('storyObjectiveText').innerHTML.includes('Objective 2'), 'Stale save objective did not repair to Objective 2');
 
-console.log('Objective Investigate smoke test passed.');
+console.log('Objective Investigate/Search authority smoke test passed.');
