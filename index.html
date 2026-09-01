@@ -515,7 +515,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
   <section class="menu-hero">
     <div class="menu-kicker">Blackwood County Incident File 01</div>
     <h2 class="menu-title">THE LAST NIGHT</h2>
-    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.5 Beta</button>
+    <p class="menu-subtitle">The roads are gone. The radio only whispers your name. Assemble your survivors, uncover Blackwood's buried truth, destroy the Root, and escape. Your investigation has no night limit.</p><button class="menu-version" type="button" onclick="openBetaInfo()" aria-haspopup="dialog">V-0.6 Beta</button>
   </section>
   <nav class="menu-actions" aria-label="Game information">
     <button onclick="showGameLibrary()">← Game Library</button>
@@ -560,9 +560,9 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="betaInfoOverlay" class="beta-info-overlay" role="dialog" aria-modal="true" aria-labelledby="betaInfoTitle" onclick="closeBetaInfo(event)">
   <section class="beta-info-card" onclick="event.stopPropagation()">
-    <h2 id="betaInfoTitle">V-0.5 Beta — Early Development</h2>
+    <h2 id="betaInfoTitle">V-0.6 Beta — Early Development</h2>
     <p>The Last Night is still in early development. We will continue adding new updates, improvements, content, and quality-of-life changes as we work toward making the overall game experience as strong and enjoyable as possible.</p>
-    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience the Night of the Dead.</p>
+    <p class="beta-thanks">Some players may love the experience and others may not—and that is completely okay. Most of all, thank you to anyone who takes time out of their day to try The Last Night and experience The Last Night.</p>
     <button class="beta-info-close" type="button" onclick="closeBetaInfo()">Close</button>
   </section>
 </div>
@@ -1373,7 +1373,7 @@ function previewRootFusionScene(index){
   ];
   const i=Math.max(0,Math.min(index,scenes.length-1)),scene=scenes[i];
   document.getElementById("menuDialogTitle").textContent="Transformation Preview · "+(i+1)+"/4";
-  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail root-preview"><img src="${scene[0]}" alt="${scene[1]}"><div><span class="recruit-only-badge">NIGHT OF THE DEAD · CUTSCENE PREVIEW</span><h2>${scene[1]}</h2><p>${scene[2]}</p><div class="single-start-row">${i>0?`<button onclick="previewRootFusionScene(${i-1})">‹ PREVIOUS</button>`:"<span></span>"}${i<scenes.length-1?`<button onclick="previewRootFusionScene(${i+1})">NEXT ›</button>`:`<button onclick="viewRootFusionTransformation()">VIEW FINAL FORM</button>`}</div></div></div>`;
+  document.getElementById("menuDialogContent").innerHTML=`<div class="recruit-detail root-preview"><img src="${scene[0]}" alt="${scene[1]}"><div><span class="recruit-only-badge">THE LAST NIGHT · CUTSCENE PREVIEW</span><h2>${scene[1]}</h2><p>${scene[2]}</p><div class="single-start-row">${i>0?`<button onclick="previewRootFusionScene(${i-1})">‹ PREVIOUS</button>`:"<span></span>"}${i<scenes.length-1?`<button onclick="previewRootFusionScene(${i+1})">NEXT ›</button>`:`<button onclick="viewRootFusionTransformation()">VIEW FINAL FORM</button>`}</div></div></div>`;
 }
 function openRecruitDetail(index){
   const s=S.filter(x=>x.recruitOnly)[index];
@@ -1778,6 +1778,13 @@ function claimCombatReward(choice){
   }else return;
   postCombatRewardOpen=false;
   document.getElementById("combatRewardOverlay").classList.remove("open");
+  /* V0.6_PENDING_ROOT_FUSION */
+  if(G.rootFusionPending){
+    G.rootFusionPending=false;
+    showRootFusionCutscene();
+    render();
+    return;
+  }
   render();
 }
 
@@ -4733,6 +4740,13 @@ if(
 }
 
 // Any remaining Special damage hits The Hollow
+/* V0.6_SPECIAL_TRIUNE_ARMOR */
+if(combat.rootFusionBoss && (combat.armor||0)>0){
+  const blocked=Math.min(combat.armor,dmg);
+  combat.armor-=blocked;
+  dmg-=blocked;
+  if(blocked>0)log(`🛡️ TRIUNE ARMOR absorbs ${blocked} Special damage. Armor ${combat.armor}/${combat.maxArmor||80}.`,"good");
+}
 combat.hp-=dmg;
   // THE HOLLOW — activate Void Shield once at 50% HP
 if(
@@ -4765,6 +4779,25 @@ combat.hp<=combat.maxHp*0.50 &&
   p.specialUses++;
 if(combat.hp<=0){
   log(`${combat.name} is destroyed by the Special Ability!`,"good");
+/* V0.6_SPECIAL_BOSS_PROGRESSION */
+if(combat.rootGateGuardian || ROOT_GATE_GUARDIAN_NAMES.includes(combat.name)){
+  if(!Array.isArray(G.rootGateMinionsDefeated))G.rootGateMinionsDefeated=[];
+  if(!G.rootGateMinionsDefeated.includes(combat.name))G.rootGateMinionsDefeated.push(combat.name);
+  const defeated=G.rootGateMinionsDefeated.length;
+  log(`🗝️ ROOT GATE GUARDIAN FALLEN: ${combat.name}. ${defeated}/3 seals broken.`,"good");
+  if(defeated>=3 && !G.rootFusionTriggered){
+    G.rootFusionPending=true;
+    log(`🌑 THE THREE GUARDIANS FALL... the Root begins pulling their power together.`,"bad");
+  }
+  updateStoryObjective();
+}
+if(combat.name==="The Triune Maw"){
+  G.rootFusionDefeated=true;
+  G.rootGateUnlocked=true;
+  log("🗝️ THE TRIUNE MAW COLLAPSES. The fused seal breaks and the path to The Root of Blackwood finally opens.","good");
+  spawnStoryBoss("root");
+  updateStoryObjective();
+}
 if(combat.name==="The Warden"){
   G.wardenDefeated=true;
 
