@@ -23,27 +23,12 @@ jobs:
           from pathlib import Path
           p=Path('browser-e2e-test.js')
           s=p.read_text(encoding='utf-8')
-          helper="""async function touchCenter(page,selector){
-  const point=await page.locator(selector).evaluate(el=>{
-    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
-    if(!(target===el||el.contains(target)))throw new Error(`${selector} touch center is covered by ${target?.tagName||'UNKNOWN'}#${target?.id||''}`);
-    return {x,y};
-  });
-  await page.touchscreen.tap(point.x,point.y);
-  await page.waitForTimeout(120);
-}
-"""
+          helper="async function touchCenter(page,selector){\n  const point=await page.locator(selector).evaluate(el=>{\n    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);\n    if(!(target===el||el.contains(target)))throw new Error(`${selector} touch center is covered by ${target?.tagName||'UNKNOWN'}#${target?.id||''}`);\n    return {x,y};\n  });\n  await page.touchscreen.tap(point.x,point.y);\n  await page.waitForTimeout(120);\n}\n"
           anchor="async function safeText(locator){ return ((await locator.textContent()) || '').replace(/\\s+/g,' ').trim(); }\n"
           if 'async function touchCenter(' not in s:
               if anchor not in s: raise SystemExit('helper anchor not found')
               s=s.replace(anchor,anchor+'\n'+helper,1)
-          replacements={
-            "await page.locator('#v06DockLog').tap();":"await touchCenter(page,'#v06DockLog');",
-            "await page.locator('#v06DockJournal').tap();":"await touchCenter(page,'#v06DockJournal');",
-            "await page.locator('#v06DockPack').tap();":"await touchCenter(page,'#v06DockPack');",
-            "await page.locator('#logClose').tap();":"await touchCenter(page,'#logClose');",
-            "await toggle.tap();":"await touchCenter(page,'#mobilePackToggle');"
-          }
+          replacements={"await page.locator('#v06DockLog').tap();":"await touchCenter(page,'#v06DockLog');","await page.locator('#v06DockJournal').tap();":"await touchCenter(page,'#v06DockJournal');","await page.locator('#v06DockPack').tap();":"await touchCenter(page,'#v06DockPack');","await page.locator('#logClose').tap();":"await touchCenter(page,'#logClose');","await toggle.tap();":"await touchCenter(page,'#mobilePackToggle');"}
           for old,new in replacements.items(): s=s.replace(old,new)
           p.write_text(s,encoding='utf-8')
           PY
