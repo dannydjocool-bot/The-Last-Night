@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+const { chromium, devices } = require('playwright');
 const assert = require('assert');
 
 const BASE = process.env.TEST_URL || 'https://the-last-night-git-dev-nada-f420.vercel.app';
@@ -68,7 +68,6 @@ async function desktopRun(browser){
   await page.locator('#game').waitFor({state:'visible'});
   assert.match(await safeText(page.locator('#storyObjectiveText')), /Town Library/i);
 
-  // Real-browser combat interaction using an isolated test encounter.
   await page.evaluate(()=>{
     const p=G.ps[G.active];
     const c={id:'e2e-creature',name:'The Drifter',hp:8,maxHp:8,atk:2,rarity:'Common',image:'drifter.png',ability:'Desperate Lunge',provoked:false,loc:p.loc};
@@ -87,7 +86,7 @@ async function desktopRun(browser){
 }
 
 async function mobileRun(browser){
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile:true, hasTouch:true, deviceScaleFactor:3 });
+  const context = await browser.newContext({ ...devices['iPhone 13'] });
   const page = await context.newPage();
   const pageErrors=[];
   page.on('pageerror', e=>pageErrors.push(String(e)));
@@ -95,8 +94,12 @@ async function mobileRun(browser){
 
   await page.goto(BASE, { waitUntil:'networkidle', timeout:60000 });
   await page.evaluate(()=>{ Math.random=()=>0.30; localStorage.clear(); });
-  await page.getByRole('button',{name:/Play The Last Night/i}).click();
-  await page.getByRole('button',{name:/1\s*Survivor/i}).click();
+  const viewport=await page.evaluate(()=>({width:window.innerWidth,height:window.innerHeight,dpr:window.devicePixelRatio}));
+  console.log('IPHONE VIEWPORT:',JSON.stringify(viewport));
+  assert(viewport.width>=360&&viewport.width<=430, `Unexpected iPhone CSS width: ${viewport.width}`);
+
+  await page.getByRole('button',{name:/Play The Last Night/i}).tap();
+  await page.getByRole('button',{name:/1\s*Survivor/i}).tap();
   await page.locator('#game').waitFor({state:'visible'});
 
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
@@ -106,28 +109,30 @@ async function mobileRun(browser){
   assert(await page.locator('#v06DockLog').isVisible(), 'Mobile Log control should be visible');
   assert(await page.locator('#v06DockPack').isVisible(), 'Mobile Pack control should be visible');
 
-  const dockHit=await page.locator('#v06DockLog').evaluate(el=>{
-    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,hit=document.elementFromPoint(x,y),dock=el.closest('#v06MobileDock'),game=document.getElementById('gameSite');
-    return {rect:{left:r.left,top:r.top,width:r.width,height:r.height},x,y,hitId:hit?.id||'',hitClass:hit?.className||'',hitTag:hit?.tagName||'',dockZ:getComputedStyle(dock).zIndex,dockPosition:getComputedStyle(dock).position,dockTransform:getComputedStyle(dock).transform,gameZ:getComputedStyle(game).zIndex,gamePosition:getComputedStyle(game).position,scrollY:window.scrollY,innerHeight:window.innerHeight};
-  });
-  console.log('MOBILE DOCK HIT TEST:',JSON.stringify(dockHit));
-  assert(['v06DockLog','SPAN'].includes(dockHit.hitId)||dockHit.hitId==='v06DockLog'||dockHit.hitTag==='SPAN', `Mobile dock Log center is covered by ${dockHit.hitTag}#${dockHit.hitId}.${dockHit.hitClass}`);
+  for(const id of ['v06DockJournal','v06DockLog','v06DockPack']){
+    const hit=await page.locator('#'+id).evaluate(el=>{
+      const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
+      return {id:target?.id||'',tag:target?.tagName||'',parentId:target?.parentElement?.id||'',x,y};
+    });
+    assert(hit.id===id||hit.parentId===id, `${id} touch center is covered by ${hit.tag}#${hit.id}`);
+  }
 
-  await page.locator('#v06DockLog').click();
+  await page.locator('#v06DockLog').tap();
   assert(await page.locator('#logPanel').evaluate(el=>el.classList.contains('log-open')), 'Mobile Log should open from dock');
-  await page.locator('#logClose').click();
+  await page.locator('#logClose').tap();
 
-  await page.locator('#v06DockJournal').click();
+  await page.locator('#v06DockJournal').tap();
   assert(await page.locator('#v06Overlay').evaluate(el=>el.classList.contains('open')), 'Mobile Journal should open from dock');
-  await page.getByRole('button',{name:'Close'}).click();
+  await page.getByRole('button',{name:'Close'}).tap();
 
   const pack=page.locator('#extraPocketsPanel');
   const toggle=page.locator('#mobilePackToggle');
   assert(await toggle.isVisible(), 'Mobile pack toggle should be visible');
   assert(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed')), 'Mobile pack should begin collapsed');
-  await toggle.click();
-  assert(!(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed'))), 'Mobile pack should expand');
-  await toggle.click();
+  await page.locator('#v06DockPack').tap();
+  assert(!(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed'))), 'Mobile pack should expand from dock');
+  await toggle.tap();
+  assert(await pack.evaluate(el=>el.classList.contains('mobile-pack-collapsed')), 'Mobile pack should collapse');
 
   if(pageErrors.length) throw new Error('Mobile browser errors: '+pageErrors.join(' | '));
   await context.close();
