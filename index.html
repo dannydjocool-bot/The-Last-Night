@@ -482,7 +482,7 @@ body.menu-mode header,body.menu-mode #extraPocketsPanel,body.menu-mode #logButto
           <button class="library-details" onclick="enterGameSite('info')">Explore Characters</button>
         </div>
       </section>
-      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.5 Beta update details">New Update</a><a class="library-update-badge library-update-link library-previous-update-badge" href="#previousUpdatePanel" aria-label="View V-0.4 Beta previous update details">Previous Update</a></div>
+      <div class="library-art" role="img" aria-label="The Root of Blackwood creature artwork"><a class="library-update-badge library-update-link" href="#updateDetailsPanel" aria-label="View V-0.6 Beta update details">New Update</a><a class="library-update-badge library-update-link library-previous-update-badge" href="#previousUpdatePanel" aria-label="View V-0.5 Beta previous update details">Previous Update</a></div>
     </article>
     <footer class="library-foot"><span><strong>1 game available</strong> · More titles can be added here later.</span><span>No download required · Progress saves in your browser</span></footer>
   </div>
@@ -5604,17 +5604,16 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <section id="updateDetailsPanel" aria-labelledby="updateDetailsTitle">
   <div class="update-details-card">
     <div class="update-details-kicker">Latest Build</div>
-    <h2 id="updateDetailsTitle">V-0.6 Beta — Blackwood Feels Alive</h2>
-    <p>Blackwood now reacts to every night. V-0.6 adds dynamic horror events, night modifiers, psychological effects, relationships, exploration choices, creature phases, boss entrances, a journal, and a redesigned cinematic soundtrack.</p>
+    <h2 id="updateDetailsTitle">V-0.6 Beta — New Update</h2>
+    <p>Blackwood feels more alive and unpredictable. V-0.6 focuses on deeper horror atmosphere, more reactive nights, and stronger endgame reliability.</p>
     <ul class="update-details-list">
-      <li><strong>Low-Health Transformations:</strong> The Moonbound and The Ashen Saint now earn their transformation during combat by reaching their required low-health threshold instead of transforming freely.</li>
-      <li><strong>Three-Night Forms:</strong> Once transformed, a survivor can keep that form across fights for up to three Nights before returning to normal.</li>
-      <li><strong>Party Combat Switching:</strong> When the active survivor runs out of Combat Actions, another living party member can enter and continue the same battle without resetting the enemy.</li>
-      <li><strong>Risky Combat Swaps:</strong> Switching fighters is not free—the creature has a 30% chance to punish the retreating survivor.</li>
-      <li><strong>Root Gate Gauntlet:</strong> The Thornbound, The Veinmaw, and The Ash Wraith now guard the entrance to The Root. All three must fall before the path can continue.</li>
-      <li><strong>New Fusion Encounter:</strong> Defeating all three Gate Guardians triggers a four-scene Night of the Dead transformation sequence and unleashes The Triune Maw with 120 HP, 80 Armor, Berserk attacks, and Rootstorm.</li>
-      <li><strong>Horror Soundtrack:</strong> The old static/bass-style test ambience has been replaced by a quieter tonal horror score with evolving dark chords, distant notes, low drones, and separate combat effects.</li>
-      <li><strong>Safer Boss Progression:</strong> Root Gate and fusion progress now survives save/load correctly, including recovery if a run is saved during the transition into The Triune Maw encounter.</li>
+      <li><strong>Blackwood Feels Alive:</strong> Added Night Modifiers, location-specific horror events, rare anomalies, Fear/Sanity hallucinations, and more reactive exploration moments.</li>
+      <li><strong>Blackwood Journal:</strong> Important discoveries, warnings, boss encounters, relationship moments, and strange events can now be recorded during a run.</li>
+      <li><strong>Survivor Relationships:</strong> Survivors can build Trust by surviving battles together, creating meaningful party bonuses over time.</li>
+      <li><strong>Expanded Encounters:</strong> Added exploration choices, dramatic high-rarity creature introductions, and escalating creature phases as enemies become wounded.</li>
+      <li><strong>Horror Soundtrack Overhaul:</strong> Replaced the engine-like ambience with a darker cinematic horror score using sparse music, distant tones, heartbeat-like impacts, and atmospheric movement.</li>
+      <li><strong>Root Gate Reliability:</strong> Fixed Special Ability kills so Root Gate Guardians and The Triune Maw correctly advance the story, respect Triune Armor, and unlock the final Root encounter.</li>
+      <li><strong>UI &amp; Mobile Polish:</strong> Improved V-0.6 overlay placement and prevented the Blackwood Journal from covering important game controls.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
@@ -5623,17 +5622,17 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 <section id="previousUpdatePanel" aria-labelledby="previousUpdateTitle">
   <div class="update-details-card">
     <div class="update-details-kicker">Previous Build</div>
-    <h2 id="previousUpdateTitle">V-0.4 Beta — Previous Update</h2>
-    <p>V-0.4 expanded the survivor roster, protected save progress, and improved mobile presentation throughout Blackwood.</p>
+    <h2 id="previousUpdateTitle">V-0.5 Beta — Previous Update</h2>
+    <p>V-0.5 expanded transformation strategy and rebuilt the Root Gate endgame into a larger multi-stage encounter.</p>
     <ul class="update-details-list">
-      <li><strong>2 New G.O.A.T Survivors:</strong> Two powerful new G.O.A.T survivors can transform during a run, giving each form its own dramatic identity and combat presence.</li>
-      <li><strong>7 Flashlight-Exclusive Survivors:</strong> Seven new survivors can only be discovered through flashlight exploration events, rewarding players who take the risk to search deeper.</li>
-      <li><strong>Save Progress Protection:</strong> Existing save progress is preserved across future game updates, with automatic compatibility recovery and a backup copy for each save slot.</li>
-      <li><strong>Item Images:</strong> Fixed Obtainable Items artwork overlapping or appearing heavily cropped on phones.</li>
-      <li><strong>Transforming Survivor Cards:</strong> Fixed inverted card text stacking and overlapping.</li>
-      <li><strong>Main Pack / Extra Pockets:</strong> Improved the phone layout so it no longer crowds the top of the game.</li>
-      <li><strong>Main-Menu Portraits:</strong> Improved mobile framing so survivor heads are less likely to be cropped.</li>
-      <li><strong>Mobile Polish:</strong> Additional spacing, readability, and presentation improvements.</li>
+      <li><strong>Transformation Rules:</strong> The Moonbound and The Ashen Saint gained low-health transformation requirements, with transformed forms lasting up to three Nights.</li>
+      <li><strong>Party Combat Switching:</strong> Living party members can rotate into an ongoing fight when the active survivor runs out of Combat AP, while creature health and battle state remain intact.</li>
+      <li><strong>Dangerous Retreats:</strong> Switching survivors during combat can trigger a creature attack against the retreating survivor.</li>
+      <li><strong>Root Gate Guardians:</strong> Added The Thornbound, The Veinmaw, and The Ash Wraith as three new Legendary guardians protecting the Root.</li>
+      <li><strong>The Triune Maw:</strong> Defeating all three guardians triggers a transformation sequence that creates the Abyssal fusion boss before the final Root battle.</li>
+      <li><strong>Root Gate Story &amp; Artwork:</strong> Added guardian artwork, the multi-scene fusion cutscene, final fusion artwork, and a transformation preview from the menu.</li>
+      <li><strong>Endgame Combat Improvements:</strong> Improved Triune Maw damage/Armor behavior, Rootstorm effects, fusion save recovery, and final boss progression.</li>
+      <li><strong>Horror Audio:</strong> Replaced the original bass-heavy test audio with a quieter tonal horror soundtrack and ambience.</li>
     </ul>
     <a class="update-details-back" href="#gameLibrary">← Back to Library</a>
   </div>
