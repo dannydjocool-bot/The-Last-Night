@@ -64,19 +64,24 @@ numeric_lines=(
     'log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");',
     'log(`📍 Objective advanced: ${before+1} → ${G.clues+1}.`,"good");'
 )
-immersive_line='const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");'
+immersive_line='const nextObjective=STORY_OBJECTIVES[G.clues],objectiveEl=document.getElementById("storyObjectiveText"),nextLead=nextObjective?.text||(objectiveEl?.innerHTML||"").replace(/<br\\s*\\/?>(?=.)/gi," — ").replace(/<[^>]+>/g," ").replace(/\\s+/g," ").trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");'
 for line in numeric_lines:
     if line in s:
         s=s.replace(line,immersive_line,1)
 
+# Upgrade the first immersive attempt so it reads directly from story state instead of UI textContent.
+old_immersive='const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");'
+if old_immersive in s:
+    s=s.replace(old_immersive,immersive_line,1)
+
 old_tail='''  updateStoryObjective();
-  const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
+  const nextObjective=STORY_OBJECTIVES[G.clues],objectiveEl=document.getElementById("storyObjectiveText"),nextLead=nextObjective?.text||(objectiveEl?.innerHTML||"").replace(/<br\\s*\\/?>(?=.)/gi," — ").replace(/<[^>]+>/g," ").replace(/\\s+/g," ").trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
   return true;
 }
 function flashlightSceneFor(loc){'''
 new_tail='''  updateStoryObjective();
-  const nextLead=document.getElementById("storyObjectiveText")?.textContent?.trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
+  const nextObjective=STORY_OBJECTIVES[G.clues],objectiveEl=document.getElementById("storyObjectiveText"),nextLead=nextObjective?.text||(objectiveEl?.innerHTML||"").replace(/<br\\s*\\/?>(?=.)/gi," — ").replace(/<[^>]+>/g," ").replace(/\\s+/g," ").trim();if(nextLead)log(`📜 NEXT LEAD: ${nextLead}`,"good");
   render();
   window.v06SyncGuidance?.();
   window.v06RefreshObjectiveGlow?.();
@@ -99,8 +104,8 @@ elif new_button not in s:
 
 if 'Objective advanced:' in s:
     raise SystemExit('Developer-style numeric objective feedback is still present')
-if '📜 NEXT LEAD:' not in s:
-    raise SystemExit('Immersive next-lead story feedback is missing')
+if '📜 NEXT LEAD:' not in s or 'STORY_OBJECTIVES[G.clues]' not in s:
+    raise SystemExit('Story-state next-lead feedback is missing')
 
 p.write_text(s,encoding='utf-8')
 
@@ -131,4 +136,4 @@ if 'window.v06RefreshObjectiveGlow=highlightObjective;' not in js:
     js=js[:pos]+'window.v06RefreshObjectiveGlow=highlightObjective;\n'+js[pos:]
 
 p.write_text(js,encoding='utf-8')
-print('Investigate keeps direct objective authority and now returns immersive story feedback')
+print('Investigate keeps direct objective authority and now returns story-state feedback')
