@@ -17,27 +17,42 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: dev
-      - name: Add mobile touch hit-test diagnostic
+      - name: Use verified touchscreen coordinates for fixed mobile dock
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('browser-e2e-test.js')
           s=p.read_text(encoding='utf-8')
-          anchor="  await page.locator('#v06DockLog').click();"
-          diag="""  const dockHit=await page.locator('#v06DockLog').evaluate(el=>{\n    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,hit=document.elementFromPoint(x,y),dock=el.closest('#v06MobileDock'),game=document.getElementById('gameSite');\n    return {rect:{left:r.left,top:r.top,width:r.width,height:r.height},x,y,hitId:hit?.id||'',hitClass:hit?.className||'',hitTag:hit?.tagName||'',dockZ:getComputedStyle(dock).zIndex,dockPosition:getComputedStyle(dock).position,dockTransform:getComputedStyle(dock).transform,gameZ:getComputedStyle(game).zIndex,gamePosition:getComputedStyle(game).position,scrollY:window.scrollY,innerHeight:window.innerHeight};\n  });\n  console.log('MOBILE DOCK HIT TEST:',JSON.stringify(dockHit));\n  assert(['v06DockLog','SPAN'].includes(dockHit.hitId)||dockHit.hitId==='v06DockLog'||dockHit.hitTag==='SPAN', `Mobile dock Log center is covered by ${dockHit.hitTag}#${dockHit.hitId}.${dockHit.hitClass}`);\n\n  await page.locator('#v06DockLog').click();"""
-          if 'MOBILE DOCK HIT TEST:' not in s:
-              if anchor not in s: raise SystemExit('Browser E2E mobile Log click anchor not found')
-              s=s.replace(anchor,diag,1)
-              p.write_text(s,encoding='utf-8')
-          else:
-              print('Diagnostic already present')
+          helper="""async function touchCenter(page,selector){
+  const point=await page.locator(selector).evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,target=document.elementFromPoint(x,y);
+    if(!(target===el||el.contains(target)))throw new Error(`${selector} touch center is covered by ${target?.tagName||'UNKNOWN'}#${target?.id||''}`);
+    return {x,y};
+  });
+  await page.touchscreen.tap(point.x,point.y);
+  await page.waitForTimeout(120);
+}
+"""
+          anchor="async function safeText(locator){ return ((await locator.textContent()) || '').replace(/\\s+/g,' ').trim(); }\n"
+          if 'async function touchCenter(' not in s:
+              if anchor not in s: raise SystemExit('helper anchor not found')
+              s=s.replace(anchor,anchor+'\n'+helper,1)
+          replacements={
+            "await page.locator('#v06DockLog').tap();":"await touchCenter(page,'#v06DockLog');",
+            "await page.locator('#v06DockJournal').tap();":"await touchCenter(page,'#v06DockJournal');",
+            "await page.locator('#v06DockPack').tap();":"await touchCenter(page,'#v06DockPack');",
+            "await page.locator('#logClose').tap();":"await touchCenter(page,'#logClose');",
+            "await toggle.tap();":"await touchCenter(page,'#mobilePackToggle');"
+          }
+          for old,new in replacements.items(): s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
           PY
           node --check browser-e2e-test.js
-      - name: Commit diagnostic
+      - name: Commit touch test repair
         run: |
           if git diff --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add browser-e2e-test.js
-          git commit -m "V0.6: diagnose mobile dock touch hitbox"
+          git commit -m "V0.6: test fixed dock with direct touch coordinates"
           git push origin dev
