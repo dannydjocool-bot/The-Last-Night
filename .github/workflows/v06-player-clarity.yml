@@ -1,0 +1,37 @@
+name: V0.6 Player Clarity
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/scripts/v06-player-clarity.py'
+      - '.github/workflows/v06-player-clarity.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Apply player clarity patch
+        run: python .github/scripts/v06-player-clarity.py
+      - name: Validate player-facing fixes
+        run: |
+          grep -q "Show Tips Again" v06-enhancements.js
+          grep -q "Trust:" v06-enhancements.js
+          grep -q "Guardians .*Triune .*Root" v06-enhancements.js
+          grep -q "!currentCombat()&&Math.random()<.55" v06-enhancements.js
+          grep -q "v06LastEffect" v06-enhancements.js
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v06-enhancements.js
+          git commit -m "V0.6: improve exploration and player clarity"
+          git push origin dev
