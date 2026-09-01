@@ -1,0 +1,96 @@
+name: V0.6 Regression Repairs
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/v06-regression-fixes.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+      - name: Patch V0.6 core regression issues
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          original=s
+
+          replacements={
+            '>V-0.5 Beta</button>':'>V-0.6 Beta</button>',
+            'V-0.5 Beta — Early Development':'V-0.6 Beta — Early Development',
+            'experience the Night of the Dead.':'experience The Last Night.',
+            'NIGHT OF THE DEAD · CUTSCENE PREVIEW':'THE LAST NIGHT · CUTSCENE PREVIEW'
+          }
+          for old,new in replacements.items():
+            s=s.replace(old,new)
+
+          armor_marker='/* V0.6_SPECIAL_TRIUNE_ARMOR */'
+          if armor_marker not in s:
+            old='''// Any remaining Special damage hits The Hollow\ncombat.hp-=dmg;'''
+            new='''// Any remaining Special damage hits The Hollow\n/* V0.6_SPECIAL_TRIUNE_ARMOR */\nif(combat.rootFusionBoss && (combat.armor||0)>0){\n  const blocked=Math.min(combat.armor,dmg);\n  combat.armor-=blocked;\n  dmg-=blocked;\n  if(blocked>0)log(`🛡️ TRIUNE ARMOR absorbs ${blocked} Special damage. Armor ${combat.armor}/${combat.maxArmor||80}.`,\"good\");\n}\ncombat.hp-=dmg;'''
+            assert old in s, 'Special damage insertion point missing'
+            s=s.replace(old,new,1)
+
+          special_progress_marker='/* V0.6_SPECIAL_BOSS_PROGRESSION */'
+          if special_progress_marker not in s:
+            old='''if(combat.hp<=0){\n  log(`${combat.name} is destroyed by the Special Ability!`,\"good\");\nif(combat.name===\"The Warden\"){'''
+            new='''if(combat.hp<=0){\n  log(`${combat.name} is destroyed by the Special Ability!`,\"good\");\n/* V0.6_SPECIAL_BOSS_PROGRESSION */\nif(combat.rootGateGuardian || ROOT_GATE_GUARDIAN_NAMES.includes(combat.name)){\n  if(!Array.isArray(G.rootGateMinionsDefeated))G.rootGateMinionsDefeated=[];\n  if(!G.rootGateMinionsDefeated.includes(combat.name))G.rootGateMinionsDefeated.push(combat.name);\n  const defeated=G.rootGateMinionsDefeated.length;\n  log(`🗝️ ROOT GATE GUARDIAN FALLEN: ${combat.name}. ${defeated}/3 seals broken.`,\"good\");\n  if(defeated>=3 && !G.rootFusionTriggered){\n    G.rootFusionPending=true;\n    log(`🌑 THE THREE GUARDIANS FALL... the Root begins pulling their power together.`,\"bad\");\n  }\n  updateStoryObjective();\n}\nif(combat.name===\"The Triune Maw\"){\n  G.rootFusionDefeated=true;\n  G.rootGateUnlocked=true;\n  log(\"🗝️ THE TRIUNE MAW COLLAPSES. The fused seal breaks and the path to The Root of Blackwood finally opens.\",\"good\");\n  spawnStoryBoss(\"root\");\n  updateStoryObjective();\n}\nif(combat.name===\"The Warden\"){'''
+            assert old in s, 'Special boss progression insertion point missing'
+            s=s.replace(old,new,1)
+
+          pending_marker='/* V0.6_PENDING_ROOT_FUSION */'
+          if pending_marker not in s:
+            old='''  postCombatRewardOpen=false;\n  document.getElementById(\"combatRewardOverlay\").classList.remove(\"open\");\n  render();\n}'''
+            new='''  postCombatRewardOpen=false;\n  document.getElementById(\"combatRewardOverlay\").classList.remove(\"open\");\n  /* V0.6_PENDING_ROOT_FUSION */\n  if(G.rootFusionPending){\n    G.rootFusionPending=false;\n    showRootFusionCutscene();\n    render();\n    return;\n  }\n  render();\n}'''
+            assert old in s, 'Post-combat reward insertion point missing'
+            s=s.replace(old,new,1)
+
+          assert 'V-0.6 Beta' in s
+          assert 'V0.6_SPECIAL_TRIUNE_ARMOR' in s
+          assert 'V0.6_SPECIAL_BOSS_PROGRESSION' in s
+          assert 'V0.6_PENDING_ROOT_FUSION' in s
+          assert 'NIGHT OF THE DEAD · CUTSCENE PREVIEW' not in s
+
+          if s!=original:
+            p.write_text(s)
+          PY
+      - name: Validate V0.6 references
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          js=Path('v06-enhancements.js').read_text()
+          css=Path('v06-enhancements.css').read_text()
+          checks=[
+            ('V0.6 label','V-0.6 Beta' in s),
+            ('special armor','V0.6_SPECIAL_TRIUNE_ARMOR' in s),
+            ('special progression','V0.6_SPECIAL_BOSS_PROGRESSION' in s),
+            ('pending fusion','V0.6_PENDING_ROOT_FUSION' in s),
+            ('state integration','window.G' not in js and 'window.combat' not in js),
+            ('boss id normalization','String(x.id)===String(id)' in js),
+            ('slaughterhouse atmosphere','slaughterhouse:' in js),
+            ('journal hidden','v06JournalBtn\" class=\"v06-journal-btn\" hidden' in js),
+            ('journal offset','bottom:72px' in css)
+          ]
+          bad=[name for name,ok in checks if not ok]
+          if bad: raise SystemExit('Validation failed: '+', '.join(bad))
+          print('V0.6 regression checks passed')
+          PY
+      - name: Commit repaired core
+        run: |
+          if git diff --quiet; then
+            echo 'No core changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'V0.6: fix regression and final progression issues'
+          git push origin HEAD:dev
