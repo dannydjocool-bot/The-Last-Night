@@ -2416,51 +2416,57 @@ log(
 );
 
 }
-  function investigate(){
+function ensureStoryProgress(){
+  if(!G)return 0;
+  if(!(G.foundClues instanceof Set)){
+    const raw=Array.isArray(G.foundClues)?G.foundClues:[];
+    G.foundClues=new Set(raw);
+  }
+  const stored=Math.max(0,Math.min(10,Number(G.clues)||0));
+  if(G.foundClues.size===0&&stored>0){
+    for(let i=0;i<stored&&i<STORY_OBJECTIVES.length;i++)G.foundClues.add(STORY_OBJECTIVES[i].loc);
+  }
+  let ordered=0;
+  while(ordered<STORY_OBJECTIVES.length&&G.foundClues.has(STORY_OBJECTIVES[ordered].loc))ordered++;
+  G.clues=ordered;
+  return ordered;
+}
 
-  let p=G.ps[G.active];
-
+function investigate(){
+  const p=G.ps[G.active];
   if(combat||hostileAtCurrentLocation(p)){
     log(`⚔️ ${p.name} cannot Investigate while a creature controls this location.`,"bad");
     render();
-    return;
+    return false;
   }
 
-  // First Investigate each Night is FREE
-  if(!p.freeInvestigateUsed){
-
-    p.freeInvestigateUsed=true;
-
-    log(
-      `🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,
-      "good"
-    );
-
-    gainClue();
+  ensureStoryProgress();
+  const free=!p.freeInvestigateUsed;
+  if(!free&&p.actions<1){
+    log(`⚡ ${p.name} needs 1 Action to Investigate again.`,"bad");
     render();
-    return;
+    return false;
   }
 
-  // Later Investigates cost 1 Action
-  if(p.actions<1){
-
-    log(
-      `⚡ ${p.name} needs 1 Action to Investigate again.`,
-      "bad"
-    );
-
-    return;
+  const before=G.clues;
+  const advanced=gainClue();
+  if(!advanced){
+    updateStoryObjective();
+    render();
+    return false;
   }
 
-  p.actions-=1;
-
-  log(
-    `🔎 ${p.name} Investigates for 1 Action.`,
-    "good"
-  );
-
-  gainClue();
+  if(free){
+    p.freeInvestigateUsed=true;
+    log(`🔎 ${p.name} uses their FREE Investigate for Night ${G.night}.`,"good");
+  }else{
+    p.actions-=1;
+    log(`🔎 ${p.name} Investigates for 1 Action.`,"good");
+  }
+  updateStoryObjective();
+  log(`📍 Objective advanced: ${before+1} → ${G.clues}.`,"good");
   render();
+  return true;
 }
 function flashlightSceneFor(loc){
   return {art:locationArt(loc),areas:LOCATION_AREAS[loc]||[`Illuminate the nearest dark passage`,`Sweep the far edge of ${LM[loc][1]}`]};
@@ -2530,53 +2536,35 @@ function acceptFlashlightRecruit(replaceIndex){
 function declineFlashlightRecruit(){G.pendingRecruit=null;closeFlashlightOverlay();render();}
 
 function gainClue(){
+  const p=G.ps[G.active];
+  ensureStoryProgress();
+  const currentObjective=STORY_OBJECTIVES[G.clues];
+  const clue=STORY_CLUES[p.loc];
 
-  let p=G.ps[G.active];
-  let clue=STORY_CLUES[p.loc];
-// STORY OBJECTIVES MUST BE COMPLETED IN ORDER
-let currentObjective=STORY_OBJECTIVES[G.clues];
-
-if(
-  currentObjective &&
-  p.loc!==currentObjective.loc
-){
-  log(
-    `📜 CURRENT OBJECTIVE: ${currentObjective.text}`,
-    "bad"
-  );
-  return;
-}
+  if(currentObjective&&p.loc!==currentObjective.loc){
+    log(`📜 CURRENT OBJECTIVE: ${currentObjective.text}`,"bad");
+    return false;
+  }
   if(!clue){
     log(`🔎 There is no major story clue at ${LM[p.loc][1]}.`);
-    return;
+    return false;
   }
-
   if(G.foundClues.has(p.loc)){
-    log(`📖 You already discovered the clue at ${LM[p.loc][1]}.`);
-    return;
+    ensureStoryProgress();
+    updateStoryObjective();
+    log(`📖 ${LM[p.loc][1]} was already investigated. The next objective is now shown.`,"good");
+    return false;
   }
 
   G.foundClues.add(p.loc);
-  G.clues=G.foundClues.size;
-
-  log(
-    `📖 STORY CLUE FOUND: <b>${clue.name}</b>`,
-    "good"
-  );
-
-  log(
-    `${clue.story}`,
-    "good"
-  );
-
-updateStoryObjective();
-if(G.clues===10){
-
-  log(
-    `📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,
-    "good"
-  );
-}
+  ensureStoryProgress();
+  log(`📖 STORY CLUE FOUND: <b>${clue.name}</b>`,"good");
+  log(`${clue.story}`,"good");
+  updateStoryObjective();
+  if(G.clues===10){
+    log(`📖 ALL 10 STORY CLUES FOUND! The truth of Blackwood has been uncovered. New story objectives await.`,"good");
+  }
+  return true;
 }
 
 function encounter(){
