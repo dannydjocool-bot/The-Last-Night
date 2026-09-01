@@ -39,7 +39,8 @@ highlight_replacement="""function highlightObjective(){
   });
   if(best)best.classList.add('v06-objective-target');
 }"""
-s,n=re.subn(highlight_pattern,highlight_replacement,s,count=1,flags=re.S)
+# Use a callable replacement so re.sub does not reinterpret backslash-n as a real newline.
+s,n=re.subn(highlight_pattern,lambda _m: highlight_replacement,s,count=1,flags=re.S)
 if n!=1: raise SystemExit('highlightObjective function not found')
 
 # Wrap investigate so a completed investigation clears the stale target immediately.
@@ -59,6 +60,7 @@ if 'theLastNightJournalReadCount' in s: raise SystemExit('shared Journal read-st
 if "document.body.classList.contains('menu-mode'))return;G.v06JournalReadCount" not in s: raise SystemExit('Journal menu guard missing')
 if 'last=Number(G.v06JournalReadCount||0)' not in s: raise SystemExit('save-local Journal unread state missing')
 if 'G.v06ClearedObjectiveTarget' not in s: raise SystemExit('objective glow clear state missing')
+if "txt.split('\\n')[0]" not in s: raise SystemExit('objective title fallback newline escape missing')
 if 'setTimeout(finish,120)' not in s: raise SystemExit('investigation refresh missing')
 
 p.write_text(s,encoding='utf-8')
